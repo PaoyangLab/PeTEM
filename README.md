@@ -113,43 +113,58 @@ Chr3    G    560    CHH    CA    0.102564    4     39
 ## Pipeline Steps
 Upon running run_pipeline.sh, you will be asked which steps to execute (y/n). You will also provide all required files and parameters upfront. Steps are modular:
 
+### Parameter: Optionally include unexpressed TEs
+* Default: `n` (do not include unexpressed TEs)
+* This parameter determines whether to include TEs with zero expression across all samples in the analysis.
+* Setting this to `y` includes all TEs regardless of expression level, which may increase the number of analyzed TEs but also add background noise.
+* Recommended to keep `n` unless specifically investigating silent or lowly expressed TEs.
+
 ### Step 0. Preprocessing
 * Generate promoter regions (promoter.bed)
 * Integrate methylation and expression data
 * __Inputs:__
-    * gene.bed, TE.bed, genome.fa.fai, DEG.txt, DETE.txt, *.CGmap.gz
-    * Promoter upstream/downstream length (default: 1500 / 500)
+    * `gene.bed`, `TE.bed`, `genome.fa.fai`, `DEG.txt`, `DETE.txt`, `*.CGmap.gz`
+* __Parameters:__ 
+    * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS. 
 
 ### Step 1. TE Distribution
 * Analyze TE distribution across genomic features
 * __Inputs:__
-    * gene.bed, CDS.bed, UTR5.bed, exon.bed, UTR3.bed, TE.bed, genome.fa.fai
-    * promoter.bed: generated automatically in Step 0
+    * `gene.bed`, `CDS.bed`, `UTR5.bed`, `exon.bed`, `UTR3.bed`, `TE.bed`, `genome.fa.fai`
+    * `promoter.bed`: generated automatically in Step 0
 
 ### Step 2. Promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
 * __Inputs:__
-    * TE.bed, promoter.bed (from Step 0), TE_family.txt
+    * `TE.bed`, `promoter.bed` (from Step 0), `TE_family.txt`
 
 ### Step 3. TE Impact Distance
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
 * 3-2 Plotting: Visualize distance impact of TE methylation on gene expression
 * __Inputs:__
-    * gene.bed, TE.bed, DEG.txt and DETE.txt (will be converted to gene_expression.txt and TE_expression.txt)
-    * Parameters: limit range, tick size, window size
-    * Optionally include unexpressed TEs (y/n, default n)
+    * `gene.bed`, `TE.bed`, `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
+* __Parameters:__ 
+    * __Limit range:__ The total up- and downstream distance (in bp) to consider for TE–gene impact analysis. (Default `15000` means ±15 kb around genes will be analyzed)
+    * __Window size:__ Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `200` )
+    * __Tick size:__ The spacing (bp) between x-axis ticks in the resulting plot. Recommended: approximately 1/3 to 1/4 of the limit range. (Default: `5000` )
 
 ### Step 4. Correlation (Single Condition)
 * Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
-    * DEG.txt and DETE.txt (will be converted to gene_expression.txt and TE_expression.txt)
-    * Parameters: window number, y-axis limits (gene exp vs TE mC:CG, CHG, CHH; TE exp vs TE mC: CG, CH)
+    * `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
+* __Parameters:__ 
+    * __Window number:__ Number of sliding windows used to smooth the correlation curves. (Default: `156`).
+    * __Y-axis limits:__ Controls the maximum value shown in the y-axis of each correlation plot:
+        * ylim_CG: gene expression vs TE/promoter CG methylation (Default: `50`)
+        * ylim_CHG: gene expression vs TE/promoter CHG methylation (Default: `10`)
+        * ylim_CHH: gene expression vs TE/promoter CHH methylation (Default: `10`)
+        * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `15`)
+        * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `30`)
 
 ### Step 5. Correlation (Across Conditions)
 * Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions
 * __Inputs:__
-    * DEG.txt, DETE.txt
-    * Optionally include unexpressed TEs (y/n, default n)
+    * `DEG.txt`, `DETE.txt`
 
 ## Usage
 Run the interactive pipeline:
