@@ -119,7 +119,7 @@ Upon running run_pipeline.sh, you will be asked which steps to execute (y/n). Yo
 
 ### Parameter: Optionally include unexpressed TEs
 * Default: `n` (do not include unexpressed TEs)
-* This parameter determines whether to include TEs with zero expression across all samples in the analysis.
+* This parameter determines whether to include TEs with zero expression across all samples in the analysis (all plots of Step 3; correlation between gene expression and TE methylation in Step 4 and Step 5).
 * Setting this to `y` includes all TEs regardless of expression level, which may increase the number of analyzed TEs but also add background noise.
 * Recommended to keep `n` unless specifically investigating silent or lowly expressed TEs.
 
