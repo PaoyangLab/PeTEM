@@ -85,6 +85,10 @@ AT1TE36140      LTR/Copia
 AT1TE21850      RC/Helitron
 AT1TE95105      RC/Helitron
 ```
+* Some genome annotations are commonly used and can be downloaded via the [provided links](https://paoyang.ipmb.sinica.edu.tw/Termitomyces/reference_genome/). The available species are:
+    * Animals: Human, mouse, zebrafish, fly
+    * Plants: Arabidopsis, rice, maize, soybean
+    * Fungi: Truffle, Botrytis cinerea, Magnaporthe oryzae; Basidiomycetes: Pleurotus ostreatus, Puccinia graminis f. sp. Tritici
 
 ### Expression Data
 * DEG.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
