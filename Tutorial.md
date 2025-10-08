@@ -111,6 +111,7 @@ After successful completion, outputs will include:
 * Step 1:
     * `OUTPUT_1_TE_distribution_enrichment.png`
     * `OUTPUT_1_TE_distribution_percentage.png`
+    
       <img width="602" height="261" alt="image" src="https://github.com/user-attachments/assets/261594e5-2f99-4ce6-a73a-f6b0dd55c24d" />
 
 * Step 2:
