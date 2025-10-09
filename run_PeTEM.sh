@@ -45,33 +45,24 @@ fi
 
 # Convert DEG + DETE files to expression.txt (run0, run3-2, run4)
 if [[ "$run0" == "y" || "$run3_2" == "y" || "$run4" == "y" ]]; then
-  Rscript -e '
-    extract_expression_only <- function(infile, outfile) {
-      df <- read.table(infile, header=TRUE, row.names=1, sep="\t", check.names=FALSE)
-      keep <- !grepl("^(logFC_|PValue_|FDR_)", colnames(df))
-      df_expr <- df[, keep, drop=FALSE]
-      write.table(df_expr, file=outfile, sep="\t", quote=FALSE, col.names=NA)
-    }
-    extract_expression_only("'"$deg_file"'", "gene_expression.txt")
-    extract_expression_only("'"$dete_file"'", "TE_expression.txt")
-  '
+  Rscript - "$deg_file" "$dete_file" <<'EOF'
+args <- commandArgs(TRUE)
+
+extract_expression_only <- function(infile, outfile) {
+  df <- read.table(infile, header=TRUE, row.names=1, sep="\t", check.names=FALSE)
+  keep <- !grepl("^(logFC_|PValue_|FDR_)", colnames(df))
+  df_expr <- df[, keep, drop=FALSE]
+  write.table(df_expr, file=outfile, sep="\t", quote=FALSE, col.names=NA)
+}
+
+extract_expression_only(args[1], "gene_expression.txt")
+extract_expression_only(args[2], "TE_expression.txt")
+EOF
+
   gene_exp="gene_expression.txt"
   te_exp="TE_expression.txt"
 fi
 
-# Include unexpressed TEs in the analyses (run3-2, run4, run5) 
-if [[ "$run3_2" == "y" || "$run4" == "y" || "$run5" == "y" ]]; then
-  read -p "Include unexpressed TEs? (y/n, default n): " unexp
-  unexp=${unexp:-n}
-fi
-
-# Promoter upstream/downstream length
-if [[ "$run0" == "y" ]]; then
-  read -p "Promoter upstream length from TSS (default 1500): " up
-  read -p "Promoter downstream length from TSS (default 500): " dn
-  up=${up:-1500}
-  dn=${dn:-500}
-fi
 
 # Methylation (step 0)
 if [[ "$run0" == "y" ]]; then
@@ -100,19 +91,44 @@ if [[ "$run2" == "y" ]]; then
 fi
 
 
+####################
+# parameters 
+####################
+# Include unexpressed TEs in the analyses (run3-2, run4, run5) 
+if [[ "$run3_2" == "y" || "$run4" == "y" || "$run5" == "y" ]]; then
+  read -p "Include unexpressed TEs? (y/n, default n): " unexp
+  unexp=${unexp:-n}
+fi
+
+# Promoter upstream/downstream length
+if [[ "$run0" == "y" ]]; then
+  echo "Run 0. Preprocessing: set up the promoter region"
+  read -p "Promoter upstream length from TSS (default 1500): " up
+  read -p "Promoter downstream length from TSS (default 500): " dn
+  up=${up:-1500}
+  dn=${dn:-500}
+fi
+
 # Step 3-2 specific parameters
 if [[ "$run3_2" == "y" ]]; then
+  echo "Run 3. TE impact distance: set up the paprameters"
+  echo "(1) Intersted adjacent region of genes"
   read -p "Limit up-/down-stream range (bp)(e.g. 15000): " limit
-  read -p "Tick size (bp)(e.g. 5000): " tick
+  echo "(2) Sliding window size for smoothing the plot"  
   read -p "Window size (bp)(e.g. 200): " window
+  echo "(3) The tick size for the x-axis of the plot"  
+  read -p "Tick size (bp)(e.g. 5000): " tick
   limit=${limit:-15000}
-  tick=${tick:-5000}
   window=${window:-200}
+  tick=${tick:-5000}
 fi
 
 # Step 4 specific parameters
 if [[ "$run4" == "y" ]]; then
+  echo "Run 4. Correlation single condition: set up the paprameters"
+  echo "(1) Number of sliding windows for smoothing the plot"
   read -p "Window number (default 156): " wd_num
+  echo "(2) Y-axis for the correlation plots"
   read -p "y-axis limit for gene expression vs TE/promoter mC plot (CG, default 50): " ylim_cg
   read -p "y-axis limit for gene expression vs TE/promoter mC plot (CHG, default 10): " ylim_chg
   read -p "y-axis limit for gene expression vs TE/promoter mC plot (CHH, default 10): " ylim_chh
