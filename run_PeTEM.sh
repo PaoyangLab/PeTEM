@@ -158,7 +158,7 @@ if [[ "$run0" == "y" || "$run3_1" == "y" ]]; then
         wait $pid3_1
     else
         [[ "$run0" == "y" ]] && bash 0_preprocessing.sh -g "$gene_bed" -t "$te_bed" -eg "$gene_exp" -et "$te_exp" -fai "$faidx" -up "$up" -dn "$dn" -m "${meth_files[@]}"
-        [[ "$run3_1" == "y" ]] && bash ../3_1_TE_impact_distance_preprocess.sh
+        [[ "$run3_1" == "y" ]] && bash 3_1_TE_impact_distance_preprocess.sh
     fi
 fi
 
