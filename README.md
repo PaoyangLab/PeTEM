@@ -6,7 +6,7 @@ PeTEM is designed to analyse the impact of TE methylation on neighbouring genes.
 <img width="962" height="751" alt="image" src="https://github.com/user-attachments/assets/445236f0-74e0-43f2-b58d-4004144b601a" />
 
 ### Tutorial
-Please follow the [tutorial](https://github.com/yc811/PeTEM/blob/main/Tutorial.md) of example use case.
+Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) of example use case.
 
 ## Installation
 
