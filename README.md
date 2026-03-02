@@ -54,17 +54,17 @@ PeTEM integrates inputs data including genome annotations, genome-wide DNA methy
 
 ### Genome Annotation
 * genome.fa.fai – Gene annotation file (FASTA index)
-> The fai index file is generated from genome.fasta filefile (Usage: samtools faidx ref.fasta), including 5 columns: name, length, offset, linebases, linewidth
-```
-Chr1    30427671    74              79      80
-Chr2    19698289    30812981        79      80
-Chr3    23459830    50760691        79      80
-Chr4    18585056    74517556        79      80
-Chr5    26975502    93337941        79      80
-ChrC    154478      120654981       79      80
-ChrM    367808      120811562       70      71
-```
-> Some genome annotations are commonly used and can be downloaded via the provided links:
+   > The fai index file is generated from genome.fasta filefile (Usage: samtools faidx ref.fasta), including 5 columns: name, length, offset, linebases, linewidth
+   ```
+   Chr1    30427671    74              79      80
+   Chr2    19698289    30812981        79      80
+   Chr3    23459830    50760691        79      80
+   Chr4    18585056    74517556        79      80
+   Chr5    26975502    93337941        79      80
+   ChrC    154478      120654981       79      80
+   ChrM    367808      120811562       70      71
+   ```
+   > Some genome annotations are commonly used and can be downloaded via the provided links:
 
    * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
@@ -80,36 +80,36 @@ ChrM    367808      120811562       70      71
        * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
 
 * TE.txt – Transposable element coordinates (BED format)
-> BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
-```
-AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
-AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
-AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
-AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
-```
+   > BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
+   ```
+   AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
+   AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
+   AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
+   AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
+   ```
 
 ### Expression Data
-* DEG.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
-* DETE.txt – Differentially expressed TEs (Step 0, 3-2, 4, 5)
-> In the DEG/DETE files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
-> The column names should be: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
-```
-             WT      drdd    logFC_drdd_WT   PValue_drdd_WT  FDR_drdd_WT
-AT1G01010    1.58    2.39    0.61            0.21            1
-AT1G01020    5.60    5.43    -0.04           0.87            1
-AT1G01030    1.49    3.39    1.17            0.01            0.12
-```  
-These files will automatically be converted into expression matrices (gene_expression.txt, TE_expression.txt) for steps 0, 3-2, and 4.
+* gene_expression.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
+* TE_expression.txt – Differentially expressed TEs (Step 0, 3-2, 4, 5)
+   > In the DEG/DETE files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+   > The column names should be: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
+   ```
+                WT      drdd    logFC_drdd_WT   PValue_drdd_WT  FDR_drdd_WT
+   AT1G01010    1.58    2.39    0.61            0.21            1
+   AT1G01020    5.60    5.43    -0.04           0.87            1
+   AT1G01030    1.49    3.39    1.17            0.01            0.12
+   ```  
+   These files will automatically be converted into expression matrices (gene_expression.txt, TE_expression.txt) for steps 0, 3-2, and 4.
 
 ### Methylation Data
 * *.CGmap.gz files – Per-sample methylation CGmap files
-> CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
-```
-Chr3    C    556    CG     CG    0.877551    43    49
-Chr3    G    557    CG     CG    0.787879    26    33
-Chr3    G    558    CHG    CC    0.405405    15    37
-Chr3    G    560    CHH    CA    0.102564    4     39
-```  
+   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
+   ```
+   Chr3    C    556    CG     CG    0.877551    43    49
+   Chr3    G    557    CG     CG    0.787879    26    33
+   Chr3    G    558    CHG    CC    0.405405    15    37
+   Chr3    G    560    CHH    CA    0.102564    4     39
+   ```  
 
 
 ## Pipeline Modules
