@@ -27,8 +27,8 @@ We provide example input files under [`PeTEM_data/`](PeTEM_data) to test the pip
 | ------------------------------------------------------------------------------ | ------------------------------- |
 | `genome.fa.fai`                                                                | Genome index file               |
 | `TE.txt`                                                                       | TE annotation                   |
-| `gene_expression.txt`                                                          | Gene expression data            |
-| `TE_expression.txt`                                                            | TE expression data              |
+| `gene_expression.txt`                                                          | Gene expression file            |
+| `TE_expression.txt`                                                            | TE expression file              |
 | `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap files         |
 
 
