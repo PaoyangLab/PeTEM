@@ -53,18 +53,14 @@ Set up the environment
 PeTEM integrates inputs data including genome annotations, genome-wide DNA methylation, and expression data. In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
-* gene.bed – Gene coordinates (BED)
-* TE.bed – Transposable element coordinates (BED)
-* CDS.bed – Coding sequence coordinates (Step 1 only)
-* UTR5.bed – 5′ UTR coordinates (Step 1 only)
-* exon.bed – Exon coordinates (Step 1 only)
-* UTR3.bed – 3′ UTR coordinates (Step 1 only)
-> BED file format includes 6 columns: chromosome, start, end, name, score, strand
+* genomic.gff – Gene annotation file (GFF format)
+* TE.txt – Transposable element coordinates (BED format)
+> BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
 ```
-Chr1    3631    5899    AT1G01010       0       +
-Chr1    6788    9130    AT1G01020       0       -
-Chr1    11649   13714   AT1G01030       0       -
-Chr1    23121   31227   AT1G01040       0       +
+AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
+AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
+AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
+AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
 ```
 
 * genome.fa.fai – FASTA index
