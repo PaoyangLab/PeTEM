@@ -53,17 +53,7 @@ Set up the environment
 PeTEM integrates inputs data including genome annotations, genome-wide DNA methylation, and expression data. In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
-* genomic.gff – Gene annotation file (GFF format)
-* TE.txt – Transposable element coordinates (BED format)
-> BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
-```
-AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
-AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
-AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
-AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
-```
-
-* genome.fa.fai – FASTA index
+* genome.fa.fai – Gene annotation file (FASTA index)
 > The fai index file is generated from genome.fasta filefile (Usage: samtools faidx ref.fasta), including 5 columns: name, length, offset, linebases, linewidth
 ```
 Chr1    30427671    74              79      80
@@ -75,19 +65,20 @@ ChrC    154478      120654981       79      80
 ChrM    367808      120811562       70      71
 ```
 
-* TE_family.txt – TE family annotation (Step 2 only)
-> TE family annotation includes 2 columns: names of each TE and their family
+* TE.txt – Transposable element coordinates (BED format)
+> BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
 ```
-AT1TE52125      LTR/Gypsy
-AT1TE42735      LTR/Copia
-AT1TE36140      LTR/Copia
-AT1TE21850      RC/Helitron
-AT1TE95105      RC/Helitron
+AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
+AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
+AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
+AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
 ```
-* Some genome annotations are commonly used and can be downloaded via the [provided links](https://paoyang.ipmb.sinica.edu.tw/Termitomyces/reference_genome/). The available species are:
-    * Animals: Human, mouse, zebrafish, fly
-    * Plants: Arabidopsis, rice, maize, soybean
-    * Fungi: Truffle, Botrytis cinerea, Magnaporthe oryzae; Basidiomycetes: Pleurotus ostreatus, Puccinia graminis f. sp. Tritici
+
+* Some genome annotations are commonly used and can be downloaded via the provided links:
+    * Animals: [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/), [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/), [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/), [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
+    * Plants: [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release), [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml), [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download
+), [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
+    * [Fungi](https://urgi.versailles.inra.fr/download/fungi/TEs/)
 
 ### Expression Data
 * DEG.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
