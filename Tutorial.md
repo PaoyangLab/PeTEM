@@ -113,7 +113,7 @@ After successful completion, outputs will include:
 * Module 3:
     * `OUTPUT_3_gene_TE_number.txt`: In every figure, it shows the upstream and downstream border (bp) of TE methylation impact, and the number of highly/lowly expressed genes
     * `OUTPUT_3_gene_proximal_TE_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
-      Following are the examples using different methods to show the TE methylation pattern within 4 kb around top/bottom 10 % expressed genes:
+      > Following are the examples using different methods to show the TE methylation pattern within 4 kb around top/bottom 10 % expressed genes:
       - (A) Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
       - (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.   
       - (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
@@ -124,12 +124,12 @@ After successful completion, outputs will include:
 * Module 4:
     * `OUTPUT_4_geneexp/TEexp_*.png`: Line plots showing correlations between (1) TE methylation vs TE expression, (2) TE methylation, methylation of promoters with TEs/with no TEs vs gene expression, (3) TE expression vs gene expression under each stage. The TE-gene pairs number and the smoothing window size also showed in each figure.
     * `OUTPUT_4_correlation_*.png`: Bar plots showing pearson's or spearman's correlation coefficient between (1) TE CG/CHG/CHH methylation vs TE expression, (2) TE CG/CHG/CHH methylation vs gene expression, (3) TE expression vs gene expression under each stage
-  <img width="1022" height="934" alt="image" src="https://github.com/user-attachments/assets/44ce1c5e-7d89-48b0-bc22-cfef639a2fef" />
+      <img width="1022" height="934" alt="image" src="https://github.com/user-attachments/assets/44ce1c5e-7d89-48b0-bc22-cfef639a2fef" />
 
 
 * Module 5:
     * `OUTPUT_5_*_scatter.png`: Scatter plots showing correlations between changes of (1) TE CG/CHG/CHH methylation vs TE expression, (2) TE CG/CHG/CHH methylation vs gene expression, (3) TE expression vs gene expression comparing each two stages. The TE-gene pairs number and the regression line also showed in each figure.
     * `OUTPUT_5_Q2/4_boxplot_*.png`: Box plots showing the expression and methylation level changes of those negatively correlated gene-TE pairs under each two stages.
     * `OUTPUT_5_Q2/4_*.txt`: The name lists of those negatively correlated gene-TE pairs are also in the output.
-  <img width="1138" height="722" alt="image" src="https://github.com/user-attachments/assets/68b8bce7-a32d-415e-b066-81f75e03aa21" />
+      <img width="1138" height="722" alt="image" src="https://github.com/user-attachments/assets/68b8bce7-a32d-415e-b066-81f75e03aa21" />
 
