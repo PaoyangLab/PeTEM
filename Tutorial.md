@@ -115,13 +115,13 @@ After successful completion, outputs will include:
     * `OUTPUT_3_gene_proximal_TE_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
        * Following are the examples using different methods to show the TE methylation pattern within 4 kb around top/bottom 10 % expressed genes:
 
-         (A) Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
+         - (A) Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
          
-         (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.
+         - (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.
          
-         (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
+         - (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
+           <img width="1930" height="2243" alt="figure" src="https://github.com/user-attachments/assets/ee2d3a51-049e-474b-bdf3-7948a4ed5ccd" />
 
-     <img width="865" height="1000" alt="image" src="https://github.com/user-attachments/assets/d14ff2de-5403-45c5-be4a-34ea236c0277" />
 
 
 * Module 4:
