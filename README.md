@@ -1,9 +1,10 @@
 # Promoter-embedded TE Methylation (PeTEM) analyzer
-PeTEM is designed to analyse the impact of TE methylation on neighbouring genes. It integrates genome annotations with methylome and transcriptome data, enabling users to study TE distribution and measure the correlation of promoter-embedded TE methylation with gene expression in different conditions.   
+PeTEM is designed to analyse the impact of TE methylation on neighbouring genes. It integrates genome annotations with methylome and transcriptome data, enabling users to study TE distribution, and measure the correlation of promoter-embedded TE methylation with gene expression both within a single sample and across different conditions (such as stages, treatments, or phenotypes) of a species. 
 
 
 ## Pipeline
-<img width="962" height="751" alt="image" src="https://github.com/user-attachments/assets/445236f0-74e0-43f2-b58d-4004144b601a" />
+<img width="865" height="589" alt="image" src="https://github.com/user-attachments/assets/d1e0dde3-4245-4cf6-99c3-4b303be89588" />
+
 
 ### Tutorial
 Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) of example use case.
@@ -18,6 +19,8 @@ cd PeTEM
 ```
 
 ## System requirements
+Set up the environment
+
 ### R environment:
 *	R version ≥ 4.2 (tested on 4.3.2)
 *	Required R packages:
@@ -47,9 +50,9 @@ cd PeTEM
 *	bigWigAverageOverBed
 
 ## Input Files
-Depending on which steps you choose to run, you need some or all of the following files:
+PeTEM integrates inputs data including genome annotations, genome-wide DNA methylation, and expression data. In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
-### Genome / Annotation
+### Genome Annotation
 * gene.bed – Gene coordinates (BED)
 * TE.bed – Transposable element coordinates (BED)
 * CDS.bed – Coding sequence coordinates (Step 1 only)
@@ -65,7 +68,7 @@ Chr1    23121   31227   AT1G01040       0       +
 ```
 
 * genome.fa.fai – FASTA index
-> The fai index file is generated from genome.fasta file, including 5 columns: name, length, offset, linebases, linewidth
+> The fai index file is generated from genome.fasta filefile (Usage: samtools faidx ref.fasta), including 5 columns: name, length, offset, linebases, linewidth
 ```
 Chr1    30427671    74              79      80
 Chr2    19698289    30812981        79      80
@@ -114,16 +117,10 @@ Chr3    G    560    CHH    CA    0.102564    4     39
 ```  
 
 
-## Pipeline Steps
-Upon running run_pipeline.sh, you will be asked which steps to execute (y/n). You will also provide all required files and parameters upfront. Steps are modular:
+## Pipeline Modules
+Upon running run_pipeline.sh, users will be asked which modules to execute (y/n), and need to provide all required files and parameters upfront. Users must run module 0 at the first time to preprocess the input files, before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
 
-### Parameter: Optionally include unexpressed TEs
-* Default: `n` (do not include unexpressed TEs)
-* This parameter determines whether to include TEs with zero expression across all samples in the analysis (all plots of Step 3; correlation between gene expression and TE methylation in Step 4 and Step 5).
-* Setting this to `y` includes all TEs regardless of expression level, which may increase the number of analyzed TEs but also add background noise.
-* Recommended to keep `n` unless specifically investigating silent or lowly expressed TEs.
-
-### Step 0. Preprocessing
+### Module 0. Preprocessing
 * Generate promoter regions (promoter.bed)
 * Integrate methylation and expression data
 * __Inputs:__
@@ -131,44 +128,51 @@ Upon running run_pipeline.sh, you will be asked which steps to execute (y/n). Yo
 * __Parameters:__ 
     * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS. 
 
-### Step 1. TE Distribution
+### Module 1. TE Distribution
 * Analyze TE distribution across genomic features
 * __Inputs:__
     * `gene.bed`, `CDS.bed`, `UTR5.bed`, `exon.bed`, `UTR3.bed`, `TE.bed`, `genome.fa.fai`
     * `promoter.bed`: generated automatically in Step 0
 
-### Step 2. Promoter-embedded TE Families
+### Module 2. Promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.bed`, `promoter.bed` (from Step 0), `TE_family.txt`
 
-### Step 3. TE Impact Distance
+### Module 3. Gene-proximal TE methylation
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
-* 3-2 Plotting: Visualize distance impact of TE methylation on gene expression
+* 3-2 Plotting: Visualize distance impact of TE methylation on gene expression[
 * __Inputs:__
-    * `gene.bed`, `TE.bed`, `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
+    * `gene.bed`, `TE.bed`, `gene_expression.txt` and `TE_expression.txt`
 * __Parameters:__ 
-    * __Limit range:__ The total up- and downstream distance (in bp) to consider for TE–gene impact analysis. (Default `15000` means ±15 kb around genes will be analyzed)
-    * __Window size:__ Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `200` )
-    * __Tick size:__ The spacing (bp) between x-axis ticks in the resulting plot. Recommended: approximately 1/3 to 1/4 of the limit range. (Default: `5000` )
+    * __Limit range:__ The total up- and downstream distance (in bp) to consider gene-proximal TEs. (Default `4000` means ±4 kb around genes will be analyzed)
+    * __Tick size:__ The spacing (bp) between x-axis ticks in the resulting plot. Recommended: approximately 1/3 to 1/4 of the limit range. (Default: `1000` )
+    *	__Percent of genes__: The top/bottom X %of genes will be considered as the highly/lowly expressed genes. (Default: `10`, means top/bottom 10% of genes will be the highly/lowly expressed genes)
+    *	__Point__: To show the points representing the methylation level of each TE site on the plot or not. (Default: `yes`)
+    *	__95% CI__: To show the 95% CI on the plot or not. (Default: `no`)
+    *	__Pattern of TE methylation__: There are several options to show the pattern of gene-proximal TE methylation, including (1) average TE methylation within each window, (2) linear regression line, (3) second-degree polynomial regression line, and (4) local regression line (`average`, `linear`, `poly2`, and `loess`) For choosing average TE methylation, the users need to setup the window, while for choosing local regression, the users need to setup the span. (Default: `average`)
+    *	__Window size__: For choosing `average`. Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `100`)
+    *	__Window step__: For choosing `average`. The length of each step of window (bp). If the step = window size means that it just calculates the average TE methylation of each non–overlapped bin. If the step < window size means that it is a sliding window. (Default: `100`)
+    *	__Span__: For choosing `loess`. This parameter which represents the proportion of total data points used to compute each smoothed value, controls the degree of smoothing. (Default: `0.02`)
 
-### Step 4. Correlation (Single Condition)
+
+### Module 4. Correlation (Single Condition)
 * Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
 * __Parameters:__ 
-    * __Window number:__ Number of sliding windows used to smooth the correlation curves. (Default: `156`).
+    * __Window number:__ Number of sliding windows used to smooth the correlation curves. (Default: `100`).
     * __Y-axis limits:__ Controls the maximum value shown in the y-axis of each correlation plot:
-        * ylim_CG: gene expression vs TE/promoter CG methylation (Default: `50`)
-        * ylim_CHG: gene expression vs TE/promoter CHG methylation (Default: `10`)
-        * ylim_CHH: gene expression vs TE/promoter CHH methylation (Default: `10`)
-        * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `15`)
-        * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `30`)
+        * ylim_CG: gene expression vs TE/promoter CG methylation (Default: `80`)
+        * ylim_CHG: gene expression vs TE/promoter CHG methylation (Default: `40`)
+        * ylim_CHH: gene expression vs TE/promoter CHH methylation (Default: `40`)
+        * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `40`)
+        * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `80`)
 
-### Step 5. Correlation (Across Conditions)
-* Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions
+### Module 5. Correlation (Across Conditions)
+* Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
-    * `DEG.txt`, `DETE.txt`
+    * `gene_expression.txt`, `TE_expression.txt`
 
 ## Usage
 Run the interactive pipeline:
@@ -188,24 +192,24 @@ Select steps to run (y/n):
 ```
 > According to the selected steps, users need to give the input names or parameters.
 ```
-Gene BED file: gene.bed
+Genomic features annotaion file: genomic.gff
 TE BED file: TE.bed
 Genome fasta index: genome.fa.fai
-DEG file: DEG.txt
-DETE file: DETE.txt
+Gene expression file: gene_expression.txt
+TE expression file: TE_expression.txt
 Methylation CGmap.gz files (space separated): WT_01.CGmap.gz WT_02.CGmap.gz...
+
 Include unexpressed TEs? (y/n, default n): n
 Promoter upstream length from TSS (default 1500): 1500
 Promoter downstream length from TSS (default 500): 500
-TE family file: TE_family.txt
-Limit up-/down-stream range (bp)(e.g. 15000): 15000
-Tick size (bp)(e.g. 5000): 5000
-Window size (bp)(e.g. 200): 200
-Window number (default 156):  156
-y-axis limit for gene expression vs TE/promoter mC plot (CG, default 50):  50
-y-axis limit for gene expression vs TE/promoter mC plot (CHG, default 10):  10
-y-axis limit for gene expression vs TE/promoter mC plot (CHH, default 10):  10
-y-axis limit for TE expression vs TE mC plot (CH, default 15):  15
-y-axis limit for TE expression vs TE mC plot (CG, default 30):  30
+Limit up-/down-stream range (bp)(default 4000): 4000
+Tick size (bp)(default 1000): 1000
+Window size (bp)(default 200): 200
+Window number (default 100): 100
+y-axis limit for gene expression vs TE/promoter mC plot (CG, default 80): 80
+y-axis limit for gene expression vs TE/promoter mC plot (CHG, default 40): 40
+y-axis limit for gene expression vs TE/promoter mC plot (CHH, default 40): 40
+y-axis limit for TE expression vs TE mC plot (CH, default 40): 40
+y-axis limit for TE expression vs TE mC plot (CG, default 80): 80
 ```
 
