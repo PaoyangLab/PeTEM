@@ -108,15 +108,15 @@ After successful completion, outputs will include:
 * Module 2:
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`
     * `OUTPUT_2_Promoter_embedded_TE_family.txt`
-<img width="1557" height="420" alt="image" src="https://github.com/user-attachments/assets/0b1f2ee7-6b26-41c8-86fe-ab359850d527" />
+      <img width="1557" height="420" alt="image" src="https://github.com/user-attachments/assets/0b1f2ee7-6b26-41c8-86fe-ab359850d527" />
 
 * Module 3:
     * `OUTPUT_3_gene_TE_number.txt`: In every figure, it shows the upstream and downstream border (bp) of TE methylation impact, and the number of highly/lowly expressed genes
     * `OUTPUT_3_gene_proximal_TE_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
        * Following are the examples using different methods to show the TE methylation pattern within 4 kb around top/bottom 10 % expressed genes:
-         (A)	Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
-         (B)	Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.
-         (C)	Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
+         (A) Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
+         (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.
+         (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
 
      <img width="865" height="1000" alt="image" src="https://github.com/user-attachments/assets/d14ff2de-5403-45c5-be4a-34ea236c0277" />
 
