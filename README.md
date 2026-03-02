@@ -76,7 +76,7 @@ ChrM    367808      120811562       70      71
        * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
        * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
        * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
-    * Fungi
+   * Fungi
        * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
 
 * TE.txt – Transposable element coordinates (BED format)
