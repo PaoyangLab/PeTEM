@@ -121,6 +121,8 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * Integrate methylation and expression data
 * __Inputs:__
     * `gene.bed`, `TE.bed`, `genome.fa.fai`, `DEG.txt`, `DETE.txt`, `*.CGmap.gz`
+* __Outputs:__
+    * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
 * __Parameters:__ 
     * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS. 
 
@@ -129,17 +131,21 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * __Inputs:__
     * `gene.bed`, `CDS.bed`, `UTR5.bed`, `exon.bed`, `UTR3.bed`, `TE.bed`, `genome.fa.fai`
     * `promoter.bed`: generated automatically in Step 0
-
+* __Outputs:__
+    * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
 ### Module 2. Promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.bed`, `promoter.bed` (from Step 0), `TE_family.txt`
-
+* __Outputs:__
+    * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
 ### Module 3. Gene-proximal TE methylation
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
 * 3-2 Plotting: Visualize distance impact of TE methylation on gene expression[
 * __Inputs:__
     * `gene.bed`, `TE.bed`, `gene_expression.txt` and `TE_expression.txt`
+* __Outputs:__
+    * `OUTPUT_3_gene_TE_number.txt`, `OUTPUT_3_gene_proximal_TE_*.png`
 * __Parameters:__ 
     * __Limit range:__ The total up- and downstream distance (in bp) to consider gene-proximal TEs. (Default `4000` means ±4 kb around genes will be analyzed)
     * __Tick size:__ The spacing (bp) between x-axis ticks in the resulting plot. Recommended: approximately 1/3 to 1/4 of the limit range. (Default: `1000` )
@@ -156,6 +162,8 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
+* __Outputs:__
+    * `OUTPUT_4_geneexp/TEexp_*.png`, `OUTPUT_4_*_correlation_*.png`
 * __Parameters:__ 
     * __Window number:__ Number of sliding windows used to smooth the correlation curves. (Default: `100`).
     * __Y-axis limits:__ Controls the maximum value shown in the y-axis of each correlation plot:
@@ -169,6 +177,10 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
+* __Outputs:__
+    * `OUTPUT_5_*_scatter.png & .txt`, `OUTPUT_5_Q2/4_boxplot_*.png`, `OUTPUT_5_Q2/4_*.txt`
+### Additional parameter for optionally include unexpressed TEs
+* This parameter determines whether to include TEs with zero expression across all samples in the analysis (all plots of Step 3; correlation between gene expression and TE methylation in Step 4 and Step 5). The default is “no (n)”. Setting this to “yes (y)” includes all TEs regardless of expression level, which may increase the number of analyzed TEs but also add background noise. Recommended to keep “no (n)” unless specifically investigating silent or lowly expressed TEs.
 
 ## Usage
 Run the interactive pipeline:
