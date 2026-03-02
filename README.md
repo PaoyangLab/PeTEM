@@ -91,7 +91,8 @@ PeTEM integrates inputs data including genome annotations, genome-wide DNA methy
 ### Expression Data
 * gene_expression.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
 * TE_expression.txt – Differentially expressed TEs (Step 0, 3-2, 4, 5)
-   > In the DEG/DETE files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+   > In the expression files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+
    > The column names should be: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
    ```
                 WT      drdd    logFC_drdd_WT   PValue_drdd_WT  FDR_drdd_WT
