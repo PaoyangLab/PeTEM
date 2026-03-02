@@ -3,7 +3,7 @@ PeTEM is designed to analyse the impact of TE methylation on neighbouring genes.
 
 
 ## Pipeline
-<img width="865" height="589" alt="image" src="https://github.com/user-attachments/assets/d1e0dde3-4245-4cf6-99c3-4b303be89588" />
+<img width="899" height="592" alt="image" src="https://github.com/user-attachments/assets/40961fe4-d45c-4f21-822b-17428be90f72" />
 
 
 ### Tutorial
