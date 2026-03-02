@@ -65,12 +65,13 @@ ChrC    154478      120654981       79      80
 ChrM    367808      120811562       70      71
 ```
 > Some genome annotations are commonly used and can be downloaded via the provided links:
-    * Animals:
+
+   * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
        * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
        * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
        * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
-    * Plants:
+   * Plants:
        * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
        * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
        * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
