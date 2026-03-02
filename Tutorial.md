@@ -3,7 +3,7 @@ This tutorial explains how to run the PeTEM pipeline using the example files pro
 
 ## Installation
 ```
-# Commands to be updated
+# Commands to be updated. Add commands for installation and environment check.
 ```
 #### Download from github
 ```bash
