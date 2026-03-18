@@ -120,7 +120,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * Generate promoter regions (promoter.bed)
 * Integrate methylation and expression data
 * __Inputs:__
-    * `gene.bed`, `TE.bed`, `genome.fa.fai`, `DEG.txt`, `DETE.txt`, `*.CGmap.gz`
+    * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
 * __Outputs:__
     * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
 * __Parameters:__ 
@@ -129,21 +129,21 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 ### Module 1. TE Distribution
 * Analyze TE distribution across genomic features
 * __Inputs:__
-    * `gene.bed`, `CDS.bed`, `UTR5.bed`, `exon.bed`, `UTR3.bed`, `TE.bed`, `genome.fa.fai`
+    * `genomic.gff`, `TE.txt`, `genome.fa.fai`
     * `promoter.bed`: generated automatically in Step 0
 * __Outputs:__
     * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
 ### Module 2. Promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
 * __Inputs:__
-    * `TE.bed`, `promoter.bed` (from Step 0), `TE_family.txt`
+    * `TE.txt`, `promoter.bed` (from Step 0)
 * __Outputs:__
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
 ### Module 3. Gene-proximal TE methylation
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
 * 3-2 Plotting: Visualize distance impact of TE methylation on gene expression[
 * __Inputs:__
-    * `gene.bed`, `TE.bed`, `gene_expression.txt` and `TE_expression.txt`
+    * `gene.bed`(from Step 0), `TE.txt`, `gene_expression.txt` and `TE_expression.txt`
 * __Outputs:__
     * `OUTPUT_3_gene_TE_number.txt`, `OUTPUT_3_gene_proximal_TE_*.png`
 * __Parameters:__ 
@@ -161,7 +161,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 ### Module 4. Correlation (Single Condition)
 * Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
-    * `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
+    * `gene_expression.txt` and `TE_expression.txt`
 * __Outputs:__
     * `OUTPUT_4_geneexp/TEexp_*.png`, `OUTPUT_4_*_correlation_*.png`
 * __Parameters:__ 
