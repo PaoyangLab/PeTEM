@@ -4,7 +4,10 @@ use Data::Dumper;
 
 my $cutoff = 4;
 my $infile = $ARGV[0];
-my ($id) = $infile =~ /(.+).CGmap.gz/;
+my ($id) = $infile =~ /([^\/]+)\.CGmap\.gz$/;
+if (!defined $id) {
+    die "Unable to parse input filename $infile\n";
+}
 my $outCG = "$id.CG.wig";
 my $outCHG = "$id.CHG.wig";
 my $outCHH = "$id.CHH.wig";

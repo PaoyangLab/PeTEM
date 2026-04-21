@@ -5,15 +5,23 @@
 
 start_time <- Sys.time()
 
-library(zoo)
-library(gplots)
-library(ggplot2)
-library(optparse)
+script_args <- commandArgs(trailingOnly = FALSE)
+script_path <- sub("^--file=", "", script_args[grep("^--file=", script_args)][1])
+source(file.path(dirname(normalizePath(script_path)), "plot_defaults.R"))
+
+suppressPackageStartupMessages(library(zoo))
+suppressPackageStartupMessages(library(gplots))
+suppressPackageStartupMessages(library(ggplot2))
+suppressPackageStartupMessages(library(optparse))
+suppressPackageStartupMessages(library(dplyr))
+suppressPackageStartupMessages(library(tidyr))
 
 #---- Option parser ----
 option_list = list(
   make_option(c("--eg"), type="character", help="Gene expression file"),
   make_option(c("--et"), type="character", help="TE expression file"),
+  make_option(c("--module0-dir"), type="character", default=".", help="Directory containing Module 0 outputs such as Tab_* and TE_overlap_promoter.bed"),
+  make_option(c("--outdir"), type="character", default=".", help="Output directory"),
   make_option(c("--unexp"), type="character", default="n", help="Include unexpressed TEs for sliding plots? (y/n)"),
   make_option(c("--wd_num"), type="numeric", default=156, help="number of sliding window (default=156)"),
   make_option(c("--ylim_CG"), type="numeric", default=50, help="ylim for gene exp vs TE/promoter mC, CG (default=50)"),
@@ -27,8 +35,14 @@ opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
 
 include_unexp <- tolower(opt$unexp) == "y"
+dir.create(opt$outdir, recursive = TRUE, showWarnings = FALSE)
+
+module0_file <- function(name) file.path(opt$`module0-dir`, name)
+output_file <- function(name) file.path(opt$outdir, name)
 
 #---- Functions ----
+
+
 sort_exp <- function(df, stage_exp){
   df_stage = df[complete.cases(df),]
   stage = df_stage[order(df_stage[,stage_exp]),]
@@ -96,7 +110,7 @@ plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
   # plot
   xmin <- min(corr_df$Corr, na.rm=TRUE) - 0.1
   xmax <- max(corr_df$Corr, na.rm=TRUE) + 0.1
-  outfile <- paste0("OUTPUT_4_",method,"_correlation_bar_",stage,".png")
+  outfile <- output_file(paste0("OUTPUT_4_",method,"_correlation_bar_",stage,".png"))
   png(file=outfile,width=2000,height=1500,res=400)
   print(
     ggplot(corr_df, aes(x=Corr,y=Comparison,fill=Color)) +
@@ -106,11 +120,11 @@ plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
       scale_fill_identity() +
       xlim(xmin, xmax) +
       labs(x=paste0(method," correlation coefficient"), y=NULL) +
-      theme_minimal() +
+      petem_theme_bw() +
       theme(
         panel.border=element_rect(colour="black", fill=NA, linewidth=1),
-        axis.text=element_text(size=12),
-        axis.title.x=element_text(size=14, face="bold")
+        panel.grid.major.y = element_blank(),
+        panel.grid.minor = element_blank()
       )
   )
   dev.off()
@@ -128,33 +142,63 @@ TE_exp <- read.table(opt$et, header=TRUE, sep="\t", row.names=1)
 
 #---- Determine stages ----
 stages <- intersect(colnames(gene_exp), colnames(TE_exp))
+if (length(colnames(gene_exp)) != 2 || length(colnames(TE_exp)) != 2) {
+  stop("Module 4 requires exactly two expression stages/conditions in both gene and TE expression matrices.")
+}
+if (length(stages) != 2) {
+  stop("Module 4 requires exactly two shared stages/conditions between gene and TE expression matrices.")
+}
 
 #---- Read methylation ----
-CG_TE <- read.table("Tab_TE_CG.txt", header=TRUE, sep="\t")
-CHG_TE <- read.table("Tab_TE_CHG.txt", header=TRUE, sep="\t")
-CHH_TE <- read.table("Tab_TE_CHH.txt", header=TRUE, sep="\t")
+CG_TE <- read.table(module0_file("Tab_TE_CG.txt"), header=TRUE, sep="\t")
+CHG_TE <- read.table(module0_file("Tab_TE_CHG.txt"), header=TRUE, sep="\t")
+CHH_TE <- read.table(module0_file("Tab_TE_CHH.txt"), header=TRUE, sep="\t")
 
-CG_gene <- read.table("Tab_gene_CG.txt", header=TRUE, sep="\t")
-CHG_gene <- read.table("Tab_gene_CHG.txt", header=TRUE, sep="\t")
-CHH_gene <- read.table("Tab_gene_CHH.txt", header=TRUE, sep="\t")
+CG_gene <- read.table(module0_file("Tab_gene_CG.txt"), header=TRUE, sep="\t")
+CHG_gene <- read.table(module0_file("Tab_gene_CHG.txt"), header=TRUE, sep="\t")
+CHH_gene <- read.table(module0_file("Tab_gene_CHH.txt"), header=TRUE, sep="\t")
 
-CG_promoter <- read.table("Tab_promoter_CG.txt", header=TRUE, sep="\t")
-CHG_promoter <- read.table("Tab_promoter_CHG.txt", header=TRUE, sep="\t")
-CHH_promoter <- read.table("Tab_promoter_CHH.txt", header=TRUE, sep="\t")
+CG_promoter <- read.table(module0_file("Tab_promoter_CG.txt"), header=TRUE, sep="\t")
+CHG_promoter <- read.table(module0_file("Tab_promoter_CHG.txt"), header=TRUE, sep="\t")
+CHH_promoter <- read.table(module0_file("Tab_promoter_CHH.txt"), header=TRUE, sep="\t")
 
-CG_promoterselves <- read.table("Tab_promoterselves_CG.txt", header=TRUE, sep="\t")
-CHG_promoterselves <- read.table("Tab_promoterselves_CHG.txt", header=TRUE, sep="\t")
-CHH_promoterselves <- read.table("Tab_promoterselves_CHH.txt", header=TRUE, sep="\t")
+CG_promoterselves <- read.table(module0_file("Tab_promoterselves_CG.txt"), header=TRUE, sep="\t")
+CHG_promoterselves <- read.table(module0_file("Tab_promoterselves_CHG.txt"), header=TRUE, sep="\t")
+CHH_promoterselves <- read.table(module0_file("Tab_promoterselves_CHH.txt"), header=TRUE, sep="\t")
 CG_promoterselves$ID  <- sub("_[0-9]+$", "", CG_promoterselves$ID)
 CHG_promoterselves$ID <- sub("_[0-9]+$", "", CHG_promoterselves$ID)
 CHH_promoterselves$ID <- sub("_[0-9]+$", "", CHH_promoterselves$ID)
 
+methylation_stages <- Reduce(intersect, list(colnames(CG_TE)[-1], colnames(CHG_TE)[-1], colnames(CHH_TE)[-1],
+                                             colnames(CG_promoterselves)[-1], colnames(CHG_promoterselves)[-1], colnames(CHH_promoterselves)[-1],
+                                             colnames(CG_promoter)[-1], colnames(CHG_promoter)[-1], colnames(CHH_promoter)[-1]))
+stages <- intersect(stages, methylation_stages)
+if (length(stages) == 0) {
+  stop("No overlapping stages between expression matrices and methylation tables.")
+}
+if (length(stages) != 2) {
+  stop("Module 4 requires exactly two shared stages/conditions across expression and methylation inputs.")
+}
 
-ins_promoter <- read.table("TE_overlap_promoter.bed", header=FALSE)
+
+ins_promoter <- read.table(module0_file("TE_overlap_promoter.bed"), header=FALSE)
 ins_promoter2 <- ins_promoter[,c("V4","V10")]
 
 #---- Loop over stages ----
 for(stage in stages){
+
+  missing_stage <- !all(c(stage %in% colnames(CG_TE),
+                          stage %in% colnames(CHG_TE),
+                          stage %in% colnames(CHH_TE),
+                          stage %in% colnames(CG_promoterselves),
+                          stage %in% colnames(CHG_promoterselves),
+                          stage %in% colnames(CHH_promoterselves),
+                          stage %in% colnames(CG_promoter),
+                          stage %in% colnames(CHG_promoter),
+                          stage %in% colnames(CHH_promoter)))
+  if (missing_stage) {
+    stop(sprintf("Stage %s is missing methylation columns required by module 4.", stage))
+  }
 
   #---- Merge data ----
   insGene <- merge(ins_promoter2, gene_exp[,stage, drop=FALSE], by.x="V10", by.y="row.names", all.x=TRUE)
@@ -268,54 +312,96 @@ for(stage in stages){
   pro_woTE_col <- "#BFBFBF"
   
   # TE exp vs TE mC
-  png(file=paste0("OUTPUT_4_TEexp_TEmC_line_",stage,".png"), width=2600,height=2200,res=400)
-  par(mar=c(5,4.5,4,5)+0.1)
-  plot(TE_CHG,lwd=5,lty=1,col=CHG_col,type="l",axes=FALSE,
+  png(file=output_file(paste0("OUTPUT_4_TEexp_TEmC_line_",stage,".png")), width=2600,height=2200,res=400)
+  petem_base_par(list(mar=c(6,4.5,6,5)+0.1))
+  plot(TE_CHG,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CHG_col,type="l",axes=FALSE,
        ylim=c(0,opt$ylim_TEexpTEmC_CH),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
-  lines(TE_CHH,lwd=5,lty=1,col=CHH_col)
-  axis(4,las=1,cex.axis=1.5,font=2)
-  mtext(expression(bold("TE mCH(%)")), side=4, line=3.5, cex=1.5)
+  lines(TE_CHH,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CHH_col)
+  axis(4,las=1)
+  mtext(expression(bold("TE mCH(%)")), side=4, line=3.5, cex=PETEM_BASE_CEX_LABEL)
   box()
   par(new=TRUE)
-  plot(TE_CG,lwd=5,lty=1,col=CG_col,type="l",axes=FALSE,ylim=c(0,opt$ylim_TEexpTEmC_CG),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
-  axis(2, col="black", las=1, cex.axis=1.5, font=2)
-  mtext(expression(bold("TE mCG(%)")), side=2, line=3, cex=1.5)
-  mtext("Lowly expressed TEs      Highly expressed TEs", side=1, line=1, cex=1.5, font=2)
-  legend("topright", c("CG","CHG","CHH"), text.font=2,bty='n',lty=1,lwd=6,col=c(CG_col,CHG_col,CHH_col),cex=1.8)
+  plot(TE_CG,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CG_col,type="l",axes=FALSE,ylim=c(0,opt$ylim_TEexpTEmC_CG),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
+  axis(2, col="black", las=1)
+  mtext(expression(bold("TE mCG(%)")), side=2, line=3, cex=PETEM_BASE_CEX_LABEL)
+  mtext("Lowly expressed TEs      Highly expressed TEs", side=1, line=1, cex=PETEM_BASE_CEX_LABEL, font=2)
+  par(xpd=NA)
+  legend("top", inset=c(0,-0.08), x.intersp=0.8, horiz=FALSE,
+         legend=c("CG","CHG","CHH"), text.font=2, bty='n', lty=1, lwd=PETEM_BASE_LINE_WIDTH, col=c(CG_col,CHG_col,CHH_col), cex=PETEM_BASE_CEX_AXIS)
+  par(xpd=FALSE)
   grid(nx=NA, ny=NULL, col="gray70", lty=3, lwd=1)
-  mtext(paste0("TEs: ", nrow(TEdf), ", window size: ", TE_window), side=1, line=4, cex=1.2)
+  mtext(paste0("TEs: ", nrow(TEdf), ", window size: ", TE_window), side=1, line=4, cex=PETEM_BASE_CEX_NOTE)
   dev.off()
   
   # gene exp vs TE exp
-  png(file=paste0("OUTPUT_4_geneexp_TEexp_line_",stage,".png"), width=2600,height=2200,res=400)
-  par(mar=c(5,4.5,4,5)+0.1)
-  plot(gTE_exp,lwd=5,lty=1,col="gray50",type="l",axes=FALSE,xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
-  axis(2, ylim=c(0,1),col="black",las=1, cex.axis=1.5,font=2)
-  mtext(expression(bold("TE expression (log2 RPKM)")),side=2,line=3,cex=1.5)
-  mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=1.5,font=2)
+  png(file=output_file(paste0("OUTPUT_4_geneexp_TEexp_line_",stage,".png")), width=2600,height=2200,res=400)
+  petem_base_par(list(mar=c(5,4.5,4,5)+0.1))
+  plot(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50",type="l",axes=FALSE,xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
+  axis(2, ylim=c(0,1),col="black",las=1)
+  mtext(expression(bold("TE expression (log2 RPKM)")),side=2,line=3,cex=PETEM_BASE_CEX_LABEL)
+  mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=PETEM_BASE_CEX_LABEL,font=2)
   grid(nx=NA,ny=NULL,col="gray70",lty=3,lwd=1)
   box()
-  mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", gexp_window), side=1, line=4, cex=1.2)
+  mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", gexp_window), side=1, line=4, cex=PETEM_BASE_CEX_NOTE)
   dev.off()
   
   # gene exp vs TE/promoter mC
-  for(mtype in c("CG","CHG","CHH")){
-    png(file=paste0("OUTPUT_4_geneexp_TEm",mtype,"_line_",stage,".png"), width=2600,height=2200,res=400)
-    par(mar=c(5, 5, 4, 5)+0.1)
+
+for(mtype in c("CG","CHG","CHH")){
+
+    # Select y-axis upper limit.
     ylim_val <- switch(mtype, CG=opt$ylim_CG, CHG=opt$ylim_CHG, CHH=opt$ylim_CHH)
-    plot(get(paste0("wo",mtype)), lwd=5,lty=1,col=pro_woTE_col,type="l",axes=FALSE,
-         ylim=c(0,ylim_val), xlim=c(0,opt$wd_num), xlab=NA, ylab=NA, xaxt='n')
-    lines(get(paste0("p",mtype)), lwd=5,lty=1,col=pro_wTE_col)
-    lines(get(paste0("gTE_",mtype)), lwd=5,lty=1,col=CG_col)
-    axis(2, las=1, cex.axis=1.5, font=2)
-    mtext(expression(bold("Methylation level (%)")), side=2, line=3.5, cex=1.5)
-    mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=1.5,font=2)
-    legend("topright", c("TE", "Promoters w TEs", "Promoters w/o TEs"), text.font=2, bty='n', lty=1, lwd=5, col=c(CG_col, pro_wTE_col, pro_woTE_col), cex=1.8)
-    box()
-    grid(nx=NA, ny=NULL, col="gray70", lty=3, lwd=1)
-    mtext(paste0("TE-gene pairs: ", nrow(gdf), ", window size: ", g_window, "; Promoters w/o TEs: ", nrow(wo), ", window size: ", wo_window), side=1, line=4, cex=0.8)
-    dev.off()
-  }
+
+    df <- data.frame(
+        x = seq_along(get(paste0("wo", mtype))),
+        woTE = get(paste0("wo", mtype)),
+        wTE  = get(paste0("p", mtype)),
+        TE   = get(paste0("gTE_", mtype))
+    )
+
+    df_long <- df %>%
+        pivot_longer(cols=c("woTE","wTE","TE"),
+                     names_to="type", values_to="value")
+
+    line_colors <- c(
+        "TE"   = CG_col,
+        "wTE"  = pro_wTE_col,
+        "woTE" = pro_woTE_col
+    )
+
+    line_labels <- c(
+        "TE"   = "TE",
+        "wTE"  = "Promoters w TEs",
+        "woTE" = "Promoters w/o TEs"
+    )
+
+    p <- ggplot(df_long, aes(x=x, y=value, color=type)) +
+        geom_line(linewidth=1.5) +
+        scale_color_manual(values=line_colors, labels=line_labels) +
+        coord_cartesian(ylim=c(0, ylim_val), xlim=c(0, opt$wd_num)) +
+        labs(y="Methylation level (%)",
+             x="Lowly expressed genes             Highly expressed genes",
+             color=NULL) +
+        petem_theme_bw() +
+        theme(
+            legend.position = "top",
+            panel.grid.minor = element_blank()
+        ) +
+        annotate("text", 
+                 x = Inf, y = -Inf, hjust=1.05, vjust=-1.5, size=PETEM_ANNOTATION_TEXT_SIZE,
+                 label = paste0(
+                     "TE-gene pairs: ", nrow(gdf),
+                     ", window size: ", g_window,
+                     "; Promoters w/o TEs: ", nrow(wo),
+                     ", window size: ", wo_window
+                 ))
+
+    ggsave(
+        filename = output_file(paste0("OUTPUT_4_geneexp_TEm",mtype,"_line_",stage,".png")),
+        plot = p,
+        width = 2600/400, height = 2200/400, dpi=400, units="in"
+    )
+}
 
 
   
@@ -328,5 +414,3 @@ for(stage in stages){
 
 end_time <- Sys.time()
 print(end_time-start_time)
-
-

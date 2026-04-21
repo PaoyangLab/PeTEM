@@ -4,6 +4,10 @@
 
 start_time <- Sys.time()
 
+script_args <- commandArgs(trailingOnly = FALSE)
+script_path <- sub("^--file=", "", script_args[grep("^--file=", script_args)][1])
+source(file.path(dirname(normalizePath(script_path)), "plot_defaults.R"))
+
 # ==== Load packages ====
 library(optparse)
 library(dplyr)
@@ -17,7 +21,8 @@ library(ggalluvial)
 option_list <- list(
   make_option(c("-a", "--all"),   type="character", help="All TE annotation file (bed format)"),
   make_option(c("-i", "--ins"),   type="character", help="Annotation file of TEs overlapping with promoters (bed format)"),
-  make_option(c("-T", "--TE"),    type="character", help="TE families file (bed format)")
+  make_option(c("-T", "--TE"),    type="character", help="TE families file (bed format)"),
+  make_option(c("-o", "--outdir"), type="character", default=".", help="Output directory")
 )
 
 args <- parse_args(OptionParser(option_list=option_list))
@@ -27,6 +32,8 @@ if (is.null(args$all) | is.null(args$ins) | is.null(args$TE)) {
   print_help(OptionParser(option_list=option_list))
   quit(status=1)
 }
+
+dir.create(args$outdir, recursive = TRUE, showWarnings = FALSE)
 
 
 # Read input files ----------
@@ -63,7 +70,7 @@ df_TE$pc_df1 <- df_TE$df1 * 100 / total_df1
 df_TE$pc_df2 <- df_TE$df2 * 100 / total_df2
 
 # enrichment
-df_TE$enrich <- (df_TE$df2 / total_df2) / (df_TE$df1 / total_df1)
+df_TE$enrich <- log2((df_TE$df2 / total_df2) / (df_TE$df1 / total_df1))
 
 # Fisher exact test
 p_list <- numeric(nrow(df_TE))
@@ -76,75 +83,67 @@ for(i in seq_len(nrow(df_TE))){
   p_list[i] <- fisher.test(contingency)$p.value
 }
 
-df_TE$pvalue_num <- p_list              # 用於排序
+df_TE$pvalue_num <- p_list
 out_df_TE<-df_TE
 
 df_TE$pvalue <- format.pval(p_list, digits=3, scientific=TRUE)
 
-colnames(out_df_TE)<-c("TE family","All TEs", "Promoter-embedded TEs", "All TEs (%)", "Promoter-embedded TEs (%)", "Enrichment", "pvalue")
-write.table(out_df_TE, file="OUTPUT_2_Promoter_embedded_TE_family.txt", sep="\t", quote=F, row.names=F)
+colnames(out_df_TE)<-c("TE family","All TEs", "Promoter-embedded TEs", "All TEs (%)", "Promoter-embedded TEs (%)", "Log2 enrichment", "pvalue")
+write.table(out_df_TE, file=file.path(args$outdir, "OUTPUT_2_Promoter_embedded_TE_family.txt"), sep="\t", quote=F, row.names=F)
 
 # labels
-df_TE$text <- paste0(df_TE$TE, " (", sprintf("%.2f", df_TE$enrich), ", p=", df_TE$pvalue, ")")
-df_TE$text_y <- 100-(cumsum(df_TE$pc_df2) - df_TE$pc_df2/2)
+df_TE$signif <- ifelse(df_TE$pvalue_num < 0.001, "***",
+                ifelse(df_TE$pvalue_num < 0.01, "**",
+                ifelse(df_TE$pvalue_num < 0.05, "*", "ns")))
+df_TE$text <- paste0("Log2 FC=", sprintf("%.2f", df_TE$enrich), ", ", df_TE$signif)
+df_TE$text_y <- 100 - (cumsum(df_TE$pc_df2) - df_TE$pc_df2 / 2)
 
-# long format (不用 tidyr)
 df_long <- data.frame(
-  TE = rep(df_TE$TE, times=2),
-  type = rep(c("All TEs","Promoter-\nembedded TEs"), each=nrow(df_TE)),
+  TE = rep(df_TE$TE, times = 2),
+  type = rep(c("All TEs", "Promoter-\nembedded TEs"), each = nrow(df_TE)),
   percentage = c(df_TE$pc_df1, df_TE$pc_df2),
-  stringsAsFactors=FALSE
+  stringsAsFactors = FALSE
 )
 
+set3_colors <- colorRampPalette(brewer.pal(12, "Set3"))(length(unique(df_long$TE)))
 
-# enrich > 1，get 3 largest enrichment & smallest pvalue 
-df_pos <- df_TE[df_TE$enrich > 1, ]
-df_pos <- df_pos[order(df_pos$pvalue_num, -df_pos$enrich), ][1:3, ]
-
-# enrich < 1，get 3 smallest enrichment & smallest pvalue 
-df_neg <- df_TE[df_TE$enrich < 1, ]
-df_neg <- df_neg[order(df_neg$pvalue_num, df_neg$enrich), ][1:3, ]
-
+df_pos <- df_TE[df_TE$enrich > 0, ]
+df_pos <- df_pos[order(df_pos$pvalue_num, -df_pos$enrich), , drop = FALSE][1:3, , drop = FALSE]
+df_neg <- df_TE[df_TE$enrich < 0, ]
+df_neg <- df_neg[order(df_neg$pvalue_num, df_neg$enrich), , drop = FALSE][1:3, , drop = FALSE]
 df_label <- rbind(df_pos, df_neg)
 
-
-# modify the labels
-df_label <- df_label[order(df_label$text_y), ] 
+df_label <- df_label[order(df_label$text_y), , drop = FALSE]
 df_label$y_start <- df_label$text_y
 df_label$text_y <- seq(25, 75, length.out = nrow(df_label))
 df_label$y_end <- df_label$text_y
 
 # Plot
-png(file="OUTPUT_2_Promoter_embedded_TE_family_enrichment.png", width=4500, height=2200, res=400)
+png(file=file.path(args$outdir, "OUTPUT_2_Promoter_embedded_TE_family_enrichment.png"), width=4500, height=2200, res=400)
 
 ggplot(df_long, aes(x = type, y = percentage, alluvium = TE)) +
   geom_alluvium(aes(fill = TE), width = 0.3, alpha = 0.6) +
   geom_stratum(aes(stratum = TE, fill = TE), width = 0.3) +
-  # 實線連接 bar 和文字
   geom_segment(data = df_label,
                aes(x = 2.12, xend = 2.5, y = y_start, yend = y_end),
                color = "gray30", linewidth = 0.7, inherit.aes = FALSE) +
-  # 標註文字
   geom_text(data = df_label,
             aes(x = 2.6, y = y_end, label = text),
-            hjust = 0, size = 6, inherit.aes = FALSE) +
+            hjust = 0, size = PETEM_ANNOTATION_TEXT_SIZE, inherit.aes = FALSE) +
   scale_x_discrete(limits = c("All TEs", "Promoter-\nembedded TEs", "", "", "")) +
   scale_y_continuous(limits = c(0,100), expand=c(0,0)) +
-  scale_fill_hue(c = 50, l = 70, h = c(10, 280)) +
-  theme_classic() +
+  scale_fill_manual(values = set3_colors) +
+  petem_theme_classic() +
   labs(title = "Enriched families of promoter-embedded TEs", x="", y="Percentage (%)", fill="TE Types") +
   theme(
-    text = element_text(size=20),
-    plot.title = element_text(hjust=0.5),
     axis.ticks.x = element_blank(),
     panel.border = element_blank(),
-    axis.text=element_text(size=18, face="bold"),
     axis.line.x.bottom = element_line(color='black'),
-    axis.line.y.left = element_line(color='black')
+    axis.line.y.left = element_line(color='black'),
+    legend.key.size = unit(1.4, "lines")
   )
 
 dev.off()
 
 end_time <- Sys.time()
 print(end_time-start_time)
-

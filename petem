@@ -1,0 +1,404 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODULE_NAME="PeTEM CLI"
+SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
+CURRENT_STEP="initialization"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+die() {
+  echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
+  exit 1
+}
+
+usage() {
+  cat >&2 <<'EOF'
+Usage:
+  petem --0 -g annotation.gff3 -t TE.bed -eg gene_expression.txt -et TE_expression.txt -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
+  petem 0_preprocessing -g annotation.gff3 -t TE.bed -eg gene_expression.txt -et TE_expression.txt -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
+  petem --1 -g genome_bed_dir -t TE.bed -f genome.fa.fai [-o output_dir]
+  petem 1_TE_distribution -g genome_bed_dir -t TE.bed -f genome.fa.fai [-o output_dir]
+  petem --2 -t TE.bed -T TE_family.txt -i TE_overlap_promoter.bed [-o output_dir]
+  petem 2_TE_families -t TE.bed -T TE_family.txt -i TE_overlap_promoter.bed [-o output_dir]
+  petem --3 -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]
+  petem 3_TE_impact_distance -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]
+
+Required files inside genome_bed_dir:
+  gene.bed
+  CDS.bed
+  exon.bed
+  UTR5.bed
+  UTR3.bed
+  promoter.bed
+EOF
+  exit 1
+}
+
+require_file() {
+  local label=$1
+  local path=$2
+  [[ -f $path ]] || die "${label} not found: ${path}"
+}
+
+resolve_path() {
+  python3 - "$1" <<'PYTHON_HELPER'
+import os
+import sys
+print(os.path.abspath(os.path.expanduser(sys.argv[1])))
+PYTHON_HELPER
+}
+
+generate_promoter_bed() {
+  local gene_bed=$1
+  local fai=$2
+  local promoter_bed=$3
+  local up_bp=${4:-1500}
+  local down_bp=${5:-500}
+
+  python3 - "$gene_bed" "$fai" "$promoter_bed" "$up_bp" "$down_bp" <<'PYTHON_HELPER'
+import csv
+import sys
+
+gene_bed_path, fai_path, promoter_bed_path, up_bp, down_bp = sys.argv[1:6]
+up_bp = int(up_bp)
+down_bp = int(down_bp)
+
+chrom_sizes = {}
+with open(fai_path, "r", encoding="utf-8") as handle:
+    for line in handle:
+        parts = line.rstrip("\n").split("\t")
+        if len(parts) >= 2:
+            chrom_sizes[parts[0]] = int(parts[1])
+
+with open(gene_bed_path, "r", encoding="utf-8") as infile, open(promoter_bed_path, "w", encoding="utf-8", newline="") as outfile:
+    reader = csv.reader(infile, delimiter="\t")
+    writer = csv.writer(outfile, delimiter="\t", lineterminator="\n")
+    for row in reader:
+        if len(row) < 6:
+            continue
+        chrom = row[0]
+        if chrom not in chrom_sizes:
+            continue
+        start = int(row[1])
+        end = int(row[2])
+        name = row[3]
+        score = row[4] if row[4] else "0"
+        strand = row[5]
+        if strand == "+":
+            promoter_start = max(0, start - up_bp)
+            promoter_end = min(chrom_sizes[chrom], start + down_bp)
+        else:
+            promoter_start = max(0, end - down_bp)
+            promoter_end = min(chrom_sizes[chrom], end + up_bp)
+        if promoter_start >= promoter_end:
+            continue
+        writer.writerow([chrom, promoter_start, promoter_end, name, score, strand])
+PYTHON_HELPER
+}
+
+run_module_0() {
+  local gff_file=""
+  local te_bed=""
+  local gene_exp=""
+  local te_exp=""
+  local fai=""
+  local outdir=""
+  local up_bp=1500
+  local down_bp=500
+  local -a meth_files=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -g) gff_file=$2; shift 2 ;;
+      -t) te_bed=$2; shift 2 ;;
+      -eg) gene_exp=$2; shift 2 ;;
+      -et) te_exp=$2; shift 2 ;;
+      -f|-fai) fai=$2; shift 2 ;;
+      -o) outdir=$2; shift 2 ;;
+      -up) up_bp=$2; shift 2 ;;
+      -dn) down_bp=$2; shift 2 ;;
+      -m)
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_files+=("$1")
+          shift
+        done
+        ;;
+      -h|--help) usage ;;
+      *) die "unknown option for module 0: $1" ;;
+    esac
+  done
+
+  CURRENT_STEP="argument validation"
+  [[ -n $gff_file ]] || die "missing required argument: -g annotation.gff3"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
+  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
+  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
+  [[ -n $fai ]] || die "missing required argument: -f genome.fa.fai"
+  (( ${#meth_files[@]} > 0 )) || die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...]"
+
+  gff_file=$(resolve_path "$gff_file")
+  te_bed=$(resolve_path "$te_bed")
+  gene_exp=$(resolve_path "$gene_exp")
+  te_exp=$(resolve_path "$te_exp")
+  fai=$(resolve_path "$fai")
+  outdir=$(resolve_path "${outdir:-$(pwd)}")
+
+  require_file "GFF annotation file" "$gff_file"
+  require_file "TE BED file" "$te_bed"
+  require_file "Gene expression file" "$gene_exp"
+  require_file "TE expression file" "$te_exp"
+  require_file "FAI file" "$fai"
+
+  local i
+  for ((i = 0; i < ${#meth_files[@]}; i++)); do
+    meth_files[$i]=$(resolve_path "${meth_files[$i]}")
+    require_file "Methylation file" "${meth_files[$i]}"
+  done
+
+  mkdir -p "$outdir"
+  local temp_root="$outdir/tmp/module_0_annotation"
+  mkdir -p "$temp_root"
+
+  local gene_bed="$temp_root/gene.bed"
+  local promoter_bed="$temp_root/promoter.bed"
+
+  CURRENT_STEP="annotation conversion"
+  Rscript "$SCRIPT_DIR/gff_to_bed.R" --gff "$gff_file" --outdir "$temp_root" --protein-coding-only n
+  generate_promoter_bed "$gene_bed" "$fai" "$promoter_bed" "$up_bp" "$down_bp"
+  require_file "generated gene BED file" "$gene_bed"
+  require_file "generated promoter BED file" "$promoter_bed"
+
+  CURRENT_STEP="module 0 execution"
+  (
+    cd "$outdir"
+    bash "$SCRIPT_DIR/0_preprocessing.sh" \
+      -g "$gene_bed" \
+      -t "$te_bed" \
+      -p "$promoter_bed" \
+      -eg "$gene_exp" \
+      -et "$te_exp" \
+      -fai "$fai" \
+      -m "${meth_files[@]}"
+  )
+}
+
+run_module_1() {
+  local genome_dir=""
+  local te_bed=""
+  local fai=""
+  local outdir=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -g) genome_dir=$2; shift 2 ;;
+      -t) te_bed=$2; shift 2 ;;
+      -f) fai=$2; shift 2 ;;
+      -o) outdir=$2; shift 2 ;;
+      -h|--help) usage ;;
+      *) die "unknown option for module 1: $1" ;;
+    esac
+  done
+
+  CURRENT_STEP="argument validation"
+  [[ -n $genome_dir ]] || die "missing required argument: -g genome_bed_dir"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
+  [[ -n $fai ]] || die "missing required argument: -f genome.fa.fai"
+
+  genome_dir=$(resolve_path "$genome_dir")
+  te_bed=$(resolve_path "$te_bed")
+  fai=$(resolve_path "$fai")
+  outdir=$(resolve_path "${outdir:-$(pwd)}")
+
+  [[ -d $genome_dir ]] || die "genome BED directory not found: $genome_dir"
+  require_file "TE BED file" "$te_bed"
+  require_file "FAI file" "$fai"
+
+  local gene_bed="$genome_dir/gene.bed"
+  local cds_bed="$genome_dir/CDS.bed"
+  local exon_bed="$genome_dir/exon.bed"
+  local utr5_bed="$genome_dir/UTR5.bed"
+  local utr3_bed="$genome_dir/UTR3.bed"
+  local promoter_bed="$genome_dir/promoter.bed"
+
+  require_file "gene BED file" "$gene_bed"
+  require_file "CDS BED file" "$cds_bed"
+  require_file "exon BED file" "$exon_bed"
+  require_file "UTR5 BED file" "$utr5_bed"
+  require_file "UTR3 BED file" "$utr3_bed"
+  require_file "promoter BED file" "$promoter_bed"
+
+  CURRENT_STEP="module 1 execution"
+  mkdir -p "$outdir"
+  (
+    cd "$outdir"
+    bash "$SCRIPT_DIR/1_TE_distribution.sh" \
+      -g "$gene_bed" \
+      -c "$cds_bed" \
+      -5 "$utr5_bed" \
+      -e "$exon_bed" \
+      -3 "$utr3_bed" \
+      -p "$promoter_bed" \
+      -t "$te_bed" \
+      -fai "$fai"
+  )
+}
+
+run_module_2() {
+  local te_bed=""
+  local te_family=""
+  local overlap_bed=""
+  local outdir=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -t) te_bed=$2; shift 2 ;;
+      -T) te_family=$2; shift 2 ;;
+      -i) overlap_bed=$2; shift 2 ;;
+      -o) outdir=$2; shift 2 ;;
+      -h|--help) usage ;;
+      *) die "unknown option for module 2: $1" ;;
+    esac
+  done
+
+  CURRENT_STEP="argument validation"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
+  [[ -n $te_family ]] || die "missing required argument: -T TE_family.txt"
+  [[ -n $overlap_bed ]] || die "missing required argument: -i TE_overlap_promoter.bed"
+
+  te_bed=$(resolve_path "$te_bed")
+  te_family=$(resolve_path "$te_family")
+  overlap_bed=$(resolve_path "$overlap_bed")
+  outdir=$(resolve_path "${outdir:-$(pwd)}")
+
+  require_file "TE BED file" "$te_bed"
+  require_file "TE family file" "$te_family"
+  require_file "TE overlap promoter BED file" "$overlap_bed"
+
+  CURRENT_STEP="module 2 execution"
+  mkdir -p "$outdir"
+  (
+    cd "$outdir"
+    Rscript "$SCRIPT_DIR/2_TE_families.R" \
+      -a "$te_bed" \
+      -i "$overlap_bed" \
+      -T "$te_family" \
+      -o "$outdir"
+  )
+}
+
+run_module_3() {
+  local gene_input=""
+  local gene_bed=""
+  local te_bed=""
+  local gene_exp=""
+  local te_exp=""
+  local outdir=""
+  local limit=15000
+  local tick=5000
+  local wd=200
+  local unexp="n"
+  local control="n"
+  local -a meth_files=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -g) gene_input=$2; shift 2 ;;
+      -t) te_bed=$2; shift 2 ;;
+      -eg) gene_exp=$2; shift 2 ;;
+      -et) te_exp=$2; shift 2 ;;
+      -o) outdir=$2; shift 2 ;;
+      -lim) limit=$2; shift 2 ;;
+      -tick) tick=$2; shift 2 ;;
+      -WD) wd=$2; shift 2 ;;
+      -unexp) unexp=$2; shift 2 ;;
+      -c) control=$2; shift 2 ;;
+      -m)
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_files+=("$1")
+          shift
+        done
+        ;;
+      -h|--help) usage ;;
+      *) die "unknown option for module 3: $1" ;;
+    esac
+  done
+
+  CURRENT_STEP="argument validation"
+  [[ -n $gene_input ]] || die "missing required argument: -g gene.bed_or_genome_bed_dir"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
+  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
+  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
+  (( ${#meth_files[@]} > 0 )) || die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...]"
+
+  gene_input=$(resolve_path "$gene_input")
+  te_bed=$(resolve_path "$te_bed")
+  gene_exp=$(resolve_path "$gene_exp")
+  te_exp=$(resolve_path "$te_exp")
+  outdir=$(resolve_path "${outdir:-$(pwd)}")
+
+  if [[ -d $gene_input ]]; then
+    gene_bed="$gene_input/gene.bed"
+  else
+    gene_bed="$gene_input"
+  fi
+
+  require_file "gene BED file" "$gene_bed"
+  require_file "TE BED file" "$te_bed"
+  require_file "Gene expression file" "$gene_exp"
+  require_file "TE expression file" "$te_exp"
+
+  local i
+  for ((i = 0; i < ${#meth_files[@]}; i++)); do
+    meth_files[$i]=$(resolve_path "${meth_files[$i]}")
+    require_file "Methylation file" "${meth_files[$i]}"
+  done
+
+  CURRENT_STEP="module 3 execution"
+  mkdir -p "$outdir"
+  (
+    cd "$outdir"
+    bash "$SCRIPT_DIR/3_TE_impact_distance.sh" \
+      -m "${meth_files[@]}" \
+      -g "$gene_bed" \
+      -t "$te_bed" \
+      -eg "$gene_exp" \
+      -et "$te_exp" \
+      -lim "$limit" \
+      -tick "$tick" \
+      -WD "$wd" \
+      -unexp "$unexp" \
+      -c "$control"
+  )
+}
+
+main() {
+  [[ $# -gt 0 ]] || usage
+
+  local command=$1
+  shift
+
+  case "$command" in
+    --0|0|0_preprocessing)
+      run_module_0 "$@"
+      ;;
+    --1|1|1_TE_distribution)
+      run_module_1 "$@"
+      ;;
+    --2|2|2_TE_families)
+      run_module_2 "$@"
+      ;;
+    --3|3|3_TE_impact_distance)
+      run_module_3 "$@"
+      ;;
+    -h|--help)
+      usage
+      ;;
+    *)
+      die "unsupported command: ${command}"
+      ;;
+  esac
+}
+
+main "$@"

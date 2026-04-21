@@ -4,51 +4,89 @@ set -euo pipefail
 MODULE_NAME="Module 3"
 SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
 CURRENT_STEP="argument parsing"
-LOG="LOG_3_2_TE_impact_distance_plot.log"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 
+# Combined module 3: methylation preprocessing + TE impact distance plotting
+# Usage:
+#   bash 3_TE_impact_distance.sh \
+#     -m sample1.CGmap.gz sample2.CGmap.gz ... \
+#     -g gene.bed -t TE.bed \
+#     -eg gene_expression.txt -et TE_expression.txt \
+#     [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]
+
 die() {
-    echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
-    exit 1
+  echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
+  exit 1
+}
+
+usage() {
+  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -eg expression_gene.txt -et expression_TE.txt [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]" >&2
+  exit 1
 }
 
 usage_missing() {
-    echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing required argument(s): $*" >&2
-    usage
+  echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing required argument(s): $*" >&2
+  usage
 }
 
 require_file() {
-    local flag=$1
-    local path=$2
-    [[ -f $path ]] || die "input file for ${flag} not found: ${path}"
+  local flag=$1
+  local path=$2
+  [[ -f $path ]] || die "input file for ${flag} not found: ${path}"
+}
+
+collect_shared_stages() {
+  python3 - "$1" "$2" <<'PYTHON_HELPER'
+import sys
+import pandas as pd
+
+gene_exp = pd.read_csv(sys.argv[1], sep="\t", index_col=0)
+te_exp = pd.read_csv(sys.argv[2], sep="\t", index_col=0)
+stages = sorted(set(gene_exp.columns).intersection(te_exp.columns))
+for stage in stages:
+    print(stage)
+PYTHON_HELPER
+}
+
+preprocess_complete_for_stages() {
+  local pre_dir=$1
+  shift
+  local stages=("$@")
+
+  [[ -d "$pre_dir" ]] || return 1
+  (( ${#stages[@]} > 0 )) || return 1
+
+  local stage
+  local context
+  for stage in "${stages[@]}"; do
+    for context in CG CHG CHH; do
+      local path="${pre_dir}/pre3_${stage}_${context}.bed"
+      [[ -s "$path" ]] || return 1
+    done
+  done
 }
 
 trap 'rc=$?; echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: command failed with exit code ${rc}" >&2; exit ${rc}' ERR
 
-echo "[`date`] Pipeline started" | tee "$LOG"
-
-start_allall=$(date +%s)
-
-# ====================
-# usage
-# ====================
-usage() {
-    echo "Usage: bash 3_2_TE_impact_distance_plot.sh -g gene.bed -t TE.bed -eg expression_gene.txt -et expression_TE.txt -lim 15000 -tick 5000 -WD 200 -unexp y/n" >&2
-    exit 1
-}
-
-
-# ====================
-# parse args
-# ====================
+METH_FILES=()
+GENE_BED=""
+TE_BED=""
+GENE_EXP=""
+TE_EXP=""
 LIMIT=15000
 MAJOR_TICK=5000
 WD=200
 INCLUDE_UNEXPRESSED_TE="n"
+RUN_CONTROL_PLOT="n"
 
 while [[ $# -gt 0 ]]; do
-  key="$1"
-  case $key in
+  case "$1" in
+    -m)
+      shift
+      while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+        METH_FILES+=("$1"); shift
+      done
+      ;;
     -g) GENE_BED="$2"; shift 2 ;;
     -t) TE_BED="$2"; shift 2 ;;
     -eg) GENE_EXP="$2"; shift 2 ;;
@@ -57,7 +95,8 @@ while [[ $# -gt 0 ]]; do
     -tick) MAJOR_TICK="$2"; shift 2 ;;
     -WD) WD="$2"; shift 2 ;;
     -unexp) INCLUDE_UNEXPRESSED_TE="$2"; shift 2 ;;
-    *) die "unknown option: ${key}" ;;
+    -c) RUN_CONTROL_PLOT="$2"; shift 2 ;;
+    *) die "unknown option: $1" ;;
   esac
 done
 
@@ -73,20 +112,101 @@ require_file "-g" "$GENE_BED"
 require_file "-t" "$TE_BED"
 require_file "-eg" "$GENE_EXP"
 require_file "-et" "$TE_EXP"
-[[ -d pre_step3 ]] || die "required directory not found: pre_step3. Run module 3 preprocessing first."
+for f in "${METH_FILES[@]}"; do
+  require_file "-m" "$f"
+done
 
-CURRENT_STEP="step 1 - prepare sorted BED files"
+CURRENT_STEP="step A0 - inspect preprocessing state"
+mapfile -t SHARED_STAGES < <(collect_shared_stages "$GENE_EXP" "$TE_EXP")
+(( ${#SHARED_STAGES[@]} > 0 )) || die "no shared stages found between $GENE_EXP and $TE_EXP"
+
+SKIP_PRE=0
+if preprocess_complete_for_stages "pre_step3" "${SHARED_STAGES[@]}"; then
+  SKIP_PRE=1
+  echo "[INFO] Found complete pre_step3 outputs for stages: ${SHARED_STAGES[*]}; module 3 will skip preprocessing."
+fi
+
+if [[ $SKIP_PRE -eq 0 && ${#METH_FILES[@]} -eq 0 ]]; then
+  usage_missing "-m sample1.CGmap.gz [sample2.CGmap.gz ...]"
+fi
+
+LOG="LOG_3_TE_impact_distance.log"
+echo "[`date`] Combined TE impact distance pipeline started" | tee "$LOG"
+start_all=$(date +%s)
+
+#####################################
+# Part A: methylation preprocessing (from 3_1)
+#####################################
+if [[ $SKIP_PRE -eq 0 ]]; then
+  CURRENT_STEP="step A1 - unzip and filter CGmap files"
+  echo "[`date`] [A] Preprocess methylation: unzip + filter" | tee -a "$LOG"
+  rm -rf pre_step3
+  mkdir -p pre_step3
+
+  for f in "${METH_FILES[@]}"; do
+  (
+    start=$(date +%s)
+    base=$(basename "$f" .CGmap.gz)
+    gunzip -c "$f" | awk '$8>=4 {print $1"\t"$3"\t"$2"\t"$4"\t"$6}' > "pre_step3/${base}.txt"
+    end=$(date +%s)
+    echo "[INFO] Preprocessed $f in $((end-start)) sec" | tee -a "$LOG"
+  )&
+  done
+  wait
+  echo "[INFO] All replicates done." | tee -a "$LOG"
+
+  CURRENT_STEP="step A2 - compute per-stage average methylation"
+  echo "[`date`] [A] Calculate average mC of each site at each stage" | tee -a "$LOG"
+  stages=($(printf '%s\n' "${METH_FILES[@]}" | xargs -n1 basename | cut -d'_' -f1 | sort -u))
+  for stage in "${stages[@]}"; do
+  (
+    start=$(date +%s)
+    echo "[INFO] Processing stage $stage" | tee -a "$LOG"
+    python3 - <<EOF
+import pandas as pd, glob
+stage = "${stage}"
+files = glob.glob(f"pre_step3/{stage}_*.txt")
+if not files:
+    raise SystemExit(f"No files found for stage {stage}")
+
+dfs = []
+for f in files:
+    df = pd.read_csv(f, sep="\t", header=None,
+                     names=["chr", "site", "nt", "CNN", "mC"])
+    dfs.append(df)
+
+combined = pd.concat(dfs, axis=0, ignore_index=True)
+m = combined.groupby(["chr", "site", "nt", "CNN"], as_index=False)["mC"].mean()
+m = m.rename(columns={"mC": f"{stage}_mC"})
+
+m["strand"] = m.nt.replace({"C": "+", "G": "-"})
+m["name"] = ["site_" + str(i + 1) for i in range(len(m))]
+
+for type in ["CG", "CHG", "CHH"]:
+    sub = m[m.CNN == type][["chr", "site", "site", "name", f"{stage}_mC", "strand"]].dropna()
+    sub.to_csv(f"pre_step3/pre3_{stage}_{type}.bed", sep="\t", index=False, header=False)
+EOF
+    end=$(date +%s)
+    echo "[INFO] Stage $stage done in $((end-start)) sec" | tee -a "$LOG"
+  )&
+  done
+  wait
+  echo "[`date`] [A] Methylation preprocessing finished" | tee -a "$LOG"
+else
+  echo "[`date`] [A] Reusing existing pre_step3 files and skipping methylation preprocessing." | tee -a "$LOG"
+  stages=("${SHARED_STAGES[@]}")
+fi
+
+#####################################
+# Part B: plotting pipeline (from 3_2)
+#####################################
+CURRENT_STEP="step B0 - prepare sorted BED files"
+echo "[`date`] [B] Input parsing" | tee -a "$LOG"
 sort -k1,1 -k2,2n "$GENE_BED" > gene_sort.bed
 sort -k1,1 -k2,2n "$TE_BED" > TE_sort.bed
 
-echo "[`date`] Input files parsed" | tee -a "$LOG"
-
-# ====================
-# step 1: find nearby TEs for each gene
-# ====================
-CURRENT_STEP="step 1 - find nearby TEs"
-echo "[`date`] Step 1. Preprocessing: find nearby TEs for each gene" | tee -a "$LOG"
-
+CURRENT_STEP="step B1 - find nearby TEs"
+echo "[`date`] [B] Step 1. Find nearby TEs for each gene" | tee -a "$LOG"
 Rscript - "$GENE_EXP" "$TE_EXP"  "$INCLUDE_UNEXPRESSED_TE" <<'EOF' 
 
 args <- commandArgs(trailingOnly=TRUE)
@@ -113,13 +233,8 @@ EOF
 
 bedtools closest -a expressed_gene.bed -b expressed_TE.bed -id -d -D a > expgene_closest_expTE.bed
 
-
-# ====================
-# step 2: split high/low genes and generate upstream/downstream BED files
-# ====================
-CURRENT_STEP="step 2 - build expression strata and adjacent regions"
-echo "[`date`] Step 2. Split highly and lowly expressed genes and build neighboring TE regions" | tee -a "$LOG"
-
+CURRENT_STEP="step B2 - build expression strata and adjacent regions"
+echo "[`date`] [B] Step 2. Split high/low genes and build adjacent regions" | tee -a "$LOG"
 Rscript - "$GENE_EXP" "$LIMIT" <<'EOF' 
 args <- commandArgs(trailingOnly=TRUE)
 
@@ -147,7 +262,6 @@ adjacent <- function(df, up=TRUE, limit=limit){
   df2[5] <- 0
   return(df2)
 }
-
 
 # Focus on TEs located within adjacent regions of genes
 clo_TE <- read.table("expgene_closest_expTE.bed", sep="\t", header=F)
@@ -202,70 +316,54 @@ for(stage in stages){
 sink()
 EOF
 
-# ====================
-# step 3: intersect TE regions with methylation tables
-# ====================
-set -euo pipefail
-
-start_step4=$(date +%s)
-CURRENT_STEP="step 3 - intersect methylation tables"
-echo "[`date`] Step 3. Intersect TE methylation data" | tee -a "$LOG"
-
+CURRENT_STEP="step B3 - intersect methylation tables"
+echo "[`date`] [B] Step 3. Intersect TE methylation data" | tee -a "$LOG"
 stages=($(ls *_up.bed | cut -d'_' -f2 | sort -u))
-
 for stage in "${stages[@]}"; do
 (
-    start=$(date +%s)
-    echo "[INFO] Processing stage $stage"   | tee -a "$LOG"
+  start=$(date +%s)
+  echo "[INFO] Processing stage $stage"   | tee -a "$LOG"
 
-    missing_types=()
-    for type in CG CHG CHH; do
-        if [[ ! -f "pre_step3/pre3_${stage}_${type}.bed" ]]; then
-            missing_types+=("$type")
-        fi
-    done
-    if [[ ${#missing_types[@]} -gt 0 ]]; then
-        echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing methylation files for stage ${stage}: ${missing_types[*]}" | tee -a "$LOG"
-        exit 1
-    fi
+  missing_types=()
+  for type in CG CHG CHH; do
+      if [[ ! -f "pre_step3/pre3_${stage}_${type}.bed" ]]; then
+          missing_types+=("$type")
+      fi
+  done
+  if [[ ${#missing_types[@]} -gt 0 ]]; then
+      echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing methylation files for stage ${stage}: ${missing_types[*]}" | tee -a "$LOG"
+      exit 1
+  fi
 
-    for expr in low high; do
-        for dir in up down; do
-            input="${expr}_${stage}_${dir}.bed"
+  for expr in low high; do
+      for dir in up down; do
+          input="${expr}_${stage}_${dir}.bed"
 
-            # 1. with TE
-            wTE="wTE_${expr}_${stage}_${dir}.bed"
-            bedtools intersect -a "$input" -b expressed_TE.bed > "$wTE"
+          # 1. with TE
+          wTE="wTE_${expr}_${stage}_${dir}.bed"
+          bedtools intersect -a "$input" -b expressed_TE.bed > "$wTE"
 
-            for type in CG CHG CHH; do
-                bedtools intersect -a "$wTE" -b "pre_step3/pre3_${stage}_${type}.bed" -wa -wb > "wTE_${expr}_${stage}_${dir}_${type}.bed"
-            done
+          # 2. without TE
+          woTE="woTE_${expr}_${stage}_${dir}.bed"
+          bedtools intersect -a "$input" -b expressed_TE.bed -v > "$woTE"
 
-            rm -f "$wTE" 
-        done
-    done
+          for type in CG CHG CHH; do
+              bedtools intersect -a "$wTE" -b "pre_step3/pre3_${stage}_${type}.bed" -wa -wb > "wTE_${expr}_${stage}_${dir}_${type}.bed"
+              bedtools intersect -a "$woTE" -b "pre_step3/pre3_${stage}_${type}.bed" -wa -wb > "woTE_${expr}_${stage}_${dir}_${type}.bed"
+          done
 
-    end=$(date +%s)
-    echo "[INFO] Stage $stage done in $((end-start)) sec"   | tee -a "$LOG"
+          rm -f "$wTE" "$woTE"
+      done
+  done
+
+  end=$(date +%s)
+  echo "[INFO] Stage $stage done in $((end-start)) sec"   | tee -a "$LOG"
 )&
 done
 wait
 
-end_step4=$(date +%s)
-echo "[`date`] Step 3 finished in $((end_step4-start_step4)) sec"   | tee -a "$LOG"
-
-
-
-# ====================
-# step 4: plot module 3 outputs
-# ====================
-set -euo pipefail
-
-start_step5=$(date +%s)
-CURRENT_STEP="step 4 - generate plots"
-echo "[`date`] Step 4. Calculate regional methylation and generate plots"   | tee -a "$LOG"
-
-# all stages (only those with available methylation overlaps)
+CURRENT_STEP="step B4 - generate plots"
+echo "[`date`] [B] Step 4. Plotting" | tee -a "$LOG"
 shopt -s nullglob
 stage_files=(wTE_low_*_up_CG.bed)
 shopt -u nullglob
@@ -290,9 +388,9 @@ for stage in "${stages[@]}"; do
     start=$(date +%s)
     echo "[INFO] Processing stage $stage"  | tee -a "$LOG"
 
-    Rscript - "$LIMIT" "$MAJOR_TICK" "$WD" "$stage" "$SCRIPT_DIR" <<'EOF'
+    Rscript - "$LIMIT" "$MAJOR_TICK" "$WD" "$stage" "$SCRIPT_DIR" "$RUN_CONTROL_PLOT" <<'EOF'
 library(ggplot2)
-library(gplots)
+suppressPackageStartupMessages(library(gplots))
 
 args <- commandArgs(trailingOnly=TRUE)
 limit <- as.numeric(args[1])
@@ -300,6 +398,7 @@ major_tick <- as.numeric(args[2])
 WD <- as.numeric(args[3])
 stage <- args[4]
 script_dir <- args[5]
+run_control_plot <- tolower(args[6])
 source(file.path(script_dir, "plot_defaults.R"))
 
 # Functions
@@ -337,23 +436,26 @@ linedf <- function(df){
   return(df_list)
 }
 
-
-# Processing
 types <- c("CG","CHG","CHH")
 exprs <- c("low","high")
 dirs <- c("up","down")
 
-RAN <- limit # searching range
-WD <- WD     # window size (bp)
+RAN <- limit
+WD <- WD
 SS <- 4  
 Start <- WD/2
 RAN2 <- (RAN-WD/2)/SS
 
+plot_prefixes <- c("wTE")
+if(run_control_plot == "y"){
+  plot_prefixes <- c(plot_prefixes, "woTE")
+}
 
-for(type in types){    # "CG","CHG","CHH"
-  for(expr in exprs){  # "low","high"
-    for(dir in dirs){  # "up","down"
-      mydf <- read.table(paste0("wTE_",expr,"_",stage,"_",dir,"_",type,".bed"), sep="\t")
+for(prefix in plot_prefixes){
+for(type in types){
+  for(expr in exprs){
+    for(dir in dirs){
+      mydf <- read.table(paste0(prefix,"_",expr,"_",stage,"_",dir,"_",type,".bed"), sep="\t")
       mybed <- read.table(paste0(expr,"_",stage,".txt"), sep="\t")
       if(dir=="up"){
         df <- for_up(mydf,mybed)
@@ -415,7 +517,14 @@ for(type in types){    # "CG","CHG","CHH"
   breaks <- c(seq(-limit, -100, major_tick),     0,   gap, seq(gap+major_tick, gap+limit, major_tick))
   labels <- c(seq(-limit, -100, major_tick), "TSS", "TTS", seq(major_tick,     limit,     major_tick))
 
-  png(file=paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png"), width=5000, height=2000, res=400)
+  output_file <- if(prefix == "woTE"){
+    paste0("OUTPUT_3_TE_impact_distance_control_",stage,"_",type,".png")
+  } else {
+    paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png")
+  }
+  y_label <- if(prefix == "woTE") "Control methylation level (%)" else "TE methylation level (%)"
+
+  png(file=output_file, width=5000, height=2000, res=400)
 
   p<- ggplot() +
   geom_point(df_point_all, mapping=aes(x=dist_shift,y=V11,color=expr), size=0.01, alpha=0.1) +
@@ -427,11 +536,12 @@ for(type in types){    # "CG","CHG","CHH"
   ggtitle(paste0(up_title, "; ", dn_title)) +
   theme(legend.position="top",
     panel.grid.minor = element_blank()) +
-  labs(x="Distance to gene (bp)", y="TE methylation level (%)", color=NULL)
+  labs(x="Distance to gene (bp)", y=y_label, color=NULL)
 
   print(p)
 
   dev.off()
+}
 }
 
 EOF
@@ -443,10 +553,7 @@ done
 wait
 fi
 
-end_step5=$(date +%s)
-echo "[`date`] Step 4 finished in $((end_step5-start_step5)) sec"  | tee -a "$LOG"
+rm wTE_*.bed woTE_*.bed low_* high_* expgene_closest_expTE.bed expressed_gene.bed expressed_TE.bed
 
-rm wTE_*.bed low_* high_* expgene_closest_expTE.bed expressed_gene.bed expressed_TE.bed
-
-end_allall=$(date +%s)
-echo "[`date`] Pipeline finished in $((end_allall-start_allall)) sec" | tee -a "$LOG"
+end_all=$(date +%s)
+echo "[`date`] Combined pipeline finished in $((end_all-start_all)) sec" | tee -a "$LOG"

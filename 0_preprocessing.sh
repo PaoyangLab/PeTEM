@@ -1,24 +1,56 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+MODULE_NAME="Module 0"
+SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
+CURRENT_STEP="initialization"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+WIG_TO_BIGWIG="$SCRIPT_DIR/wigToBigWig"
+BIGWIG_AVERAGE="$SCRIPT_DIR/bigWigAverageOverBed"
+CGMAP2WIGGLE="$SCRIPT_DIR/CGmap2Wiggle.pl"
+
+die() {
+    echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
+    exit 1
+}
+
+usage_missing() {
+    echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing required argument(s): $*" >&2
+    usage
+}
+
+require_file() {
+    local flag=$1
+    local path=$2
+    [[ -f $path ]] || die "input file for ${flag} not found: ${path}"
+}
+
+require_executable() {
+    local label=$1
+    local path=$2
+    [[ -x $path ]] || die "required executable not found or not executable (${label}): ${path}"
+}
+
+trap 'rc=$?; echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: command failed with exit code ${rc}" >&2; exit ${rc}' ERR
+
+require_executable "wigToBigWig" "$WIG_TO_BIGWIG"
+require_executable "bigWigAverageOverBed" "$BIGWIG_AVERAGE"
+[[ -f "$CGMAP2WIGGLE" ]] || die "required file not found (CGmap2Wiggle.pl): $CGMAP2WIGGLE"
+
 #####################################
 # Usage
 #####################################
 usage() {
-    echo "Usage: bash 0_preprocessing.sh -g gene.bed -t TE.bed -eg expression_gene.txt -et expression_TE.txt -fai genome.fa.fai [-up upstream] [-dn downstream] -m sample1.CGmap.gz [sample2.CGmap.gz ...]"
-    echo "  -up   upstream length from TSS (default: 1500)"
-    echo "  -dn   downstream length from TSS (default: 500)"
+    echo "Usage: bash 0_preprocessing.sh -g gene.bed -t TE.bed -p promoter.bed -eg expression_gene.txt -et expression_TE.txt -fai genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...]" >&2
     exit 1
 }
 
 #####################################
 # Parse args
 #####################################
-UP=1500  #default
-DN=500   #default
-
 GENE=""
 TE=""
+PROMOTER=""
 GENE_EXP=""
 TE_EXP=""
 faidx=""
@@ -28,11 +60,10 @@ while [[ $# -gt 0 ]]; do
     case $1 in
         -g) GENE=$2; shift 2;;
         -t) TE=$2; shift 2;;
+        -p) PROMOTER=$2; shift 2;;
         -eg) GENE_EXP=$2; shift 2;;
         -et) TE_EXP=$2; shift 2;;
         -fai) faidx=$2; shift 2;;
-        -up) UP=$2; shift 2;;
-        -dn) DN=$2; shift 2;;
         -m)
             shift
             while [[ $# -gt 0 ]] && [[ ! $1 =~ ^- ]]; do
@@ -40,53 +71,56 @@ while [[ $# -gt 0 ]]; do
                 shift
             done
             ;;
-        *) usage ;;
+        *) die "unknown option: $1" ;;
     esac
 done
 
-[[ -z "$GENE" || -z "$TE" || -z "$GENE_EXP" || -z "$TE_EXP" || -z "$faidx" || ${#METH_FILES[@]} -eq 0 ]] && usage
+CURRENT_STEP="argument validation"
+missing_args=()
+[[ -n ${GENE:-} ]] || missing_args+=("-g gene.bed")
+[[ -n ${TE:-} ]] || missing_args+=("-t TE.bed")
+[[ -n ${PROMOTER:-} ]] || missing_args+=("-p promoter.bed")
+[[ -n ${GENE_EXP:-} ]] || missing_args+=("-eg expression_gene.txt")
+[[ -n ${TE_EXP:-} ]] || missing_args+=("-et expression_TE.txt")
+[[ -n ${faidx:-} ]] || missing_args+=("-fai genome.fa.fai")
+(( ${#METH_FILES[@]} > 0 )) || missing_args+=("-m sample1.CGmap.gz [sample2.CGmap.gz ...]")
+(( ${#missing_args[@]} == 0 )) || usage_missing "${missing_args[*]}"
+
+CURRENT_STEP="input validation"
+require_file "-g" "$GENE"
+require_file "-t" "$TE"
+require_file "-p" "$PROMOTER"
+require_file "-eg" "$GENE_EXP"
+require_file "-et" "$TE_EXP"
+require_file "-fai" "$faidx"
+for f in "${METH_FILES[@]}"; do
+    require_file "-m" "$f"
+done
 
 echo "[INFO] Gene BED: $GENE"
 echo "[INFO] TE BED:   $TE"
+echo "[INFO] Promoter BED: $PROMOTER"
 echo "[INFO] Gene expression: $GENE_EXP"
 echo "[INFO] TE expression:   $TE_EXP"
 echo "[INFO] Genome fasta index: $faidx"
 echo "[INFO] Methylation CGmaps: ${METH_FILES[*]}"
-echo "[INFO] Promoter window: -${UP} upstream, +${DN} downstream"
 
 #####################################
 # Timer start
 #####################################
 START=$(date +%s)
+LOG="$PWD/LOG_0_preprocessing.log"
+: > "$LOG"
 
 #####################################
 # 1. Annotations preprocessing
 #####################################
 
-# promoter
+CURRENT_STEP="step 1 - preprocess annotations"
 echo "[STEP 1] Preprocessing annotations..."
 
-python3 - "$GENE" "$UP" "$DN" <<EOF
-import pandas as pd
-gene2 = pd.read_csv("${GENE}",sep="\t",header=None)
-gene3 = gene2.copy()
-
-up, dn = ${UP}, ${DN}
-
-# promoter: -up upstream, +dn downstream
-gene3.loc[gene3[5]=="+", 2] = gene3[1] + dn
-gene3.loc[gene3[5]=="+", 1] = gene3[1] - up
-gene3.loc[gene3[5]=="-", 1] = gene3[2] - dn
-gene3.loc[gene3[5]=="-", 2] = gene3[2] + up
-
-num = gene3._get_numeric_data()
-num[num <= 0] = 1
-gene3[4] = 0
-gene3.to_csv("promoter.bed", sep='\t', index=False, header=False)
-EOF
-
-# TE overlap with promoters
-bedtools intersect -a "$TE" -b promoter.bed -wa -wb > TE_overlap_promoter.bed
+# TE overlap with promoters (using provided promoter BED)
+bedtools intersect -a "$TE" -b "$PROMOTER" -wa -wb > TE_overlap_promoter.bed
 
 # count TE overlap with promoters
 Rscript - "$TE" "$GENE" "$TE_EXP" "$GENE_EXP" <<'EOF'
@@ -98,7 +132,11 @@ gene_exp_file <- args[4]
 
 te_bed <- read.table(te_file, sep="\t", header=FALSE)
 gene_bed <- read.table(gene_file, sep="\t", header=FALSE)
-overlap <- read.table("TE_overlap_promoter.bed", sep="\t", header=FALSE)
+if (file.info("TE_overlap_promoter.bed")$size > 0) {
+  overlap <- read.table("TE_overlap_promoter.bed", sep="\t", header=FALSE)
+} else {
+  overlap <- data.frame()
+}
 
 te_exp <- read.table(te_exp_file, header=TRUE, row.names=1, check.names=FALSE)
 gene_exp <- read.table(gene_exp_file, header=TRUE, row.names=1, check.names=FALSE)
@@ -111,7 +149,7 @@ expressed_gene <- rownames(gene_exp)
 
 # TE table
 all_te <- te_bed$V4
-embedded_te <- unique(overlap$V4)
+embedded_te <- if (nrow(overlap) > 0) unique(overlap$V4) else character(0)
 
 a <- sum(all_te %in% intersect(embedded_te, expressed_te))
 b <- sum(all_te %in% setdiff(embedded_te, expressed_te))
@@ -124,7 +162,7 @@ te_chi <- chisq.test(te_tab)
 
 # Gene table
 all_gene <- gene_bed$V4
-embedded_gene <- unique(overlap$V10)
+embedded_gene <- if (nrow(overlap) > 0) unique(overlap$V10) else character(0)
 
 a <- sum(all_gene %in% intersect(embedded_gene, expressed_gene))
 b <- sum(all_gene %in% setdiff(embedded_gene, expressed_gene))
@@ -150,7 +188,7 @@ EOF
 
 
 # Promoter regions with TE insertions
-bedtools intersect -a promoter.bed -b "$TE" -wa > overlapped_promoter.bed
+bedtools intersect -a "$PROMOTER" -b "$TE" -wa > overlapped_promoter.bed
 bedtools subtract -a overlapped_promoter.bed -b "$TE" > overlapped_promoterselves.bed
 sort overlapped_promoterselves.bed | uniq > overlapped_promoterselves_uniq.bed #remove those duplicated regions
 
@@ -161,11 +199,34 @@ df$V4 <- paste0(df$V4, "_", ave(seq_along(df$V4), df$V4, FUN = seq_along))
 write.table(df, file="overlapped_promoterselves_uniq_rename.bed", sep="\t", quote = FALSE, row.names = FALSE, col.names = FALSE)
 EOF
 
+normalize_score() {
+  local infile=$1
+  local outfile=$2
+  awk 'BEGIN{OFS="\t"}{$5 = ($5 ~ /^-?[0-9]+$/ ? $5 : 0); print}' "$infile" > "$outfile"
+}
+GENE_NORM="$PWD/gene_norm.bed"
+PROMOTER_NORM="$PWD/promoter_norm.bed"
+PROMOTERSELF_NORM="$PWD/overlapped_promoterselves_uniq_rename_norm.bed"
+TE_NORM="$PWD/TE_norm.bed"
+normalize_score "$GENE" "$GENE_NORM"
+normalize_score "$PROMOTER" "$PROMOTER_NORM"
+normalize_score "overlapped_promoterselves_uniq_rename.bed" "$PROMOTERSELF_NORM"
+normalize_score "$TE" "$TE_NORM"
+
 #####################################
 # 2. Methylation preprocessing
 #####################################
+CURRENT_STEP="step 2 - preprocess methylation data"
 echo "[STEP 2] Preprocessing methylation data..."
-awk '{print $1"\t"$2}' "$faidx" > chrom.size
+# only keep chromosomes with numeric names to avoid wigToBigWig errors on Mt/Pt
+awk '$1 ~ /^[0-9]+$/{print $1"\t"$2}' "$faidx" | awk '!seen[$1]++' > chrom.size
+
+# clean old wig/bw/tab and set work dir for new ones
+WIG_DIR="$PWD/wig"
+export WIG_DIR
+rm -rf "$WIG_DIR"
+mkdir -p "$WIG_DIR"
+rm -f ./*.wig ./*.bw ./*.tab
 
 for f in "${METH_FILES[@]}"; do
 (
@@ -173,23 +234,35 @@ for f in "${METH_FILES[@]}"; do
     base=$(basename "$f" .CGmap.gz)  # e.g. FB_01
 
     # CGmap -> wig
-    perl CGmap2Wiggle.pl "$f"
+    perl "$CGMAP2WIGGLE" "$f"
+
+    # clean wig: drop any log lines (e.g. "processing chromosomes.....") before conversion
+    for ctx in CG CHG CHH; do
+        wigfile=${base}.${ctx}.wig
+        [[ -f "$wigfile" ]] || continue
+        awk '(/^processing / || /^processing chromosomes/){next}
+             /^track /{print; next}
+             /^variableStep /{print; next}
+             ($1 ~ /^[^ \t]+$/ && $2 ~ /^-?[0-9.eE]+$/){print}' "$wigfile" > "${wigfile}.clean" \
+          && mv "${wigfile}.clean" "$wigfile"
+        mv "$wigfile" "$WIG_DIR/"
+    done
 
     # wig -> bigWig
     #wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/wigToBigWig
     #chmod +x wigToBigWig
-    ./wigToBigWig ${base}.CG.wig chrom.size ${base}.CG.bw
-    ./wigToBigWig ${base}.CHG.wig chrom.size ${base}.CHG.bw
-    ./wigToBigWig ${base}.CHH.wig chrom.size ${base}.CHH.bw
+    "$WIG_TO_BIGWIG" "$WIG_DIR/${base}.CG.wig"  chrom.size "$WIG_DIR/${base}.CG.bw"
+    "$WIG_TO_BIGWIG" "$WIG_DIR/${base}.CHG.wig" chrom.size "$WIG_DIR/${base}.CHG.bw"
+    "$WIG_TO_BIGWIG" "$WIG_DIR/${base}.CHH.wig" chrom.size "$WIG_DIR/${base}.CHH.bw"
 
     # bigWigAverageOverBed for annotations
     # wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/bigWigAverageOverBed
     # chmod +x bigWigAverageOverBed
     for ctx in CG CHG CHH; do
-        ./bigWigAverageOverBed ${base}.${ctx}.bw "$TE" ${base}_TE_${ctx}.tab
-        ./bigWigAverageOverBed ${base}.${ctx}.bw "$GENE" ${base}_gene_${ctx}.tab
-        ./bigWigAverageOverBed ${base}.${ctx}.bw promoter.bed ${base}_promoter_${ctx}.tab
-        ./bigWigAverageOverBed ${base}.${ctx}.bw overlapped_promoterselves_uniq_rename.bed ${base}_promoterselves_${ctx}.tab
+        "$BIGWIG_AVERAGE" "$WIG_DIR/${base}.${ctx}.bw" "$TE_NORM" "$WIG_DIR/${base}_TE_${ctx}.tab" 2>>"$LOG"
+        "$BIGWIG_AVERAGE" "$WIG_DIR/${base}.${ctx}.bw" "$GENE_NORM" "$WIG_DIR/${base}_gene_${ctx}.tab" 2>>"$LOG"
+        "$BIGWIG_AVERAGE" "$WIG_DIR/${base}.${ctx}.bw" "$PROMOTER_NORM" "$WIG_DIR/${base}_promoter_${ctx}.tab" 2>>"$LOG"
+        "$BIGWIG_AVERAGE" "$WIG_DIR/${base}.${ctx}.bw" "$PROMOTERSELF_NORM" "$WIG_DIR/${base}_promoterselves_${ctx}.tab" 2>>"$LOG"
     done
 ) &
 
@@ -201,15 +274,26 @@ wait
 #####################################
 # 3. Merge in R (per-stage averages)
 #####################################
+CURRENT_STEP="step 3 - merge methylation tables"
 echo "[STEP 3] Merging methylation tables (stage averages) in R..."
 
 Rscript - "$@" <<'EOF'
+wig_dir <- Sys.getenv("WIG_DIR", ".")
+
 process_group <- function(feature, ctx){
-  tabs <- list.files(pattern=paste0("_",feature,"_",ctx,".tab$"))
+  tabs <- list.files(path=wig_dir, pattern=paste0("_",feature,"_",ctx,".tab$"), full.names=TRUE)
+  if (length(tabs) == 0) {
+    message("No tables for ", feature, " ", ctx, "; skipping.")
+    return(NULL)
+  }
   lst <- lapply(tabs, function(f){
-    df <- read.table(f, header=F, stringsAsFactors=F)
-    # V1 = ID, V3 = depth, V6 = methylation value
-    stage_rep <- sub(paste0("_",feature,"_",ctx,".tab$"),"",f)
+    df <- read.table(f, header=FALSE, stringsAsFactors=FALSE)
+    if (nrow(df) == 0) return(NULL)
+    # bigWigAverageOverBed yields: name size covered sum mean (5 cols) or more with extra stats
+    val_col <- ncol(df)   # use last column as methylation value
+    depth_col <- if (ncol(df) >= 3) 3 else val_col
+    fname <- basename(f)
+    stage_rep <- sub(paste0("_",feature,"_",ctx,".tab$"),"",fname)
     parts <- strsplit(stage_rep, "_")[[1]]
     stage <- parts[1]
     replicate <- parts[2]
@@ -223,13 +307,19 @@ process_group <- function(feature, ctx){
       df <- df_grouped
     }
 
-    data.frame(ID=df$V1,
-               value=df$V6,
-               depth=df$V3,
+    data.frame(ID=df[[1]],
+               value=df[[val_col]],
+               depth=df[[depth_col]],
                stage=stage,
                replicate = replicate,
                stringsAsFactors=F)
   })
+
+  lst <- Filter(Negate(is.null), lst)
+  if (length(lst) == 0) {
+    message("No non-empty tables for ", feature, " ", ctx, "; skipping.")
+    return(NULL)
+  }
 
   df <- do.call(rbind, lst)
 
@@ -241,14 +331,14 @@ process_group <- function(feature, ctx){
   # calculate the methylation value of each ID at each stage 
   avg_df <- aggregate(value ~ ID + stage, data=df, FUN=function(x) mean(x, na.rm=TRUE))
 
-  # wide format：ID --> row, stage --> column
+  # Wide format: ID -> row, stage -> column
   wide <- reshape(avg_df, idvar="ID", timevar="stage", direction="wide")
 
   # remove "value." in column names
   names(wide) <- sub("^value\\.", "", names(wide))
 
   # output
-  out <- paste0("Tab_",feature,"_",ctx,".txt")
+  out <- file.path(getwd(), paste0("Tab_",feature,"_",ctx,".txt"))
   write.table(wide, file=out, sep="\t", quote=F, row.names=F)
   message("Wrote: ", out)
 }
@@ -270,6 +360,11 @@ echo "[DONE] All outputs generated."
 echo "[TIME] Total runtime: $RUNTIME seconds ($((RUNTIME/60)) min)"
 
 rm overlapped_promoter.bed overlapped_promoterselves.bed overlapped_promoterselves_uniq.bed overlapped_promoterselves_uniq_rename.bed
-mkdir wig_bw_tab
-mv *.tab *.bw *.wig wig_bw_tab
-
+# consolidate wig/bw/tab files
+mkdir -p wig
+shopt -s nullglob
+files=( *.tab *.bw *.wig )
+shopt -u nullglob
+if (( ${#files[@]} )); then
+  mv "${files[@]}" wig/
+fi

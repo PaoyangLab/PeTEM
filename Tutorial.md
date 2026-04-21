@@ -52,8 +52,7 @@ You will be prompted to select which steps to run (enter `y` or `n`):
 0. Preprocessing? (y/n):
 1. TE distribution? (y/n):
 2. Promoter-embedded TE families? (y/n):
-3-1. TE impact distance: preprocessing? (y/n):
-3-2. TE impact distance: plot? (y/n):
+3. TE impact distance? (y/n):
 4. Correlation single condition? (y/n):
 5. Correlation across conditions? (y/n):
 ```
@@ -96,8 +95,7 @@ y-axis limit for TE expression vs TE mC plot (CG, default 30):  60
 | 0    | Preprocessing of genome, genes, TEs, methylation files |
 | 1    | TE distribution across genomic features                |
 | 2    | Promoter-embedded TE families analysis                 |
-| 3-1  | TE impact distance preprocessing                       |
-| 3-2  | TE impact distance plotting                            |
+| 3    | TE impact distance (auto-runs preprocessing when needed, otherwise plots directly) |
 | 4    | Correlation between TEs and genes (single condition)   |
 | 5    | Correlation between TEs and genes across conditions    |
 
@@ -134,4 +132,3 @@ After successful completion, outputs will include:
     * `OUTPUT_5_Q2/4_boxplot_*.png`: Box plots showing the expression and methylation level changes of those negatively correlated gene-TE pairs under each two stages.
     * `OUTPUT_5_Q2/4_*.txt`: The name lists of those negatively correlated gene-TE pairs are also in the output.
   <img width="1138" height="722" alt="image" src="https://github.com/user-attachments/assets/68b8bce7-a32d-415e-b066-81f75e03aa21" />
-
