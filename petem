@@ -20,8 +20,10 @@ Usage:
   petem 1_TE_distribution -g genome_bed_dir -t TE.bed -f genome.fa.fai [-o output_dir]
   petem --2 -t TE.bed -T TE_family.txt -i TE_overlap_promoter.bed [-o output_dir]
   petem 2_TE_families -t TE.bed -T TE_family.txt -i TE_overlap_promoter.bed [-o output_dir]
-  petem --3 -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]
-  petem 3_TE_impact_distance -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]
+  petem --3 -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
+  petem 3_TE_impact_distance -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
+  petem --4 -eg gene_expression.txt -et TE_expression.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n] [--wd_num 156]
+  petem 4_single_condition_correlation -eg gene_expression.txt -et TE_expression.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n] [--wd_num 156]
 
 Required files inside genome_bed_dir:
   gene.bed
@@ -296,7 +298,9 @@ run_module_3() {
   local outdir=""
   local limit=15000
   local tick=5000
-  local wd=200
+  local percentile=10
+  local window_size=100
+  local line_mode="raw"
   local unexp="n"
   local control="n"
   local -a meth_files=()
@@ -308,9 +312,11 @@ run_module_3() {
       -eg) gene_exp=$2; shift 2 ;;
       -et) te_exp=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
-      -lim) limit=$2; shift 2 ;;
+      -d|-lim) limit=$2; shift 2 ;;
       -tick) tick=$2; shift 2 ;;
-      -WD) wd=$2; shift 2 ;;
+      -p) percentile=$2; shift 2 ;;
+      -w|-WD) window_size=$2; shift 2 ;;
+      -l) line_mode=$2; shift 2 ;;
       -unexp) unexp=$2; shift 2 ;;
       -c) control=$2; shift 2 ;;
       -m)
@@ -367,9 +373,78 @@ run_module_3() {
       -et "$te_exp" \
       -lim "$limit" \
       -tick "$tick" \
-      -WD "$wd" \
+      -p "$percentile" \
+      -w "$window_size" \
+      -l "$line_mode" \
       -unexp "$unexp" \
       -c "$control"
+  )
+}
+
+run_module_4() {
+  local gene_exp=""
+  local te_exp=""
+  local module0_dir=""
+  local outdir=""
+  local unexp="n"
+  local wd_num=156
+  local ylim_cg=""
+  local ylim_chg=""
+  local ylim_chh=""
+  local ylim_te_ch=""
+  local ylim_te_cg=""
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -eg) gene_exp=$2; shift 2 ;;
+      -et) te_exp=$2; shift 2 ;;
+      --module0-dir) module0_dir=$2; shift 2 ;;
+      -o) outdir=$2; shift 2 ;;
+      --unexp) unexp=$2; shift 2 ;;
+      --wd_num) wd_num=$2; shift 2 ;;
+      --ylim_CG) ylim_cg=$2; shift 2 ;;
+      --ylim_CHG) ylim_chg=$2; shift 2 ;;
+      --ylim_CHH) ylim_chh=$2; shift 2 ;;
+      --ylim_TEexpTEmC_CH) ylim_te_ch=$2; shift 2 ;;
+      --ylim_TEexpTEmC_CG) ylim_te_cg=$2; shift 2 ;;
+      -h|--help) usage ;;
+      *) die "unknown option for module 4: $1" ;;
+    esac
+  done
+
+  CURRENT_STEP="argument validation"
+  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
+  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
+  [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir"
+
+  gene_exp=$(resolve_path "$gene_exp")
+  te_exp=$(resolve_path "$te_exp")
+  module0_dir=$(resolve_path "$module0_dir")
+  outdir=$(resolve_path "${outdir:-$(pwd)}")
+
+  require_file "Gene expression file" "$gene_exp"
+  require_file "TE expression file" "$te_exp"
+  [[ -d $module0_dir ]] || die "module 0 output directory not found: $module0_dir"
+
+  CURRENT_STEP="module 4 execution"
+  mkdir -p "$outdir"
+  (
+    cd "$outdir"
+    local -a cmd=(
+      Rscript "$SCRIPT_DIR/4_single_condition_correlation.R"
+      --eg "$gene_exp"
+      --et "$te_exp"
+      --module0-dir "$module0_dir"
+      --outdir "$outdir"
+      --unexp "$unexp"
+      --wd_num "$wd_num"
+    )
+    [[ -n $ylim_cg ]] && cmd+=(--ylim_CG "$ylim_cg")
+    [[ -n $ylim_chg ]] && cmd+=(--ylim_CHG "$ylim_chg")
+    [[ -n $ylim_chh ]] && cmd+=(--ylim_CHH "$ylim_chh")
+    [[ -n $ylim_te_ch ]] && cmd+=(--ylim_TEexpTEmC_CH "$ylim_te_ch")
+    [[ -n $ylim_te_cg ]] && cmd+=(--ylim_TEexpTEmC_CG "$ylim_te_cg")
+    "${cmd[@]}"
   )
 }
 
@@ -391,6 +466,9 @@ main() {
       ;;
     --3|3|3_TE_impact_distance)
       run_module_3 "$@"
+      ;;
+    --4|4|4_single_condition_correlation)
+      run_module_4 "$@"
       ;;
     -h|--help)
       usage

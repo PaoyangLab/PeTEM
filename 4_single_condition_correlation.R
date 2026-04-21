@@ -85,6 +85,11 @@ corr_exp <- function(df, x, y, method="pearson") {
 }
 
 plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
+  cg_col <- "#DFC2B1"
+  chg_col <- "#D7D1A5"
+  chh_col <- "#A8C8CD"
+  te_gray <- "#9E9E9E"
+
   # correlations
   TEexp_TEmC_corr <- corr_mC(TEdf, paste0(stage,"_TEexp"), paste0(stage,"_TE_CG"), paste0(stage,"_TE_CHG"), paste0(stage,"_TE_CHH"), method=method)
   exp_TEmC_corr   <- corr_mC(gdf, paste0(stage,"_exp"), paste0(stage,"_TE_CG"), paste0(stage,"_TE_CHG"), paste0(stage,"_TE_CHH"), method=method)
@@ -103,26 +108,50 @@ plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
       exp_TEmC_corr["CHG","Corr"],
       exp_TEmC_corr["CHH","Corr"]
     ),
-    Color = c(rep("#D3A355",3), "#2B5A78", rep("#A4BE78",3))
+    Color = c(cg_col, chg_col, chh_col, te_gray, cg_col, chg_col, chh_col)
   )
   corr_df$Comparison <- factor(corr_df$Comparison, levels=rev(corr_df$Comparison))
+  group_axis_labels <- c(
+    "geneexp vs TEmCHH" = "",
+    "geneexp vs TEmCHG" = "Gene expression\nvs TE methylation",
+    "geneexp vs TEmCG" = "",
+    "geneexp vs TEexp" = "Gene expression\nvs TE expression",
+    "TEexp vs TEmCHH" = "",
+    "TEexp vs TEmCHG" = "TE expression\nvs TE methylation",
+    "TEexp vs TEmCG" = ""
+  )
+  te_row <- which(levels(corr_df$Comparison) == "geneexp vs TEexp")
   
   # plot
   xmin <- min(corr_df$Corr, na.rm=TRUE) - 0.1
   xmax <- max(corr_df$Corr, na.rm=TRUE) + 0.1
+  right_labels <- data.frame(
+    Comparison = factor(c("TEexp vs TEmCG", "TEexp vs TEmCHG", "TEexp vs TEmCHH"),
+                        levels = levels(corr_df$Comparison)),
+    label = c("CG", "CHG", "CHH"),
+    color = c("#B78E79", "#A59C70", "#6D97A0"),
+    x = max(0.03, 0.04 * max(abs(c(xmin, xmax)))),
+    stringsAsFactors = FALSE
+  )
   outfile <- output_file(paste0("OUTPUT_4_",method,"_correlation_bar_",stage,".png"))
   png(file=outfile,width=2000,height=1500,res=400)
   print(
     ggplot(corr_df, aes(x=Corr,y=Comparison,fill=Color)) +
       geom_bar(stat="identity") +
+      geom_hline(yintercept=c(te_row - 0.5, te_row + 0.5), color="black", linewidth=0.6) +
       geom_text(aes(label=round(Corr,2)),
                 hjust=ifelse(corr_df$Corr>=0, -0.1, 1.1), size=4) +
+      geom_text(data=right_labels, aes(x=x, y=Comparison, label=label, color=color),
+                inherit.aes=FALSE, hjust=0, size=4.2, fontface="bold") +
       scale_fill_identity() +
+      scale_color_identity() +
+      scale_y_discrete(labels = group_axis_labels) +
       xlim(xmin, xmax) +
-      labs(x=paste0(method," correlation coefficient"), y=NULL) +
+      labs(x=paste0(tools::toTitleCase(method)," correlation coefficient"), y=NULL) +
       petem_theme_bw() +
       theme(
         panel.border=element_rect(colour="black", fill=NA, linewidth=1),
+        axis.ticks.y = element_blank(),
         panel.grid.major.y = element_blank(),
         panel.grid.minor = element_blank()
       )
@@ -318,15 +347,15 @@ for(stage in stages){
        ylim=c(0,opt$ylim_TEexpTEmC_CH),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
   lines(TE_CHH,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CHH_col)
   axis(4,las=1)
-  mtext(expression(bold("TE mCH(%)")), side=4, line=3.5, cex=PETEM_BASE_CEX_LABEL)
+  mtext(expression(bold("TE CH methylation level (%)")), side=4, line=3.5, cex=PETEM_BASE_CEX_LABEL)
   box()
   par(new=TRUE)
   plot(TE_CG,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CG_col,type="l",axes=FALSE,ylim=c(0,opt$ylim_TEexpTEmC_CG),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
   axis(2, col="black", las=1)
-  mtext(expression(bold("TE mCG(%)")), side=2, line=3, cex=PETEM_BASE_CEX_LABEL)
+  mtext(expression(bold("TE CG methylation level (%)")), side=2, line=3, cex=PETEM_BASE_CEX_LABEL)
   mtext("Lowly expressed TEs      Highly expressed TEs", side=1, line=1, cex=PETEM_BASE_CEX_LABEL, font=2)
   par(xpd=NA)
-  legend("top", inset=c(0,-0.08), x.intersp=0.8, horiz=FALSE,
+  legend("top", inset=c(0,-0.16), x.intersp=0.8, horiz=TRUE,
          legend=c("CG","CHG","CHH"), text.font=2, bty='n', lty=1, lwd=PETEM_BASE_LINE_WIDTH, col=c(CG_col,CHG_col,CHH_col), cex=PETEM_BASE_CEX_AXIS)
   par(xpd=FALSE)
   grid(nx=NA, ny=NULL, col="gray70", lty=3, lwd=1)
@@ -371,30 +400,65 @@ for(mtype in c("CG","CHG","CHH")){
 
     line_labels <- c(
         "TE"   = "TE",
-        "wTE"  = "Promoters w TEs",
-        "woTE" = "Promoters w/o TEs"
+        "wTE"  = "Promoter with TEs",
+        "woTE" = "Promoter without TEs"
     )
+
+    rho_df <- data.frame(
+        type = c("TE", "wTE", "woTE"),
+        rho = c(
+            cor(log2(gdf[[paste0(stage,"_exp")]]), gdf[[paste0(stage,"_TE_", mtype)]] * 100, method = "spearman", use = "complete.obs"),
+            cor(log2(pmC[[paste0(stage,"_exp")]]), pmC[[paste0(stage,"_promoterselves_", mtype)]] * 100, method = "spearman", use = "complete.obs"),
+            cor(log2(wo[[paste0(stage)]]), wo[[paste0(stage,"_promoter_", mtype)]] * 100, method = "spearman", use = "complete.obs")
+        ),
+        stringsAsFactors = FALSE
+    )
+    rho_df$label <- sprintf("\u03c1=%.2f", rho_df$rho)
+    line_start_idx <- max(2, floor(opt$wd_num * 0.08))
+    rho_df$x <- line_start_idx
+    rho_df$y <- c(
+      df$TE[line_start_idx] + ylim_val * 0.04,
+      df$wTE[line_start_idx] + ylim_val * 0.04,
+      df$woTE[line_start_idx] + ylim_val * 0.04
+    )
+    rho_df$y <- pmin(rho_df$y, ylim_val * 0.98)
+    min_gap <- ylim_val * 0.07
+    rho_df <- rho_df[order(rho_df$y), , drop = FALSE]
+    if (nrow(rho_df) > 1) {
+      for (i in 2:nrow(rho_df)) {
+        if ((rho_df$y[i] - rho_df$y[i - 1]) < min_gap) {
+          rho_df$y[i] <- rho_df$y[i - 1] + min_gap
+        }
+      }
+    }
+    if (max(rho_df$y) > ylim_val * 0.98) {
+      rho_df$y <- rho_df$y - (max(rho_df$y) - ylim_val * 0.98)
+    }
+    rho_df$y <- pmax(rho_df$y, ylim_val * 0.08)
 
     p <- ggplot(df_long, aes(x=x, y=value, color=type)) +
         geom_line(linewidth=1.5) +
+        geom_text(data=rho_df, aes(x=x, y=y, label=label, color=type),
+                  inherit.aes=FALSE, hjust=0, vjust=0, fontface="bold", size=4, show.legend=FALSE) +
         scale_color_manual(values=line_colors, labels=line_labels) +
         coord_cartesian(ylim=c(0, ylim_val), xlim=c(0, opt$wd_num)) +
         labs(y="Methylation level (%)",
              x="Lowly expressed genes             Highly expressed genes",
+             caption=paste0(
+               "TE-gene pairs: ", nrow(gdf),
+               ", window size: ", g_window,
+               "; Promoter without TEs: ", nrow(wo),
+               ", window size: ", wo_window
+             ),
              color=NULL) +
         petem_theme_bw() +
         theme(
             legend.position = "top",
+            plot.margin = margin(t = 10, r = 10, b = 14, l = 10),
+            plot.caption = element_text(hjust = 1, size = PETEM_AXIS_TEXT_SIZE),
+            plot.caption.position = "plot",
             panel.grid.minor = element_blank()
-        ) +
-        annotate("text", 
-                 x = Inf, y = -Inf, hjust=1.05, vjust=-1.5, size=PETEM_ANNOTATION_TEXT_SIZE,
-                 label = paste0(
-                     "TE-gene pairs: ", nrow(gdf),
-                     ", window size: ", g_window,
-                     "; Promoters w/o TEs: ", nrow(wo),
-                     ", window size: ", wo_window
-                 ))
+        )
 
     ggsave(
         filename = output_file(paste0("OUTPUT_4_geneexp_TEm",mtype,"_line_",stage,".png")),

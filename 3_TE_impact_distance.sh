@@ -12,7 +12,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 #     -m sample1.CGmap.gz sample2.CGmap.gz ... \
 #     -g gene.bed -t TE.bed \
 #     -eg gene_expression.txt -et TE_expression.txt \
-#     [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]
+#     [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
 
 die() {
   echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
@@ -20,7 +20,7 @@ die() {
 }
 
 usage() {
-  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -eg expression_gene.txt -et expression_TE.txt [-lim 15000] [-tick 5000] [-WD 200] [-unexp y|n] [-c y|n]" >&2
+  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -eg expression_gene.txt -et expression_TE.txt [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]" >&2
   exit 1
 }
 
@@ -75,7 +75,9 @@ GENE_EXP=""
 TE_EXP=""
 LIMIT=15000
 MAJOR_TICK=5000
-WD=200
+TOP_BOTTOM_PERCENT=10
+WINDOW_SIZE=100
+LINE_MODE="raw"
 INCLUDE_UNEXPRESSED_TE="n"
 RUN_CONTROL_PLOT="n"
 
@@ -91,9 +93,11 @@ while [[ $# -gt 0 ]]; do
     -t) TE_BED="$2"; shift 2 ;;
     -eg) GENE_EXP="$2"; shift 2 ;;
     -et) TE_EXP="$2"; shift 2 ;;
-    -lim) LIMIT="$2"; shift 2 ;;
+    -d|-lim) LIMIT="$2"; shift 2 ;;
     -tick) MAJOR_TICK="$2"; shift 2 ;;
-    -WD) WD="$2"; shift 2 ;;
+    -p) TOP_BOTTOM_PERCENT="$2"; shift 2 ;;
+    -w|-WD) WINDOW_SIZE="$2"; shift 2 ;;
+    -l) LINE_MODE="$2"; shift 2 ;;
     -unexp) INCLUDE_UNEXPRESSED_TE="$2"; shift 2 ;;
     -c) RUN_CONTROL_PLOT="$2"; shift 2 ;;
     *) die "unknown option: $1" ;;
@@ -112,6 +116,13 @@ require_file "-g" "$GENE_BED"
 require_file "-t" "$TE_BED"
 require_file "-eg" "$GENE_EXP"
 require_file "-et" "$TE_EXP"
+[[ $TOP_BOTTOM_PERCENT =~ ^[0-9]+([.][0-9]+)?$ ]] || die "invalid value for -p: ${TOP_BOTTOM_PERCENT}"
+[[ $WINDOW_SIZE =~ ^[0-9]+$ ]] || die "invalid value for -w: ${WINDOW_SIZE}"
+[[ $LIMIT =~ ^[0-9]+$ ]] || die "invalid value for -d: ${LIMIT}"
+awk "BEGIN {exit !(${TOP_BOTTOM_PERCENT} > 0 && ${TOP_BOTTOM_PERCENT} < 50)}" || die "value for -p must be greater than 0 and less than 50: ${TOP_BOTTOM_PERCENT}"
+(( WINDOW_SIZE > 0 )) || die "value for -w must be greater than 0: ${WINDOW_SIZE}"
+(( LIMIT > 0 )) || die "value for -d must be greater than 0: ${LIMIT}"
+[[ $LINE_MODE == "raw" || $LINE_MODE == "poly" ]] || die "invalid value for -l: ${LINE_MODE}. Supported values: poly"
 for f in "${METH_FILES[@]}"; do
   require_file "-m" "$f"
 done
@@ -235,11 +246,12 @@ bedtools closest -a expressed_gene.bed -b expressed_TE.bed -id -d -D a > expgene
 
 CURRENT_STEP="step B2 - build expression strata and adjacent regions"
 echo "[`date`] [B] Step 2. Split high/low genes and build adjacent regions" | tee -a "$LOG"
-Rscript - "$GENE_EXP" "$LIMIT" <<'EOF' 
+Rscript - "$GENE_EXP" "$LIMIT" "$TOP_BOTTOM_PERCENT" <<'EOF' 
 args <- commandArgs(trailingOnly=TRUE)
 
 gene_exp <- args[1]
 limit <- as.numeric(args[2])
+top_bottom_percent <- as.numeric(args[3])
 
 gene_bed <- read.table("gene_sort.bed", header=F, stringsAsFactors=F)
 gene_exp    <- read.table(gene_exp, header=T, stringsAsFactors=F)
@@ -277,10 +289,14 @@ sink("OUTPUT_3_TE_impact_distance_gene_TE_number.txt")
 for(stage in stages){
   vals <- gene_exp2[, stage, drop=FALSE]
   vals <- vals[vals[,1]>0, , drop=FALSE]
+  if(nrow(vals) == 0){
+    next
+  }
   
   sorted <- vals[order(vals[,1]), , drop=FALSE]
-  low  <- head(sorted, nrow(sorted)/4)
-  high <- tail(sorted, nrow(sorted)/4)
+  selected_n <- max(1, ceiling(nrow(sorted) * top_bottom_percent / 100))
+  low  <- head(sorted, selected_n)
+  high <- tail(sorted, selected_n)
   
   low_bed  <- merge(gene_bed, low, by.x= "V4", by.y= "row.names", all.y=T)
   high_bed <- merge(gene_bed, high, by.x= "V4", by.y= "row.names", all.y=T)
@@ -388,17 +404,18 @@ for stage in "${stages[@]}"; do
     start=$(date +%s)
     echo "[INFO] Processing stage $stage"  | tee -a "$LOG"
 
-    Rscript - "$LIMIT" "$MAJOR_TICK" "$WD" "$stage" "$SCRIPT_DIR" "$RUN_CONTROL_PLOT" <<'EOF'
+    Rscript - "$LIMIT" "$MAJOR_TICK" "$WINDOW_SIZE" "$stage" "$SCRIPT_DIR" "$RUN_CONTROL_PLOT" "$LINE_MODE" <<'EOF'
 library(ggplot2)
 suppressPackageStartupMessages(library(gplots))
 
 args <- commandArgs(trailingOnly=TRUE)
 limit <- as.numeric(args[1])
 major_tick <- as.numeric(args[2])
-WD <- as.numeric(args[3])
+window_size <- as.numeric(args[3])
 stage <- args[4]
 script_dir <- args[5]
 run_control_plot <- tolower(args[6])
+line_mode <- tolower(args[7])
 source(file.path(script_dir, "plot_defaults.R"))
 
 # Functions
@@ -430,10 +447,17 @@ linedf <- function(df){
   colnames(df3) <- c("dist","V11")
   df_list <- c()
   for(i in 0:RAN2){
-    val <- mean(df3[ (abs(df3$dist)>(i*SS+0.5)) & (abs(df3$dist)<=(i*SS+WD)), ]$V11, na.rm=TRUE)
+    val <- mean(df3[(abs(df3$dist) > (i * SS + 0.5)) & (abs(df3$dist) <= (i * SS + window_size)), ]$V11, na.rm=TRUE)
     df_list <- c(df_list,val)
   }
-  return(df_list)
+  if(length(df_list) == 0){
+    return(df_list)
+  }
+
+  # Use a centered moving average across adjacent 100 bp bins.
+  smoothed <- stats::filter(df_list, rep(1/3, 3), sides = 2)
+  smoothed[is.na(smoothed)] <- df_list[is.na(smoothed)]
+  as.numeric(smoothed)
 }
 
 types <- c("CG","CHG","CHH")
@@ -441,10 +465,9 @@ exprs <- c("low","high")
 dirs <- c("up","down")
 
 RAN <- limit
-WD <- WD
-SS <- 4  
-Start <- WD/2
-RAN2 <- (RAN-WD/2)/SS
+SS <- window_size
+Start <- window_size / 2
+RAN2 <- floor((RAN - window_size / 2) / SS)
 
 plot_prefixes <- c("wTE")
 if(run_control_plot == "y"){
@@ -514,8 +537,12 @@ for(type in types){
 
   df_point_all <- rbind(up_df_point, down_df_point)
   
-  breaks <- c(seq(-limit, -100, major_tick),     0,   gap, seq(gap+major_tick, gap+limit, major_tick))
-  labels <- c(seq(-limit, -100, major_tick), "TSS", "TTS", seq(major_tick,     limit,     major_tick))
+  left_breaks <- if(major_tick < limit) seq(-limit, -major_tick, major_tick) else -limit
+  right_breaks <- if(major_tick < limit) seq(gap + major_tick, gap + limit, major_tick) else gap + limit
+  left_labels <- if(major_tick < limit) seq(-limit, -major_tick, major_tick) else -limit
+  right_labels <- if(major_tick < limit) seq(major_tick, limit, major_tick) else limit
+  breaks <- c(left_breaks, 0, gap, right_breaks)
+  labels <- c(left_labels, "TSS", "TTS", right_labels)
 
   output_file <- if(prefix == "woTE"){
     paste0("OUTPUT_3_TE_impact_distance_control_",stage,"_",type,".png")
@@ -526,10 +553,22 @@ for(type in types){
 
   png(file=output_file, width=5000, height=2000, res=400)
 
-  p<- ggplot() +
-  geom_point(df_point_all, mapping=aes(x=dist_shift,y=V11,color=expr), size=0.01, alpha=0.1) +
-  geom_line(up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr)) +
-  geom_line(down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr)) +
+  p <- ggplot() +
+  geom_point(df_point_all, mapping=aes(x=dist_shift,y=V11,color=expr), size=0.01, alpha=0.03)
+
+  if(line_mode == "poly"){
+    p <- p +
+      geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                  method="lm", formula=y ~ poly(x, 3), se=TRUE, linewidth=0.8, alpha=0.18) +
+      geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                  method="lm", formula=y ~ poly(x, 3), se=TRUE, linewidth=0.8, alpha=0.18)
+  } else {
+    p <- p +
+      geom_line(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr)) +
+      geom_line(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr))
+  }
+
+  p <- p +
   petem_theme_bw() +
   scale_color_manual(values=c("#B44A53","#509ABC")) +
   scale_x_continuous(breaks=breaks, labels=labels) +
