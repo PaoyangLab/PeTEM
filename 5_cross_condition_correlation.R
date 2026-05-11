@@ -8,8 +8,6 @@ source(file.path(dirname(normalizePath(script_path)), "plot_defaults.R"))
 
 suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(ggplot2))
-suppressPackageStartupMessages(library(ggpointdensity))
-suppressPackageStartupMessages(library(viridis))
 suppressPackageStartupMessages(library(reshape2))
 suppressPackageStartupMessages(library(stringr))
 suppressPackageStartupMessages(library(rlang))
@@ -68,8 +66,7 @@ plot_delta_scatter <- function(df, x, y, fname, title, xlab, ylab){
   png(file=fname, width=3000, height=2500, res=400)
   xvar <- x; yvar <- y
   p <- ggplot(df, aes(x = .data[[xvar]], y = .data[[yvar]])) +
-    geom_pointdensity(adjust=0.5, size=2) + 
-    scale_color_viridis() +
+    geom_point(color="#6E6E6E", alpha=0.45, size=1.6) +
     geom_hline(yintercept=0, linetype="dashed", color="gray70") +
     geom_vline(xintercept=0, linetype="dashed", color="gray70") +
     geom_smooth(method="lm", se=FALSE, col="black", formula = y ~ x) +
@@ -84,7 +81,7 @@ plot_delta_scatter <- function(df, x, y, fname, title, xlab, ylab){
           panel.grid.major=element_blank(),
           panel.grid.minor=element_blank(),
           plot.caption=element_text(size=PETEM_AXIS_TEXT_SIZE, hjust=0)) +
-    labs(title=title, caption = caption_text, color="Number of\nneighboring\npoints\n ", x=xlab, y=ylab)
+    labs(title=title, caption = caption_text, x=xlab, y=ylab)
   suppressMessages(print(p))
 
   dev.off()

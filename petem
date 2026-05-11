@@ -24,6 +24,8 @@ Usage:
   petem 3_TE_impact_distance -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
   petem --4 -eg gene_expression.txt -et TE_expression.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n] [--wd_num 156]
   petem 4_single_condition_correlation -eg gene_expression.txt -et TE_expression.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n] [--wd_num 156]
+  petem --5 --DEG DEG.txt --DETE DETE.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n]
+  petem 5_cross_condition_correlation --DEG DEG.txt --DETE DETE.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n]
 
 Required files inside genome_bed_dir:
   gene.bed
@@ -448,6 +450,52 @@ run_module_4() {
   )
 }
 
+run_module_5() {
+  local deg_file=""
+  local dete_file=""
+  local module0_dir=""
+  local outdir=""
+  local unexp="n"
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --DEG) deg_file=$2; shift 2 ;;
+      --DETE) dete_file=$2; shift 2 ;;
+      --module0-dir) module0_dir=$2; shift 2 ;;
+      -o) outdir=$2; shift 2 ;;
+      --unexp) unexp=$2; shift 2 ;;
+      -h|--help) usage ;;
+      *) die "unknown option for module 5: $1" ;;
+    esac
+  done
+
+  CURRENT_STEP="argument validation"
+  [[ -n $deg_file ]] || die "missing required argument: --DEG DEG.txt"
+  [[ -n $dete_file ]] || die "missing required argument: --DETE DETE.txt"
+  [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir"
+
+  deg_file=$(resolve_path "$deg_file")
+  dete_file=$(resolve_path "$dete_file")
+  module0_dir=$(resolve_path "$module0_dir")
+  outdir=$(resolve_path "${outdir:-$(pwd)}")
+
+  require_file "DEG file" "$deg_file"
+  require_file "DETE file" "$dete_file"
+  [[ -d $module0_dir ]] || die "module 0 output directory not found: $module0_dir"
+
+  CURRENT_STEP="module 5 execution"
+  mkdir -p "$outdir"
+  (
+    cd "$outdir"
+    Rscript "$SCRIPT_DIR/5_cross_condition_correlation.R" \
+      --DEG "$deg_file" \
+      --DETE "$dete_file" \
+      --module0-dir "$module0_dir" \
+      --outdir "$outdir" \
+      --unexp "$unexp"
+  )
+}
+
 main() {
   [[ $# -gt 0 ]] || usage
 
@@ -469,6 +517,9 @@ main() {
       ;;
     --4|4|4_single_condition_correlation)
       run_module_4 "$@"
+      ;;
+    --5|5|5_cross_condition_correlation)
+      run_module_5 "$@"
       ;;
     -h|--help)
       usage

@@ -35,11 +35,24 @@ if (is.null(args$all) | is.null(args$ins) | is.null(args$TE)) {
 
 dir.create(args$outdir, recursive = TRUE, showWarnings = FALSE)
 
+read_te_family_table <- function(path) {
+  raw_df <- read.table(path, sep = "\t", header = FALSE, stringsAsFactors = FALSE, quote = "")
+  if (ncol(raw_df) == 2) {
+    out <- raw_df[, 1:2]
+  } else if (ncol(raw_df) >= 7) {
+    out <- raw_df[, c(1, 7)]
+  } else {
+    stop("Unsupported TE family format. Expected either 2 columns (TE_id, family) or >=7 columns with TE family in column 7.")
+  }
+  colnames(out) <- c("TE_id", "TE_family")
+  out
+}
+
 
 # Read input files ----------
 df1 <- read.table(args$all, sep="\t", header=FALSE)
 df2 <- read.table(args$ins, sep="\t", header=FALSE)
-TE_families <- as.data.frame(read.table(args$TE, sep="\t", header=FALSE))
+TE_families <- read_te_family_table(args$TE)
 
 
 df1<-df1[,c(1:6)]
@@ -49,11 +62,11 @@ df2<-df2[,c(1:6)]
 df2<-df2[!duplicated(df2),]
 
 # Count TE families ----------
-df1m <- merge(df1, TE_families, by.x="V4", by.y="V1")
-df2m <- merge(df2, TE_families, by.x="V4", by.y="V1")
+df1m <- merge(df1, TE_families, by.x="V4", by.y="TE_id")
+df2m <- merge(df2, TE_families, by.x="V4", by.y="TE_id")
 
-c1 <- as.data.frame(table(df1m$V2.y))
-c2 <- as.data.frame(table(df2m$V2.y))
+c1 <- as.data.frame(table(df1m$TE_family))
+c2 <- as.data.frame(table(df2m$TE_family))
 
 df_TE <- merge(c1, c2, by="Var1", all=TRUE)
 df_TE[is.na(df_TE)] <- 0
