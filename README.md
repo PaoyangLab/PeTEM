@@ -155,12 +155,14 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
     * `promoter.bed`: generated automatically in Step 0
 * __Outputs:__
     * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
+  
 ### Module 2. Promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.txt`, `promoter.bed` (from Step 0)
 * __Outputs:__
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
+  
 ### Module 3. Gene-proximal TE methylation
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
 * 3-2 Plotting: Visualize distance impact of TE methylation on gene expression[
