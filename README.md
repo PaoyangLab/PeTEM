@@ -51,8 +51,30 @@ Set up the environment
 PeTEM integrates inputs data including genome annotations, genome-wide DNA methylation, and expression data. In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
+* genomic.gff – General features annotations file
+Mixture of all genomic features location, such as gene, CDS, 5’UTR, 3’UTR…etc. There are 9 required columns, including sequence ID, source, feature type, feature start, feature end, score, phase, attributes.
+
+```
+Chr1    Araport11       gene    3631    5899    .       +       .       ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1
+Chr1    Araport11       mRNA    3631    5899    .       +       .       ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010;full_name=NAC domain containing protein 1
+Chr1    Araport11       CDS     3760    3913    .       +       0       ID=AT1G01010:CDS:1;Name=NAC001:CDS:1;Parent=AT1G01010.1
+Chr1    Araport11       CDS     3996    4276    .       +       2       ID=AT1G01010:CDS:2;Name=NAC001:CDS:2;Parent=AT1G01010.1
+Chr1    Araport11       CDS     4486    4605    .       +       0       ID=AT1G01010:CDS:3;Name=NAC001:CDS:3;Parent=AT1G01010.1
+Chr1    Araport11       CDS     4706    5095    .       +       0       ID=AT1G01010:CDS:4;Name=NAC001:CDS:4;Parent=AT1G01010.1
+Chr1    Araport11       CDS     5174    5326    .       +       0       ID=AT1G01010:CDS:5;Name=NAC001:CDS:5;Parent=AT1G01010.1
+Chr1    Araport11       CDS     5439    5630    .       +       0       ID=AT1G01010:CDS:6;Name=NAC001:CDS:6;Parent=AT1G01010.1
+Chr1    Araport11       exon    3631    3913    .       +       .       ID=AT1G01010:exon:1;Name=AT1G01010:exon:1;Parent=AT1G01010.1
+Chr1    Araport11       exon    3996    4276    .       +       .       ID=AT1G01010:exon:2;Name=AT1G01010:exon:2;Parent=AT1G01010.1
+Chr1    Araport11       exon    4486    4605    .       +       .       ID=AT1G01010:exon:3;Name=AT1G01010:exon:3;Parent=AT1G01010.1
+Chr1    Araport11       exon    4706    5095    .       +       .       ID=AT1G01010:exon:4;Name=AT1G01010:exon:4;Parent=AT1G01010.1
+Chr1    Araport11       exon    5174    5326    .       +       .       ID=AT1G01010:exon:5;Name=AT1G01010:exon:5;Parent=AT1G01010.1
+Chr1    Araport11       exon    5439    5899    .       +       .       ID=AT1G01010:exon:6;Name=AT1G01010:exon:6;Parent=AT1G01010.1
+Chr1    Araport11       five_prime_UTR  3631    3759    .       +       .       ID=AT1G01010:five_prime_UTR:1;Name=NAC001:five_prime_UTR:1;Parent=AT1G01010.1
+Chr1    Araport11       three_prime_UTR 5631    5899    .       +       .       ID=AT1G01010:three_prime_UTR:1;Name=NAC001:three_prime_UTR:1;Parent=AT1G01010.1
+```
+
 * genome.fa.fai – Gene annotation file (FASTA index)
-   > The fai index file is generated from genome.fasta filefile (Usage: samtools faidx ref.fasta), including 5 columns: name, length, offset, linebases, linewidth
+   > The genome FASTA index file is generated from genome fasta file (Usage: samtools faidx genome.fa), showing the names and lengths of each chromosome. The file includes 5 columns: name, length, offset, linebases, linewidth.
    ```
    Chr1    30427671    74              79      80
    Chr2    19698289    30812981        79      80
@@ -62,7 +84,17 @@ PeTEM integrates inputs data including genome annotations, genome-wide DNA methy
    ChrC    154478      120654981       79      80
    ChrM    367808      120811562       70      71
    ```
-   > Some genome annotations are commonly used and can be downloaded via the provided links:
+
+* TE.txt – Transposable element coordinates (BED format)
+   > BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
+   ```
+   AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
+   AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
+   AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
+   AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
+   ```
+
+* Commonly used genome annotations 
 
    * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
@@ -77,14 +109,6 @@ PeTEM integrates inputs data including genome annotations, genome-wide DNA methy
    * Fungi
        * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
 
-* TE.txt – Transposable element coordinates (BED format)
-   > BED file format of TE.txt includes 7 columns: chromosome, start, end, TE name, score, strand, TE family
-   ```
-   AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
-   AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
-   AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
-   AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
-   ```
 
 ### Expression Data
 * gene_expression.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
