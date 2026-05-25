@@ -97,8 +97,8 @@ PeTEM integrates inputs data including [genome annotations](#genome-annotation),
 In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
-* genomic.gff – General features annotations file
-  > Mixture of all genomic features location, such as gene, CDS, 5’UTR, 3’UTR…etc.
+* General features annotations file (GFF3 format) `genomic.gff`
+> The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR). 
 
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
 |---|---|---|---|---|---|---|---|---|
@@ -109,8 +109,8 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
 | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
 
-* genome.fa.fai – Gene annotation file (FASTA index)
-   > The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), showing the names and lengths of each chromosome.
+* Gene annotation file (FASTA index) `genome.fa.fai`
+> The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
 | name | length | offset | linebases | linewidth |
 |---|---|---|---|---|
@@ -122,8 +122,9 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | ChrC | 154478 | 120654981 | 79 | 80 |
 | ChrM | 367808 | 120811562 | 70 | 71 |
 
-* TE.txt – Transposable element coordinates (BED format)
-  > TE ...
+* Transposable element coordinates (BED format) `TE.txt`
+> The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+
 | TE name | chromosome | start | end | score | strand | TE family |
 |---|---|---|---|---|---|---|
 | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
@@ -131,7 +132,8 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
 | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
-* Commonly used genome annotations 
+
+* Sources of commonly used genome annotations 
 
    * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
