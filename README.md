@@ -30,7 +30,7 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 
 #### Clone repository:
 ```bash
-git clone https://github.com/yc811/PeTEM.git
+git clone https://github.com/PaoyangLab/PeTEM/PeTEM.git
 cd PeTEM
 ```
 
@@ -213,13 +213,13 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
 ## Pipeline Modules
-Upon running run_pipeline.sh, users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
+Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
 
 <img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/6cafee51-1022-412e-b2e1-ab7e3cb1a213" />
 
 
 ### Module 0. Preprocessing
-> Generate promoter regions (`promoter.bed`) and Integrate methylation and expression data
+> Generate promoter regions (`promoter.bed`) and integrate methylation and expression data
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
 * __Outputs:__
