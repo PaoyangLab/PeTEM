@@ -156,10 +156,10 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
    
 
 ### Methylation Data
-* *.CGmap.gz files – Per-sample methylation CGmap files
+#### Per-sample methylation CGmap files
    > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
 
-
+`*.CGmap.gz files`
 | chromosome | nucleotide | site | context | dinucleotide | methylation level | C site | C+T site |
 |---|---|---|---|---|---|---|---|
 | Chr3 | C | 556 | CG | CG | 0.877551 | 43 | 49 |
@@ -169,19 +169,17 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 
 
 ### Expression Data
-* gene_expression.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
-* TE_expression.txt – Differentially expressed TEs (Step 0, 3-2, 4, 5)
-   > In the expression files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+#### Differential expression tables
+> The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`. In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+> The column names should be: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
 
-   > The column names should be: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
-
+`gene_expression.txt` or `TE_expression.txt`
 |  | WT | drdd | logFC_drdd_WT | PValue_drdd_WT | FDR_drdd_WT |
 |---|---|---|---|---|---|
 | AT1G01010 | 1.58 | 2.39 | 0.61 | 0.21 | 1 |
 | AT1G01020 | 5.60 | 5.43 | -0.04 | 0.87 | 1 |
 | AT1G01030 | 1.49 | 3.39 | 1.17 | 0.01 | 0.12 |
 
-   These files will automatically be converted into expression matrices (gene_expression.txt, TE_expression.txt) for steps 0, 3-2, and 4.
 
 
 
