@@ -18,14 +18,14 @@ cd PeTEM
 #### Install through Docker
 ```bash
 docker build -t petem:local .
-docker run --rm petem:local –help
+docker run --rm petem:local –help
 ```
 
 #### Install through Anaconda
 ```bash
 conda env create -f environment.yml
 conda activate petem
-bash env_check.sh
+bash env_check.sh
 ```
 
 #### Local installation
