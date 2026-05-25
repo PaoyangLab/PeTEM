@@ -16,11 +16,15 @@ cd PeTEM
 ```
 
 <details>
-<summary>Install through Docker</summary>
+<summary>
+   - Install through Docker
+</summary>
+
 ```bash
 docker build -t petem:local .
-docker run --rm petem:local –help
+docker run --rm petem:local --help
 ```
+
 </details>
 
 #### Install through Docker
