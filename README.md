@@ -99,47 +99,37 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 ### Genome Annotation
 * genomic.gff – General features annotations file
   > Mixture of all genomic features location, such as gene, CDS, 5’UTR, 3’UTR…etc.
-  > The file includes 9 columns: **sequence ID**, **source**, **feature type**, **feature start**, **feature end**, **score**, **strand**, **phase**, **attributes**.
-  ```
-  Chr1    Araport11       gene    3631    5899    .       +       .       ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1
-  Chr1    Araport11       mRNA    3631    5899    .       +       .       ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010;full_name=NAC domain containing protein 1
-  Chr1    Araport11       CDS     3760    3913    .       +       0       ID=AT1G01010:CDS:1;Name=NAC001:CDS:1;Parent=AT1G01010.1
-  Chr1    Araport11       CDS     3996    4276    .       +       2       ID=AT1G01010:CDS:2;Name=NAC001:CDS:2;Parent=AT1G01010.1
-  Chr1    Araport11       CDS     4486    4605    .       +       0       ID=AT1G01010:CDS:3;Name=NAC001:CDS:3;Parent=AT1G01010.1
-  Chr1    Araport11       CDS     4706    5095    .       +       0       ID=AT1G01010:CDS:4;Name=NAC001:CDS:4;Parent=AT1G01010.1
-  Chr1    Araport11       CDS     5174    5326    .       +       0       ID=AT1G01010:CDS:5;Name=NAC001:CDS:5;Parent=AT1G01010.1
-  Chr1    Araport11       CDS     5439    5630    .       +       0       ID=AT1G01010:CDS:6;Name=NAC001:CDS:6;Parent=AT1G01010.1
-  Chr1    Araport11       exon    3631    3913    .       +       .       ID=AT1G01010:exon:1;Name=AT1G01010:exon:1;Parent=AT1G01010.1
-  Chr1    Araport11       exon    3996    4276    .       +       .       ID=AT1G01010:exon:2;Name=AT1G01010:exon:2;Parent=AT1G01010.1
-  Chr1    Araport11       exon    4486    4605    .       +       .       ID=AT1G01010:exon:3;Name=AT1G01010:exon:3;Parent=AT1G01010.1
-  Chr1    Araport11       exon    4706    5095    .       +       .       ID=AT1G01010:exon:4;Name=AT1G01010:exon:4;Parent=AT1G01010.1
-  Chr1    Araport11       exon    5174    5326    .       +       .       ID=AT1G01010:exon:5;Name=AT1G01010:exon:5;Parent=AT1G01010.1
-  Chr1    Araport11       exon    5439    5899    .       +       .       ID=AT1G01010:exon:6;Name=AT1G01010:exon:6;Parent=AT1G01010.1
-  Chr1    Araport11       five_prime_UTR  3631    3759    .       +       .       ID=AT1G01010:five_prime_UTR:1;Name=NAC001:five_prime_UTR:1;Parent=AT1G01010.1
-  Chr1    Araport11       three_prime_UTR 5631    5899    .       +       .       ID=AT1G01010:three_prime_UTR:1;Name=NAC001:three_prime_UTR:1;Parent=AT1G01010.1
-  ```
+
+| sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
+|---|---|---|---|---|---|---|---|---|
+| Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
+| Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
+| Chr1 | Araport11 | CDS | 3760 | 3913 | . | + | 0 | ID=AT1G01010:CDS:1;Parent=AT1G01010.1 |
+| Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
+| Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
+| Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
 
 * genome.fa.fai – Gene annotation file (FASTA index)
-   > The genome FASTA index file is generated from genome fasta file (Usage: samtools faidx genome.fa), showing the names and lengths of each chromosome.
-   > The file includes 5 columns: **name**, **length**, **offset**, **linebases**, **linewidth**.
-   ```
-   Chr1    30427671    74              79      80
-   Chr2    19698289    30812981        79      80
-   Chr3    23459830    50760691        79      80
-   Chr4    18585056    74517556        79      80
-   Chr5    26975502    93337941        79      80
-   ChrC    154478      120654981       79      80
-   ChrM    367808      120811562       70      71
-   ```
+   > The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), showing the names and lengths of each chromosome.
+
+| name | length | offset | linebases | linewidth |
+|---|---|---|---|---|
+| Chr1 | 30427671 | 74 | 79 | 80 |
+| Chr2 | 19698289 | 30812981 | 79 | 80 |
+| Chr3 | 23459830 | 50760691 | 79 | 80 |
+| Chr4 | 18585056 | 74517556 | 79 | 80 |
+| Chr5 | 26975502 | 93337941 | 79 | 80 |
+| ChrC | 154478 | 120654981 | 79 | 80 |
+| ChrM | 367808 | 120811562 | 70 | 71 |
 
 * TE.txt – Transposable element coordinates (BED format)
-   > The file includes 7 columns: **chromosome**, **start**, **end**, **TE name**, **score**, **strand**, **TE family**
-   ```
-   AT1TE00010	Chr1	11897	11976	0	+	LTR/Copia
-   AT1TE00020	Chr1	16883	17009	0	-	RC/Helitron
-   AT1TE00025	Chr1	17024	18924	0	+	RC/Helitron
-   AT1TE00030	Chr1	18331	18642	0	-	DNA/HAT
-   ```
+  > TE ...
+| TE name | chromosome | start | end | score | strand | TE family |
+|---|---|---|---|---|---|---|
+| AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
+| AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
+| AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
+| AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
 * Commonly used genome annotations 
 
