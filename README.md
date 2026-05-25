@@ -21,7 +21,6 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
   - [Module 3. TE methylation near gene](#module-3-te-methylation-near-gene)
   - [Module 4. Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression)
   - [Module 5. Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs)
-- [Usage](#usage)
 
 ## Tutorial
 Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
@@ -213,7 +212,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
 ## Pipeline Modules
-Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
+Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
 
 <img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/6cafee51-1022-412e-b2e1-ab7e3cb1a213" />
 
@@ -344,43 +343,3 @@ Users must run module 0 at the first time to preprocess the input files before r
     --module0-dir /path/to/module0_output \
     -o /path/to/module5_output
   ``` 
-
-## Usage
-Run the interactive pipeline:
-```
-bash run_PeTEM.sh
-```
-
-```
-Select steps to run (y/n):
-0. Preprocessing? (y/n): y
-1. TE distribution? (y/n): y
-2. Promoter-embedded TE families? (y/n): y
-3-1. TE impact distance: preprocessing? (y/n): y
-3-2. TE impact distance: plot? (y/n): y
-4. Correlation single condition? (y/n): y
-5. Correlation across conditions? (y/n): y
-```
-> According to the selected steps, users need to give the input names or parameters.
-```
-Genomic features annotaion file: genomic.gff
-TE BED file: TE.bed
-Genome fasta index: genome.fa.fai
-Gene expression file: gene_expression.txt
-TE expression file: TE_expression.txt
-Methylation CGmap.gz files (space separated): WT_01.CGmap.gz WT_02.CGmap.gz...
-
-Include unexpressed TEs? (y/n, default n): n
-Promoter upstream length from TSS (default 1500): 1500
-Promoter downstream length from TSS (default 500): 500
-Limit up-/down-stream range (bp)(default 4000): 4000
-Tick size (bp)(default 1000): 1000
-Window size (bp)(default 200): 200
-Window number (default 100): 100
-y-axis limit for gene expression vs TE/promoter mC plot (CG, default 80): 80
-y-axis limit for gene expression vs TE/promoter mC plot (CHG, default 40): 40
-y-axis limit for gene expression vs TE/promoter mC plot (CHH, default 40): 40
-y-axis limit for TE expression vs TE mC plot (CH, default 40): 40
-y-axis limit for TE expression vs TE mC plot (CG, default 80): 80
-```
-
