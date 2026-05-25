@@ -43,7 +43,7 @@ tar -xzvf PeTEM_data.tar.gz
 
 #### Set up environment through one of following methods 
 <details>
-<summary style="color:blue">Docker</summary>
+<summary><a href="#">Docker</a></summary>
 
 ```bash
 docker build -t petem:local .
