@@ -177,8 +177,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 
 
 ### Methylation Data
-#### Per-sample methylation CGmap files
-   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
+> CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
 
 [`*.CGmap.gz files`]()
 | chromosome | nucleotide | site | context | dinucleotide | methylation level | C site | C+T site |
@@ -190,14 +189,13 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 
 
 ### Expression Data
-#### Differential expression tables
 > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
 
 > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
 
 > The column names should be arranged by: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
 
-[`gene_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/gene_expression.txt) or [`TE_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/TE_expression.txt)
+[`gene_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/gene_expression.txt) / [`TE_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/TE_expression.txt)
 |  | WT | drdd | logFC_drdd_WT | PValue_drdd_WT | FDR_drdd_WT |
 |---|---|---|---|---|---|
 | AT1G01010 | 1.58 | 2.39 | 0.61 | 0.21 | 1 |
