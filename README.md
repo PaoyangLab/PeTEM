@@ -24,7 +24,7 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 - [Usage](#usage)
 
 ## Tutorial
-Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) of example use case.
+Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
 ## Installation
 
@@ -118,8 +118,8 @@ bash env_check.sh ##optional
 </details>
 
 ## Input Files
-PeTEM integrates inputs data including [genome annotations](#genome-annotation), [genome-wide DNA methylation](#methylation-data), and [expression data](#expression-data). 
-In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
+PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
+In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
 #### General features annotations file (GFF3 format) 
@@ -154,7 +154,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 </details>
 
 #### Gene annotation file (FASTA index) 
-> The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
+> The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
 `genome.fa.fai`
 | name | length | offset | linebases | linewidth |
@@ -196,7 +196,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 
 > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
 
-> The column names should be arranged by: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
+> The column names should be arranged by: **conditions names** ("root", "leaf"), **logFC_condition1_condition2** ("logFC_root_leaf"), **PValue_condition1_condition2** ("PValue_root_leaf"), **FDR_condition1_condition2** ("FDR_root_leaf"), logFC_condition2_condition3, ... etc.
 
 `gene_expression.txt`
 |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
@@ -213,14 +213,13 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
 ## Pipeline Modules
-Upon running run_pipeline.sh, users will be asked which modules to execute (y/n), and need to provide all required files and parameters upfront. Users must run module 0 at the first time to preprocess the input files, before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
+Upon running run_pipeline.sh, users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
 
 <img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/6cafee51-1022-412e-b2e1-ab7e3cb1a213" />
 
 
 ### Module 0. Preprocessing
-* Generate promoter regions (promoter.bed)
-* Integrate methylation and expression data
+> Generate promoter regions (`promoter.bed`) and Integrate methylation and expression data
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
 * __Outputs:__
@@ -239,7 +238,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
   ```
 
 ### Module 1. TE Distribution
-* Analyze TE distribution across genomic features
+> Analyze TE distribution across genomic features
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
     * `promoter.bed`: generated automatically in Step 0
@@ -255,7 +254,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
   ```
   
 ### Module 2. Enriched promoter-embedded TE Families
-* Identify enriched TE families overlapping with promoters
+> Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.txt`, `promoter.bed` (from Step 0)
 * __Outputs:__
@@ -270,7 +269,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
   ```
 
 ### Module 3. TE methylation near gene
-* Visualize distance impact of TE methylation on gene expression
+> Visualize distance impact of TE methylation on gene expression
 * __Inputs:__
     * `gene.bed`(from Step 0), `TE.txt`, `gene_expression.txt` and `TE_expression.txt`
 * __Outputs:__
@@ -305,7 +304,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
   ``` 
 
 ### Module 4. Correlation between methylation and expression
-* Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
+> Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `gene_expression.txt` and `TE_expression.txt`
 * __Outputs:__
@@ -328,7 +327,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
   ``` 
 
 ### Module 5. Associated TE and gene pairs
-* Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
+> Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
 * __Outputs:__
