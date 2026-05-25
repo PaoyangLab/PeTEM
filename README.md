@@ -15,8 +15,9 @@ git clone https://github.com/yc811/PeTEM.git
 cd PeTEM
 ```
 
+#### Set up environment through one of following methods 
 <details>
-<summary>Install through Docker</summary>
+<summary>Docker</summary>
 
 ```bash
 docker build -t petem:local .
@@ -26,18 +27,18 @@ docker run --rm petem:local --help
 </details>
 
 <details>
-<summary>Install through Anaconda</summary>
+<summary>Anaconda</summary>
 
 ```bash
 conda env create -f environment.yml
 conda activate petem
-bash env_check.sh
+bash env_check.sh ##optional
 ```
 
 </details>
 
 <details>
-<summary>Local installation</summary>
+<summary>Local</summary>
 
 ```bash
 bash setup.sh
