@@ -4,7 +4,7 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 <img width="865" height="439" alt="image" src="https://github.com/user-attachments/assets/56516953-0937-4c9c-951f-f474a6b0ee67" />
 
 
-### Tutorial
+## Tutorial
 Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) of example use case.
 
 ## Installation
@@ -93,7 +93,7 @@ bash env_check.sh ##optional
 </details>
 
 ## Input Files
-PeTEM integrates inputs data including genome annotations, genome-wide DNA methylation, and expression data. In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
+PeTEM integrates inputs data including [genome annotations](#genome-annotation), [genome-wide DNA methylation](#methylation-data), and [expression data](#expression-data). In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
 * genomic.gff – General features annotations file
@@ -154,6 +154,15 @@ Chr1    Araport11       three_prime_UTR 5631    5899    .       +       .       
    * Fungi
        * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
 
+### Methylation Data
+* *.CGmap.gz files – Per-sample methylation CGmap files
+   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
+   ```
+   Chr3    C    556    CG     CG    0.877551    43    49
+   Chr3    G    557    CG     CG    0.787879    26    33
+   Chr3    G    558    CHG    CC    0.405405    15    37
+   Chr3    G    560    CHH    CA    0.102564    4     39
+   ```  
 
 ### Expression Data
 * gene_expression.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
@@ -169,15 +178,6 @@ Chr1    Araport11       three_prime_UTR 5631    5899    .       +       .       
    ```  
    These files will automatically be converted into expression matrices (gene_expression.txt, TE_expression.txt) for steps 0, 3-2, and 4.
 
-### Methylation Data
-* *.CGmap.gz files – Per-sample methylation CGmap files
-   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
-   ```
-   Chr3    C    556    CG     CG    0.877551    43    49
-   Chr3    G    557    CG     CG    0.787879    26    33
-   Chr3    G    558    CHG    CC    0.405405    15    37
-   Chr3    G    560    CHH    CA    0.102564    4     39
-   ```  
 
 
 ## Pipeline Modules
