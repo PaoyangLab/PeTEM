@@ -188,6 +188,9 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 ## Pipeline Modules
 Upon running run_pipeline.sh, users will be asked which modules to execute (y/n), and need to provide all required files and parameters upfront. Users must run module 0 at the first time to preprocess the input files, before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
 
+<img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/6cafee51-1022-412e-b2e1-ab7e3cb1a213" />
+
+
 ### Module 0. Preprocessing
 * Generate promoter regions (promoter.bed)
 * Integrate methylation and expression data
@@ -206,14 +209,14 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * __Outputs:__
     * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
   
-### Module 2. Promoter-embedded TE Families
+### Module 2. Enriched promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.txt`, `promoter.bed` (from Step 0)
 * __Outputs:__
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
   
-### Module 3. Gene-proximal TE methylation
+### Module 3. TE methylation near gene
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
 * 3-2 Plotting: Visualize distance impact of TE methylation on gene expression[
 * __Inputs:__
@@ -232,7 +235,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
     *	__Span__: For choosing `loess`. This parameter which represents the proportion of total data points used to compute each smoothed value, controls the degree of smoothing. (Default: `0.02`)
 
 
-### Module 4. Correlation (Single Condition)
+### Module 4. Correlation between methylation and expression
 * Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `gene_expression.txt` and `TE_expression.txt`
@@ -247,7 +250,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
         * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `40`)
         * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `80`)
 
-### Module 5. Correlation (Across Conditions)
+### Module 5. Associated TE and gene pairs
 * Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
