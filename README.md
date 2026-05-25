@@ -220,7 +220,17 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 * __Outputs:__
     * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
 * __Parameters:__ 
-    * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS. 
+    * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS.
+  ```
+  ./petem --0 \ # add cml version
+  -g /path/to/annotation.gff3 \
+  -t /path/to/TE.bed \
+  -eg /path/to/gene_expression.txt \
+  -et /path/to/TE_expression.txt \
+  -f /path/to/genome.fa.fai \ # automatically generate gene, promoter, IGR … bed files
+  -m /path/to/sample1.CGmap.gz /path/to/sample2.CGmap.gz ... \
+  -o /path/to/module0_output
+  ```
 
 ### Module 1. TE Distribution
 * Analyze TE distribution across genomic features
@@ -229,6 +239,14 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
     * `promoter.bed`: generated automatically in Step 0
 * __Outputs:__
     * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
+* __Parameters:__ 
+```
+./petem --1 \  ## or petem 0_preprocessing
+  -g /path/to/module0_output/tmp/module_0_annotation \
+  -t /path/to/TE.bed \
+  -f /path/to/genome.fa.fai \
+  -o /path/to/module1_output
+```
   
 ### Module 2. Enriched promoter-embedded TE Families
 * Identify enriched TE families overlapping with promoters
@@ -236,7 +254,15 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
     * `TE.txt`, `promoter.bed` (from Step 0)
 * __Outputs:__
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
-  
+* __Parameters:__ 
+```
+./petem --2 \
+  -t /path/to/TE.bed \
+  -T /path/to/TE_family.txt \
+  -i /path/to/module0_output/TE_overlap_promoter.bed \
+  -o /path/to/module2_output
+```
+
 ### Module 3. TE methylation near gene
 * 3-1 Preprocessing: Prepare methylation files required in Step 3-2
 * 3-2 Plotting: Visualize distance impact of TE methylation on gene expression[
@@ -255,6 +281,20 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
     *	__Window step__: For choosing `average`. The length of each step of window (bp). If the step = window size means that it just calculates the average TE methylation of each non–overlapped bin. If the step < window size means that it is a sliding window. (Default: `100`)
     *	__Span__: For choosing `loess`. This parameter which represents the proportion of total data points used to compute each smoothed value, controls the degree of smoothing. (Default: `0.02`)
 
+```
+./petem --3 \
+  -g /path/to/module0_output/tmp/module_0_annotation \
+  -t /path/to/TE.bed \
+  -eg /path/to/gene_expression.txt \
+  -et /path/to/TE_expression.txt \
+  -m /path/to/sample1.CGmap.gz /path/to/sample2.CGmap.gz ... \
+  -o /path/to/module3_output \
+  -d 4000 \
+  -p 10 \
+  -w 100 \
+  -c y \ ## control yes
+  -l poly ## control yes
+``` 
 
 ### Module 4. Correlation between methylation and expression
 * Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
@@ -271,6 +311,16 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
         * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `40`)
         * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `80`)
 
+* __Parameters:__ 
+```
+# to be revised
+./petem --4 \
+  -eg /path/to/gene_expression.txt \
+  -et /path/to/TE_expression.txt \
+  --module0-dir /path/to/module0_output \
+  -o /path/to/module4_output
+``` 
+
 ### Module 5. Associated TE and gene pairs
 * Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
@@ -279,6 +329,16 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
     * `OUTPUT_5_*_scatter.png & .txt`, `OUTPUT_5_Q2/4_boxplot_*.png`, `OUTPUT_5_Q2/4_*.txt`
 ### Additional parameter for optionally include unexpressed TEs
 * This parameter determines whether to include TEs with zero expression across all samples in the analysis (all plots of Step 3; correlation between gene expression and TE methylation in Step 4 and Step 5). The default is “no (n)”. Setting this to “yes (y)” includes all TEs regardless of expression level, which may increase the number of analyzed TEs but also add background noise. Recommended to keep “no (n)” unless specifically investigating silent or lowly expressed TEs.
+
+* __Parameters:__ 
+```
+# to be revised
+./petem --5 \
+  --DEG /path/to/DEG.txt \
+  --DETE /path/to/DETE.txt \
+  --module0-dir /path/to/module0_output \
+  -o /path/to/module5_output
+``` 
 
 ## Usage
 Run the interactive pipeline:
