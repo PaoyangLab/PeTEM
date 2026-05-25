@@ -52,31 +52,31 @@ bash env_check.sh ##optional
 #### Details of required packages
 
 <details>
-<summary>R packages (version ≥ 4.2)</summary>
-   
-*	Required R packages (tested on 4.3.2):
-    * optparse
-    * dplyr
-    * tidyr
-    * zoo
-    * reshape2
-    * stringr
-    * ggplot2
-    * gplots
-    * ggalluvial
-    * ggpointdensity
-    * RColorBrewer
-    * viridis
+<summary>R version ≥ 4.2 (packages tested on 4.3.2)</summary>
+
+ * optparse
+ * dplyr
+ * tidyr
+ * zoo
+ * reshape2
+ * stringr
+ * ggplot2
+ * gplots
+ * ggalluvial
+ * ggpointdensity
+ * RColorBrewer
+ * viridis
 
 </details>
 
 <details>
-<summary>Python packages (≥ 3.8)</summary>
-
-*	Required Python packages (tested on 3.8.10):
-    * pandas (≥ 1.2.4)
-    * (uses built-in: glob, os, time)
-
+<summary>Python version ≥ 3.8 (packages tested on 3.8.10)</summary>
+ 
+* pandas (≥ 1.2.4)
+ * built-in packages:
+   * glob
+   * os
+   * time
 </details>
 
 <details>
