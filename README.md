@@ -100,7 +100,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 #### General features annotations file (GFF3 format) 
 > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
 
-[`genomic.gff`](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release) 
+[`genomic.gff`](https://www.arabidopsis.org/download/file?path=Genes/Araport11_genome_release/Araport11_GFF3_genes_transposons.20250813.gff.gz) 
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
 |---|---|---|---|---|---|---|---|---|
 | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
