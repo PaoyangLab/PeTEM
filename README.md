@@ -28,10 +28,16 @@ Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutor
 
 ## Installation
 
-#### Clone the repository from Github:
+#### Clone repository:
 ```bash
 git clone https://github.com/yc811/PeTEM.git
 cd PeTEM
+```
+
+#### Download example data:
+```bash
+wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.1/PeTEM_data.tar.gz
+tar -xzvf PeTEM_data.tar.gz
 ```
 
 ## System requirements
@@ -119,7 +125,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 #### General features annotations file (GFF3 format) 
 > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
 
-[`genomic.gff`](https://www.arabidopsis.org/download/file?path=Genes/Araport11_genome_release/Araport11_GFF3_genes_transposons.20250813.gff.gz) 
+`genomic.gff`
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
 |---|---|---|---|---|---|---|---|---|
 | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
@@ -150,7 +156,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 #### Gene annotation file (FASTA index) 
 > The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
-[`genome.fa.fai`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/genome.fa.fai)
+`genome.fa.fai`
 | name | length | offset | linebases | linewidth |
 |---|---|---|---|---|
 | Chr1 | 30427671 | 74 | 79 | 80 |
@@ -164,7 +170,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 #### Transposable element coordinates (BED format) 
 > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
 
-[`TE.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/TE.txt)
+`TE.txt`
 | TE name | chromosome | start | end | score | strand | TE family |
 |---|---|---|---|---|---|---|
 | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
@@ -176,7 +182,7 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 ### Methylation Data
 > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
 
-[`*.CGmap.gz files`]()
+`*.CGmap.gz files`
 | chromosome | nucleotide | site | context | dinucleotide | methylation level | C site | C+T site |
 |---|---|---|---|---|---|---|---|
 | Chr3 | C | 556 | CG | CG | 0.877551 | 43 | 49 |
@@ -192,14 +198,14 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 
 > The column names should be arranged by: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
 
-[`gene_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/gene_expression.txt)
+`gene_expression.txt`
 |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
 |---|---|---|---|---|---|
 | AT1G01010 | 11.64 | 10.93 | 0.09 | 0.60 | 1 |
 | AT1G01020 | 6.39 | 5.95 | 0.10 | 0.62 | 1 |
 | AT1G01030 | 0.65 | 1.01 | -0.63 | 0.19 | 0.84 |
 
-[`TE_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/TE_expression.txt)
+`TE_expression.txt`
 |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
 |---|---|---|---|---|---|
 | AT1G01010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
