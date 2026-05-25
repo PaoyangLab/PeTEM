@@ -15,6 +15,8 @@ git clone https://github.com/yc811/PeTEM.git
 cd PeTEM
 ```
 
+## System requirements
+
 #### Set up environment through one of following methods 
 <details>
 <summary>Docker</summary>
@@ -47,11 +49,11 @@ bash env_check.sh ##optional
 
 </details>
 
+#### Details of environment
 
-## System requirements
-Set up the environment
+<details>
+<summary>R environment</summary>
 
-### R environment:
 *	R version ≥ 4.2 (tested on 4.3.2)
 *	Required R packages:
     * optparse
@@ -67,17 +69,27 @@ Set up the environment
     * RColorBrewer
     * viridis
 
-### Python environment:
+</details>
+
+<details>
+<summary>Python environment</summary>
+
 *	Python ≥ 3.8 (tested on 3.8.10)
 *	Required Python packages:
     * pandas (≥ 1.2.4)
     * (uses built-in: glob, os, time)
 
-### Bioinformatics tools:
+</details>
+
+<details>
+<summary>Bioinformatics tools</summary>
+   
 *	samtools (tested on 1.10)
 *	bedtools (tested on v2.27.1)
 *	wigToBigWig
 *	bigWigAverageOverBed
+
+</details>
 
 ## Input Files
 PeTEM integrates inputs data including genome annotations, genome-wide DNA methylation, and expression data. In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
