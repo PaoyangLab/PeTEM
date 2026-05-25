@@ -97,7 +97,8 @@ PeTEM integrates inputs data including [genome annotations](#genome-annotation),
 In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
-* General features annotations file (GFF3 format) `genomic.gff`
+#### `genomic.gff` 
+General features annotations file (GFF3 format) 
 > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR). 
 
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
@@ -109,7 +110,8 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
 | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
 
-* Gene annotation file (FASTA index) `genome.fa.fai`
+#### `genome.fa.fai` 
+Gene annotation file (FASTA index) 
 > The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
 | name | length | offset | linebases | linewidth |
@@ -122,7 +124,8 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | ChrC | 154478 | 120654981 | 79 | 80 |
 | ChrM | 367808 | 120811562 | 70 | 71 |
 
-* Transposable element coordinates (BED format) `TE.txt`
+#### `TE.txt` 
+Transposable element coordinates (BED format) 
 > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
 
 | TE name | chromosome | start | end | score | strand | TE family |
