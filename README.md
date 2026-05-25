@@ -279,7 +279,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 `loess`) For choosing average TE methylation, the users need to setup the window, while for choosing local regression, the users need to setup the span. (Default: `average`)
     *	__w__: For choosing `average`. Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `100`)
     *	__l__: There are several options to show the pattern of gene-proximal TE methylation, including (1) average TE methylation within each window, (2) linear regression line, (3) second-degree polynomial regression line, and (4) local regression line (`average`, `linear`, `poly2`, and `poly`)
-    * __C__: *** (Default: `y`)
+    * __nTE__: *** (Default: `y`)
     *	__CI__: To show the 95% CI on the plot or not. (Default: `no`)
     *	__border__: To show the border of the plot or not. (Default: `no`)
       
@@ -298,7 +298,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     -d 4000 \
     -p 10 \
     -w 100 \
-    -c y \ ## control yes
+    -nTE y \ ## control yes
     -l poly ## control yes
   ``` 
 
