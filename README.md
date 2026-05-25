@@ -53,7 +53,9 @@ bash env_check.sh ##optional
 
 <details>
 <summary>R version ≥ 4.2 </summary>
+  
 (packages tested on 4.3.2)
+
  * optparse
  * dplyr
  * tidyr
@@ -71,7 +73,9 @@ bash env_check.sh ##optional
 
 <details>
 <summary>Python version ≥ 3.8 </summary>
+  
 (packages tested on 3.8.10)
+
 * pandas (≥ 1.2.4)
  * built-in packages:
    * glob
