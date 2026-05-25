@@ -43,7 +43,7 @@ tar -xzvf PeTEM_data.tar.gz
 
 #### Set up environment through one of following methods 
 <details>
-<summary> <font color="blue"> Docker </font> </summary>
+<summary><b><ins>Docker</ins></b></summary>
 
 ```bash
 docker build -t petem:local .
@@ -166,7 +166,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | ChrC | 154478 | 120654981 | 79 | 80 |
 | ChrM | 367808 | 120811562 | 70 | 71 |
 
-#### Transposable element coordinates (BED format) 
+#### Transposable element coordinates 
 > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
 
 `TE.txt`
