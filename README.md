@@ -15,13 +15,21 @@ git clone https://github.com/yc811/PeTEM.git
 cd PeTEM
 ```
 
+<details>
+<summary>Install through Docker</summary>
+```bash
+docker build -t petem:local .
+docker run --rm petem:local –help
+```
+</details>
+
 #### Install through Docker
 ```bash
 docker build -t petem:local .
 docker run --rm petem:local –help
 ```
 
-#### Install through Anaconda
+#### Install through Anaconda
 ```bash
 conda env create -f environment.yml
 conda activate petem
