@@ -16,9 +16,7 @@ cd PeTEM
 ```
 
 <details>
-<summary>
-   - Install through Docker
-</summary>
+<summary>Install through Docker</summary>
 
 ```bash
 docker build -t petem:local .
@@ -27,24 +25,27 @@ docker run --rm petem:local --help
 
 </details>
 
-#### Install through Docker
-```bash
-docker build -t petem:local .
-docker run --rm petem:local –help
-```
+<details>
+<summary>Install through Anaconda</summary>
 
-#### Install through Anaconda
 ```bash
 conda env create -f environment.yml
 conda activate petem
 bash env_check.sh
 ```
 
-#### Local installation
+</details>
+
+<details>
+<summary>Local installation</summary>
+
 ```bash
 bash setup.sh
 bash env_check.sh ##optional
 ```
+
+</details>
+
 
 ## System requirements
 Set up the environment
