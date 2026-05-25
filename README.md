@@ -135,21 +135,25 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
 | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
+<details>
+<summary>Sources of commonly used genome annotations</summary>
+   
+* Animals:
+   * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
+   * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
+   * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
+   * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
+* Plants:
+   * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
+   * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
+   * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
+   * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
+* Fungi
+   * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
 
-* Sources of commonly used genome annotations 
+</details>
 
-   * Animals:
-       * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
-       * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
-       * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
-       * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
-   * Plants:
-       * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
-       * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
-       * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
-       * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
-   * Fungi
-       * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+   
 
 ### Methylation Data
 * *.CGmap.gz files – Per-sample methylation CGmap files
