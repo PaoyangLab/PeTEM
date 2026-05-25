@@ -3,6 +3,30 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 <img width="865" height="439" alt="image" src="https://github.com/user-attachments/assets/56516953-0937-4c9c-951f-f474a6b0ee67" />
 
+## Table of Contents
+
+- [Tutorial](#tutorial)
+- [Installation](#installation)
+- [System Requirements](#system-requirements)
+  - [Set up environment](#set-up-environment-through-one-of-following-methods)
+  - [Required packages and tools](#details-of-required-environment-and-packages)
+- [Input Files](#input-files)
+  - [Genome Annotation](#genome-annotation)
+    - [General features annotations file (GFF3 format)](#general-features-annotations-file-gff3-format)
+    - [Gene annotation file (FASTA index)](#gene-annotation-file-fasta-index)
+    - [Transposable element coordinates (BED format)](#transposable-element-coordinates-bed-format)
+  - [Methylation Data](#methylation-data)
+    - [Per-sample methylation CGmap files](#per-sample-methylation-cgmap-files)
+  - [Expression Data](#expression-data)
+    - [Differential expression tables](#differential-expression-tables)
+- [Pipeline Modules](#pipeline-modules)
+  - [Module 0. Preprocessing](#module-0-preprocessing)
+  - [Module 1. TE Distribution](#module-1-te-distribution)
+  - [Module 2. Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families)
+  - [Module 3. TE methylation near gene](#module-3-te-methylation-near-gene)
+  - [Module 4. Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression)
+  - [Module 5. Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs)
+- [Usage](#usage)
 
 ## Tutorial
 Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) of example use case.
