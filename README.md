@@ -30,7 +30,7 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 
 #### Clone repository:
 ```bash
-git clone https://github.com/PaoyangLab/PeTEM/PeTEM.git
+git clone https://github.com/PaoyangLab/PeTEM.git
 cd PeTEM
 ```
 
