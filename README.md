@@ -53,7 +53,7 @@ docker run --rm petem:local --help
 </details>
 
 <details>
-<summary>Anaconda</summary>
+<summary><b><ins>Anaconda</ins></b></summary>
 
 ```bash
 conda env create -f environment.yml
@@ -64,7 +64,7 @@ bash env_check.sh ##optional
 </details>
 
 <details>
-<summary>Local</summary>
+<summary><b><ins>Local</ins></b></summary>
 
 ```bash
 bash setup.sh
@@ -76,7 +76,7 @@ bash env_check.sh ##optional
 #### Details of required environment and packages
 
 <details>
-<summary>R version ≥ 4.2 </summary>
+<summary><b><ins>R version ≥ 4.2</ins></b></summary>
   
 (packages tested on 4.3.2)
 * optparse
@@ -95,7 +95,7 @@ bash env_check.sh ##optional
 </details>
 
 <details>
-<summary>Python version ≥ 3.8 </summary>
+<summary><b><ins>Python version ≥ 3.8</ins></b></summary>
   
 (packages tested on 3.8.10)
 * pandas (≥ 1.2.4)
@@ -107,7 +107,7 @@ bash env_check.sh ##optional
 </details>
 
 <details>
-<summary>Bioinformatics tools</summary>
+<summary><b><ins>Bioinformatics tools</ins></b></summary>
    
 *	samtools (tested on 1.10)
 *	bedtools (tested on v2.27.1)
@@ -135,7 +135,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
 
 <details>
-<summary>Sources of commonly used genome annotations</summary>
+<summary><b><ins>Sources of commonly used genome annotations</ins></b></summary>
    
 * Animals:
    * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
