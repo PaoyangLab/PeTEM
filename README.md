@@ -275,7 +275,7 @@ Upon running run_pipeline.sh, users will be asked which modules to execute (y/n)
 `loess`) For choosing average TE methylation, the users need to setup the window, while for choosing local regression, the users need to setup the span. (Default: `average`)
     *	__w__: For choosing `average`. Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `100`)
     *	__l__: There are several options to show the pattern of gene-proximal TE methylation, including (1) average TE methylation within each window, (2) linear regression line, (3) second-degree polynomial regression line, and (4) local regression line (`average`, `linear`, `poly2`, and `poly`)
-    * __CI__: ***
+    * __C__: *** (Default: `y`)
     *	__CI__: To show the 95% CI on the plot or not. (Default: `no`)
     *	__border__: To show the border of the plot or not. (Default: `no`)
       
