@@ -49,11 +49,11 @@ bash env_check.sh ##optional
 
 </details>
 
-#### Details of required packages
+#### Details of required environment and packages
 
 <details>
-<summary>R version ≥ 4.2 (packages tested on 4.3.2)</summary>
-
+<summary>R version ≥ 4.2 </summary>
+(packages tested on 4.3.2)
  * optparse
  * dplyr
  * tidyr
@@ -70,8 +70,8 @@ bash env_check.sh ##optional
 </details>
 
 <details>
-<summary>Python version ≥ 3.8 (packages tested on 3.8.10)</summary>
- 
+<summary>Python version ≥ 3.8 </summary>
+(packages tested on 3.8.10)
 * pandas (≥ 1.2.4)
  * built-in packages:
    * glob
