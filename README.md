@@ -195,15 +195,19 @@ In PeTEM, running the first two modules rely solely on annotation data, while ru
 
 > The column names should be arranged by: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
 
-[`gene_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/gene_expression.txt) / [`TE_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/TE_expression.txt)
-|  | WT | drdd | logFC_drdd_WT | PValue_drdd_WT | FDR_drdd_WT |
+[`gene_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/gene_expression.txt)
+|  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
 |---|---|---|---|---|---|
-| AT1G01010 | 1.58 | 2.39 | 0.61 | 0.21 | 1 |
-| AT1G01020 | 5.60 | 5.43 | -0.04 | 0.87 | 1 |
-| AT1G01030 | 1.49 | 3.39 | 1.17 | 0.01 | 0.12 |
+| AT1G01010 | 11.64 | 10.93 | 0.09 | 0.60 | 1 |
+| AT1G01020 | 6.39 | 5.95 | 0.10 | 0.62 | 1 |
+| AT1G01030 | 0.65 | 1.01 | -0.63 | 0.19 | 0.84 |
 
-
-
+[`TE_expression.txt`](https://github.com/PaoyangLab/PeTEM/blob/main/PeTEM_data/TE_expression.txt)
+|  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
+|---|---|---|---|---|---|
+| AT1G01010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
+| AT1G01020 | 0 | 0 | 0 | 1 | 1 |
+| AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
 ## Pipeline Modules
 Upon running run_pipeline.sh, users will be asked which modules to execute (y/n), and need to provide all required files and parameters upfront. Users must run module 0 at the first time to preprocess the input files, before running module 1 to 5. Module 1 to 5 are dependent and not sequential. 
