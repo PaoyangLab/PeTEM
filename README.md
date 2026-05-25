@@ -9,11 +9,29 @@ Please follow the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutor
 
 ## Installation
 
-Clone the repository:
-
+#### Clone the repository from Github:
 ```bash
 git clone https://github.com/yc811/PeTEM.git
 cd PeTEM
+```
+
+#### Install through Docker
+```bash
+docker build -t petem:local .
+docker run --rm petem:local –help
+```
+
+#### Install through Anaconda
+```bash
+conda env create -f environment.yml
+conda activate petem
+bash env_check.sh
+```
+
+#### Local installation
+```bash
+bash setup.sh
+bash env_check.sh ##optional
 ```
 
 ## System requirements
