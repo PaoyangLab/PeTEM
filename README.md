@@ -97,10 +97,10 @@ PeTEM integrates inputs data including [genome annotations](#genome-annotation),
 In PeTEM, running the first two modules rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 ### Genome Annotation
-#### `genomic.gff` 
-General features annotations file (GFF3 format) 
-> The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR). 
+#### General features annotations file (GFF3 format) 
+> The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
 
+`genomic.gff` 
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
 |---|---|---|---|---|---|---|---|---|
 | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
@@ -110,10 +110,10 @@ General features annotations file (GFF3 format)
 | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
 | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
 
-#### `genome.fa.fai` 
-Gene annotation file (FASTA index) 
+#### Gene annotation file (FASTA index) 
 > The genome FASTA index file is generated from genome fasta file (Usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
+`genome.fa.fai` 
 | name | length | offset | linebases | linewidth |
 |---|---|---|---|---|
 | Chr1 | 30427671 | 74 | 79 | 80 |
@@ -124,10 +124,10 @@ Gene annotation file (FASTA index)
 | ChrC | 154478 | 120654981 | 79 | 80 |
 | ChrM | 367808 | 120811562 | 70 | 71 |
 
-#### `TE.txt` 
-Transposable element coordinates (BED format) 
+#### Transposable element coordinates (BED format) 
 > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
 
+`TE.txt` 
 | TE name | chromosome | start | end | score | strand | TE family |
 |---|---|---|---|---|---|---|
 | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
