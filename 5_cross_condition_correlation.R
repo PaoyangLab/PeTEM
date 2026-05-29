@@ -1,4 +1,4 @@
-# Rscript 5_cross_condition_correlation.R --DEG DEG.txt --DETE DETE.txt --unexp "$unexp" 
+# Rscript 5_cross_condition_correlation.R --module0-dir module_0 --unexp "$unexp"
 
 start_time <- Sys.time()
 
@@ -14,6 +14,16 @@ suppressPackageStartupMessages(library(rlang))
 
 
 #---- Option parser ----
+raw_args <- commandArgs(trailingOnly=TRUE)
+stage_pair_opt <- character(0)
+stage_i <- which(raw_args %in% c("-stage", "--stage"))
+if (length(stage_i) > 1) stop("Use -stage only once.")
+if (length(stage_i) == 1) {
+  i <- stage_i[1]
+  if (length(raw_args) < i + 2) stop("-stage requires two values, e.g. -stage leaf root")
+  stage_pair_opt <- raw_args[(i + 1):(i + 2)]
+  raw_args <- raw_args[-c(i, i + 1, i + 2)]
+}
 option_list = list(
   make_option(c("--DEG"), type="character", help="Gene expression DEG file"),
   make_option(c("--DETE"), type="character", help="TE expression DETE file"),
@@ -23,12 +33,14 @@ option_list = list(
 )
 
 opt_parser = OptionParser(option_list=option_list)
-opt = parse_args(opt_parser)
+opt = parse_args(opt_parser, args=raw_args)
 
 include_unexp <- tolower(opt$unexp) == "y"
 dir.create(opt$outdir, recursive = TRUE, showWarnings = FALSE)
 module0_file <- function(name) file.path(opt$`module0-dir`, name)
 output_file <- function(name) file.path(opt$outdir, name)
+if (is.null(opt$DEG) || opt$DEG == "") opt$DEG <- module0_file("DEG.txt")
+if (is.null(opt$DETE) || opt$DETE == "") opt$DETE <- module0_file("DETE.txt")
 
 
 #---- Helper functions ----
@@ -55,11 +67,12 @@ plot_delta_scatter <- function(df, x, y, fname, title, xlab, ylab){
   xlim <- max(abs(df[[x]]), na.rm=TRUE)
   ylim <- max(abs(df[[y]]), na.rm=TRUE)
 
-  group1 <- counts["Q1"] + counts["Q3"]
-  group2 <- counts["Q2"] + counts["Q4"]
-  chisq_tbl <- matrix(c(group1, group2), nrow=2)
-  chisq_res <- chisq.test(chisq_tbl)
-  pval_text <- paste0("Chi-squared p = ", signif(chisq_res$p.value, 3))
+  # ---- Spearman correlation ----
+  cor_res <- cor.test(df[[x]], df[[y]], method="spearman", exact=FALSE)
+  pval_text <- paste0(
+    "Spearman rho = ", round(cor_res$estimate, 3),
+    ", p = ", signif(cor_res$p.value, 3)
+  )
 
   caption_text <- paste(eq_text, pval_text, sep="\n")
 
@@ -73,19 +86,19 @@ plot_delta_scatter <- function(df, x, y, fname, title, xlab, ylab){
     scale_y_continuous(limits=c(-ylim, ylim)) +
     scale_x_continuous(limits=c(-xlim, xlim)) +
     petem_theme_bw() +
-    annotate("text", x=xlim, y=ylim, label=paste("Q1:", counts["Q1"]), size=PETEM_ANNOTATION_TEXT_SIZE, hjust=1, fontface="bold") +
-    annotate("text", x=-xlim, y=ylim, label=paste("Q2:", counts["Q2"]), size=PETEM_ANNOTATION_TEXT_SIZE, hjust=0, fontface="bold") +
-    annotate("text", x=-xlim, y=-ylim, label=paste("Q3:", counts["Q3"]), size=PETEM_ANNOTATION_TEXT_SIZE, hjust=0, fontface="bold") +
-    annotate("text", x=xlim, y=-ylim, label=paste("Q4:", counts["Q4"]), size=PETEM_ANNOTATION_TEXT_SIZE, hjust=1, fontface="bold") +
+    annotate("text", x=xlim, y=ylim, label=paste("Q1:", counts["Q1"]), size=PETEM_ANNOTATION_TEXT_SIZE+2, hjust=1, fontface="bold") +
+    annotate("text", x=-xlim, y=ylim, label=paste("Q2:", counts["Q2"]), size=PETEM_ANNOTATION_TEXT_SIZE+2, hjust=0, fontface="bold") +
+    annotate("text", x=-xlim, y=-ylim, label=paste("Q3:", counts["Q3"]), size=PETEM_ANNOTATION_TEXT_SIZE+2, hjust=0, fontface="bold") +
+    annotate("text", x=xlim, y=-ylim, label=paste("Q4:", counts["Q4"]), size=PETEM_ANNOTATION_TEXT_SIZE+2, hjust=1, fontface="bold") +
     theme(
-          panel.grid.major=element_blank(),
-          panel.grid.minor=element_blank(),
-          plot.caption=element_text(size=PETEM_AXIS_TEXT_SIZE, hjust=0)) +
+      panel.grid.major=element_blank(),
+      panel.grid.minor=element_blank(),
+      plot.caption=element_text(size=PETEM_AXIS_TEXT_SIZE+2, hjust=0)
+    ) +
     labs(title=title, caption = caption_text, x=xlab, y=ylab)
   suppressMessages(print(p))
 
   dev.off()
-
 }
 
 #---- Read expression ----
@@ -130,15 +143,23 @@ fc_cols <- grep("^dexp_", colnames(gene_exp), value=TRUE)
 if (length(fc_cols) == 0) {
   stop("No differential expression comparison columns detected in DEG file after renaming (expected source columns starting with 'logFC_').")
 }
-if (length(fc_cols) != 1) {
+if (length(stage_pair_opt) == 0 && length(fc_cols) != 1) {
   stop("Module 5 requires exactly one logFC comparison in the DEG input.")
 }
 
 stage_pairs <- str_match(fc_cols, "^dexp_([^_]+)_([^_]+)$")
 stage_pairs <- stage_pairs[,2:3, drop=FALSE]
-stage_pairs <- stage_pairs[complete.cases(stage_pairs), , drop=FALSE]
+valid_fc <- complete.cases(stage_pairs)
+stage_pairs <- stage_pairs[valid_fc, , drop=FALSE]
+fc_cols <- fc_cols[valid_fc]
 if (nrow(stage_pairs) == 0) {
   stop("Unable to parse stage comparisons from logFC column names.")
+}
+if (length(stage_pair_opt) > 0) {
+  keep <- stage_pairs[,1] == stage_pair_opt[1] & stage_pairs[,2] == stage_pair_opt[2]
+  fc_cols <- fc_cols[keep]
+  stage_pairs <- stage_pairs[keep, , drop=FALSE]
+  if (length(fc_cols) != 1) stop("Requested -stage comparison not found in DEG/DETE.")
 }
 if (nrow(stage_pairs) != 1) {
   stop("Module 5 requires exactly one stage pair comparison.")
@@ -149,7 +170,10 @@ if (!all(stage_pairs[1, ] %in% gene_stage_cols)) {
 }
 
 te_fc_cols <- grep("^dTEexp_", colnames(TE_exp), value=TRUE)
-if (length(te_fc_cols) != 1) {
+if (length(stage_pair_opt) > 0) {
+  te_fc_cols <- paste0("dTEexp_", stage_pair_opt[1], "_", stage_pair_opt[2])
+}
+if (length(te_fc_cols) != 1 || !te_fc_cols %in% colnames(TE_exp)) {
   stop("Module 5 requires exactly one logFC comparison in the DETE input.")
 }
 
@@ -230,25 +254,30 @@ plot_gene_TE_box <- function(df_subset, mC_type, si, sj, mode="Q2"){
   p <- ggplot() +
     geom_boxplot(data=expr_mat_long, aes(x=stage, y=expr),
                  fill="#BFBFBF", width=0.35, position=position_nudge(x=-0.2)) +
-    geom_point(data=expr_means, aes(x=stage, y=expr), shape=18, size=PETEM_ANNOTATION_TEXT_SIZE + 1, color="black",
+    geom_point(data=expr_means, aes(x=stage, y=expr), shape=18, size=PETEM_ANNOTATION_TEXT_SIZE + 2, color="black",
                position=position_nudge(x=-0.2)) +
     geom_text(data=expr_means, aes(x=stage, y=expr, label=sprintf("%.1f", expr)),
               size=PETEM_ANNOTATION_TEXT_SIZE, vjust=-1.2, color="black", position=position_nudge(x=-0.2)) +
     geom_boxplot(data=meth_mat_long, aes(x=stage, y=methyl*scale_factor + expr_range[1] - meth_range[1]*scale_factor),
                  fill="#E5C1AF", width=0.35, position=position_nudge(x=0.2)) +
     geom_point(data=meth_means, aes(x=stage, y=methyl*scale_factor + expr_range[1] - meth_range[1]*scale_factor),
-               shape=18, size=PETEM_ANNOTATION_TEXT_SIZE + 1, color="black", position=position_nudge(x=0.2)) +
+               shape=18, size=PETEM_ANNOTATION_TEXT_SIZE + 2, color="black", position=position_nudge(x=0.2)) +
     geom_text(data=meth_means, aes(x=stage, y=methyl*scale_factor + expr_range[1] - meth_range[1]*scale_factor,
                                    label=sprintf("%.1f", methyl)),
-              size=PETEM_ANNOTATION_TEXT_SIZE, vjust=-1.2, color="black", position=position_nudge(x=0.2)) +
+              size=PETEM_ANNOTATION_TEXT_SIZE+2, vjust=-1.2, color="black", position=position_nudge(x=0.2)) +
     scale_y_continuous(
       name="Expression (log2 RPKM)",
-      sec.axis = sec_axis(~ (. - expr_range[1] + meth_range[1]*scale_factor)/scale_factor,
-                          name="Methylation level (%)")
+      sec.axis = sec_axis(
+        ~ (. - expr_range[1] + meth_range[1]*scale_factor)/scale_factor,
+        name=paste0(mC_type, " methylation level (%)")
+      )
     ) +
     scale_x_discrete(name="Stage") +
     petem_theme_bw() +
-    theme(panel.grid.minor = element_blank())
+    theme(
+      panel.grid.minor = element_blank(),
+      axis.title.y.right = element_text(angle=90)
+    )
   
   ggsave(filename=output_file(paste0("OUTPUT_5_",mode,"_boxplot_", mC_type, "_", si, "_", sj,".png")), p, width=6, height=5)
   print(p)
@@ -259,7 +288,7 @@ for(k in seq_along(fc_cols)){
   x_col <- fc_cols[k]
   si <- stage_pairs[k,1]
   sj <- stage_pairs[k,2]
-  pv_col <- paste0("PV_g_", si, "_", sj)
+  pv_col <- paste0("FDR_g_", si, "_", sj)
 
   # gene exp vs TE exp
   df_sub <- subset(ins4,
@@ -315,7 +344,7 @@ for(k in seq_along(fc_cols)){
     df_TE <- get(paste0("ins_", mC_type))
     x_TE_col <- paste0("dTEexp_", si, "_", sj)
     y_TE_col <- paste0("dTE", mC_type, "_", si, "_", sj)
-    pv_TE_col <- paste0("PV_TE_", si, "_", sj)
+    pv_TE_col <- paste0("FDR_TE_", si, "_", sj)
 
     df_sub <- subset(df_TE,
       abs(df_TE[[x_TE_col]]) > 1 & df_TE[[pv_TE_col]] < 0.05

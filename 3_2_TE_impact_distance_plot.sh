@@ -302,7 +302,6 @@ stage <- args[4]
 script_dir <- args[5]
 source(file.path(script_dir, "plot_defaults.R"))
 
-# Functions
 for_up <- function(mydf, mybed){
   mydf2 <- mydf[,c("V4","V8","V11","V12")]
   mybed2 <- mybed[,c("V2","V3","V4","V6")]
@@ -319,118 +318,323 @@ for_down <- function(mydf, mybed){
   mybed2 <- mybed[,c("V2","V3","V4","V6")]
   mymy <- merge(mydf2, mybed2, by.x=c("V4","V12"), by.y=c("V4","V6"))
   rev <- mymy[mymy$V12=="-",]
-  fow <- mymy[mymy$V12=="+",]
+  fow <- mymy[mymy$V12=="+" ,]
   rev$dist <- rev$V2 - rev$V8
   fow$dist <- fow$V8 - fow$V3
   return(rbind(rev,fow))
 }
 
-linedf <- function(df){
-  df2 <- df[,c("V11","dist")]
-  df3 <- aggregate(df2$V11, list(df2$dist), mean)
-  colnames(df3) <- c("dist","V11")
-  df_list <- c()
-  for(i in 0:RAN2){
-    val <- mean(df3[ (abs(df3$dist)>(i*SS+0.5)) & (abs(df3$dist)<=(i*SS+WD)), ]$V11, na.rm=TRUE)
-    df_list <- c(df_list,val)
+find_border_ttest <- function(df, region, limit){
+  sub <- df[df$region == region, ]
+  border <- NA
+  first_valid <- TRUE
+
+  for(i in 0:limit){
+    if(region == "upstream"){
+      range_data <- sub[sub$dist >= -i & sub$dist <= 0, ]
+    } else {
+      range_data <- sub[sub$dist <= i & sub$dist >= 0, ]
+    }
+
+    low_vals  <- range_data$V11[range_data$expr == "Lowly expressed genes"]
+    high_vals <- range_data$V11[range_data$expr == "Highly expressed genes"]
+
+    if(length(low_vals) < 5 | length(high_vals) < 5){
+      next
+    }
+
+    mean_low  <- mean(low_vals, na.rm=TRUE)
+    mean_high <- mean(high_vals, na.rm=TRUE)
+
+    test <- t.test(low_vals, high_vals)
+
+    if(mean_low > mean_high & test$p.value < 0.05){
+      border <- i
+      first_valid <- FALSE
+    } else {
+      if(first_valid){
+        return(NA)
+      }
+      return(border)
+    }
   }
-  return(df_list)
+
+  return(border)
 }
 
+linedf <- function(df){
+  df2 <- df[,c("V4","V11","dist")]
+  out <- data.frame()
 
-# Processing
+  for(i in 0:RAN2){
+    left  <- i*SS + 0.5
+    right <- i*SS + WD
+    sub <- df2[abs(df2$dist) > left & abs(df2$dist) <= right, ]
+    sub <- sub[!is.na(sub$V11), ]
+
+    if(nrow(sub) > 0){
+      gene_mean <- tapply(sub$V11, sub$V4, mean)
+
+      if(length(gene_mean) >= 2){
+        m <- mean(gene_mean, na.rm=TRUE)
+
+        if(sd(gene_mean, na.rm=TRUE) == 0){
+          lower <- m
+          upper <- m
+        } else {
+          ci <- t.test(gene_mean)$conf.int
+          lower <- max(0, ci[1])
+          upper <- min(100, ci[2])
+        }
+      } else {
+        m <- mean(gene_mean, na.rm=TRUE)
+        lower <- m
+        upper <- m
+      }
+    } else {
+      m <- NA
+      lower <- NA
+      upper <- NA
+    }
+
+    center <- (left + right - 0.5) / 2
+    out <- rbind(out, data.frame(distance=center, mC=m, lower=lower, upper=upper))
+  }
+
+  return(out)
+}
+
 types <- c("CG","CHG","CHH")
 exprs <- c("low","high")
 dirs <- c("up","down")
 
-RAN <- limit # searching range
-WD <- WD     # window size (bp)
-SS <- 4  
+RAN <- limit
+WD <- WD
+SS <- 4
 Start <- WD/2
 RAN2 <- (RAN-WD/2)/SS
 
+line_cols <- c(
+  "Highly expressed genes" = "#B44A53",
+  "Lowly expressed genes"  = "#509ABC"
+)
 
-for(type in types){    # "CG","CHG","CHH"
-  for(expr in exprs){  # "low","high"
-    for(dir in dirs){  # "up","down"
+ci_cols <- c(
+  "Highly expressed genes" = "#DEB9B7",
+  "Lowly expressed genes"  = "#ACD8EB"
+)
+
+for(type in types){
+  for(expr in exprs){
+    for(dir in dirs){
       mydf <- read.table(paste0("wTE_",expr,"_",stage,"_",dir,"_",type,".bed"), sep="\t")
       mybed <- read.table(paste0(expr,"_",stage,".txt"), sep="\t")
+
       if(dir=="up"){
         df <- for_up(mydf,mybed)
-        df$dist <- 0 - df$dist 
+        df$dist <- 0 - df$dist
       } else {
         df <- for_down(mydf,mybed)
       }
-      df$V11 <- df$V11*100
-      assign(paste0(expr,"_",dir),df)
+
+      df$V11 <- df$V11 * 100
+      assign(paste0(expr,"_",dir), df)
     }
   }
 
   point_low <- rbind(get("low_up"), get("low_down"))
   point_low$expr <- "Lowly expressed genes"
+
   point_high <- rbind(get("high_up"), get("high_down"))
   point_high$expr <- "Highly expressed genes"
-  point_all <- rbind(point_low,point_high)
 
-  df_up_low   <- linedf(get("low_up"))
-  df_down_low <- linedf(get("low_down"))
-  df_up_high  <- linedf(get("high_up"))
-  df_down_high<- linedf(get("high_down"))
+  point_all <- rbind(point_low, point_high)
 
-  up_low_line   <- data.frame(distance=c(seq(-Start, -RAN, -SS)), mC=df_up_low)
-  up_high_line  <- data.frame(distance=c(seq(-Start, -RAN, -SS)), mC=df_up_high)
-  down_low_line <- data.frame(distance=c(seq(Start, RAN, SS)), mC=df_down_low)
-  down_high_line<- data.frame(distance=c(seq(Start, RAN, SS)), mC=df_down_high)
-
-  low_line  <- rbind(up_low_line, down_low_line); low_line$expr <- "Lowly expressed genes"
-  high_line <- rbind(up_high_line, down_high_line); high_line$expr <- "Highly expressed genes"
-  line_all  <- rbind(low_line,high_line)
-  line_all <- line_all[complete.cases(line_all),]
-
-  # Check border
-  check_border <- cbind(low_line, high_line)
-  check_up <- check_border[check_border$distance < 0, ]
-  check_dn <- check_border[check_border$distance > 0, ]
-  border_up <- head(check_up[check_up[,2] < check_up[,5], ], 1)
-  border_dn <- head(check_dn[check_dn[,2] < check_dn[,5], ], 1)
-
-  up_title <- if(nrow(border_up)>0) paste0("Upstream border: ", border_up$distance[1], " bp") else ""
-  dn_title <- if(nrow(border_dn)>0) paste0("Downstream border: ", border_dn$distance[1], " bp") else ""
-
-  
   gap <- limit/10
 
   up_df_point <- point_all[point_all$dist < 0,]
-  up_df_line  <- line_all[line_all$distance < 0,]
   up_df_point$dist_shift <- up_df_point$dist
-  up_df_line$distance_shift <- up_df_line$distance
 
   down_df_point <- point_all[point_all$dist > 0,]
-  down_df_line  <- line_all[line_all$distance > 0,]
   down_df_point$dist_shift <- down_df_point$dist + gap
+
+  df_plot <- rbind(up_df_point, down_df_point)
+  df_plot$region <- ifelse(df_plot$dist < 0, "upstream", "downstream")
+  df_plot$expr <- factor(
+    df_plot$expr,
+    levels=c("Highly expressed genes", "Lowly expressed genes")
+  )
+
+  up_border <- find_border_ttest(df_plot, "upstream", limit)
+  down_border <- find_border_ttest(df_plot, "downstream", limit)
+
+  up_title <- if(!is.na(up_border)) {
+    paste0("Upstream border: ", -up_border, " bp")
+  } else {
+    "Upstream border: NA"
+  }
+
+  dn_title <- if(!is.na(down_border)) {
+    paste0("Downstream border: ", down_border, " bp")
+  } else {
+    "Downstream border: NA"
+  }
+
+  df_up_low    <- linedf(get("low_up"))
+  df_down_low  <- linedf(get("low_down"))
+  df_up_high   <- linedf(get("high_up"))
+  df_down_high <- linedf(get("high_down"))
+
+  df_up_low$distance  <- 0 - df_up_low$distance
+  df_up_high$distance <- 0 - df_up_high$distance
+
+  low_line <- rbind(
+    df_up_low[,c("distance","mC")],
+    df_down_low[,c("distance","mC")]
+  )
+  low_line$expr <- "Lowly expressed genes"
+
+  high_line <- rbind(
+    df_up_high[,c("distance","mC")],
+    df_down_high[,c("distance","mC")]
+  )
+  high_line$expr <- "Highly expressed genes"
+
+  line_all <- rbind(low_line, high_line)
+  line_all <- line_all[complete.cases(line_all),]
+
+  low_CI_plot <- rbind(df_up_low, df_down_low)
+  low_CI_plot$expr <- "Lowly expressed genes"
+
+  high_CI_plot <- rbind(df_up_high, df_down_high)
+  high_CI_plot$expr <- "Highly expressed genes"
+
+  up_df_line <- line_all[line_all$distance < 0,]
+  up_df_line$distance_shift <- up_df_line$distance
+
+  down_df_line <- line_all[line_all$distance > 0,]
   down_df_line$distance_shift <- down_df_line$distance + gap
 
-  df_point_all <- rbind(up_df_point, down_df_point)
-  
-  breaks <- c(seq(-limit, -100, major_tick),     0,   gap, seq(gap+major_tick, gap+limit, major_tick))
-  labels <- c(seq(-limit, -100, major_tick), "TSS", "TTS", seq(major_tick,     limit,     major_tick))
+  up_low_CI_plot <- low_CI_plot[low_CI_plot$distance < 0,]
+  up_low_CI_plot$distance_shift <- up_low_CI_plot$distance
 
-  png(file=paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png"), width=5000, height=2000, res=400)
+  up_high_CI_plot <- high_CI_plot[high_CI_plot$distance < 0,]
+  up_high_CI_plot$distance_shift <- up_high_CI_plot$distance
 
-  p<- ggplot() +
-  geom_point(df_point_all, mapping=aes(x=dist_shift,y=V11,color=expr), size=0.01, alpha=0.1) +
-  geom_line(up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr)) +
-  geom_line(down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr)) +
-  petem_theme_bw() +
-  scale_color_manual(values=c("#B44A53","#509ABC")) +
-  scale_x_continuous(breaks=breaks, labels=labels) +
-  ggtitle(paste0(up_title, "; ", dn_title)) +
-  theme(legend.position="top",
-    panel.grid.minor = element_blank()) +
-  labs(x="Distance to gene (bp)", y="TE methylation level (%)", color=NULL)
+  down_low_CI_plot <- low_CI_plot[low_CI_plot$distance > 0,]
+  down_low_CI_plot$distance_shift <- down_low_CI_plot$distance + gap
+
+  down_high_CI_plot <- high_CI_plot[high_CI_plot$distance > 0,]
+  down_high_CI_plot$distance_shift <- down_high_CI_plot$distance + gap
+
+  breaks <- c(
+    seq(-limit, -100, major_tick),
+    0,
+    gap,
+    seq(gap + major_tick, gap + limit, major_tick)
+  )
+
+  labels <- c(
+    seq(-limit, -100, major_tick),
+    "TSS",
+    "TTS",
+    seq(major_tick, limit, major_tick)
+  )
+
+  vline_pos <- c()
+  if(!is.na(up_border)) vline_pos <- c(vline_pos, -up_border)
+  if(!is.na(down_border)) vline_pos <- c(vline_pos, down_border + gap)
+
+  png(
+    file=paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png"),
+    width=5000,
+    height=2000,
+    res=400
+  )
+
+  p <- ggplot() +
+    geom_point(
+      data=df_plot,
+      mapping=aes(x=dist_shift, y=V11, color=expr),
+      size=0.01,
+      alpha=0.1,
+      show.legend=FALSE
+    ) +
+
+    geom_ribbon(
+      data=up_low_CI_plot,
+      mapping=aes(x=distance_shift, ymin=lower, ymax=upper),
+      fill=ci_cols["Lowly expressed genes"],
+      alpha=0.27,
+      show.legend=FALSE
+    ) +
+    geom_ribbon(
+      data=down_low_CI_plot,
+      mapping=aes(x=distance_shift, ymin=lower, ymax=upper),
+      fill=ci_cols["Lowly expressed genes"],
+      alpha=0.27,
+      show.legend=FALSE
+    ) +
+    geom_ribbon(
+      data=up_high_CI_plot,
+      mapping=aes(x=distance_shift, ymin=lower, ymax=upper),
+      fill=ci_cols["Highly expressed genes"],
+      alpha=0.27,
+      show.legend=FALSE
+    ) +
+    geom_ribbon(
+      data=down_high_CI_plot,
+      mapping=aes(x=distance_shift, ymin=lower, ymax=upper),
+      fill=ci_cols["Highly expressed genes"],
+      alpha=0.27,
+      show.legend=FALSE
+    ) +
+
+    geom_line(
+      data=up_df_line,
+      mapping=aes(x=distance_shift, y=mC, color=expr, group=expr),
+      linewidth=0.8
+    ) +
+    geom_line(
+      data=down_df_line,
+      mapping=aes(x=distance_shift, y=mC, color=expr, group=expr),
+      linewidth=0.8
+    ) +
+
+    geom_hline(yintercept=c(0,100), color="grey40", linewidth=0.3) +
+    geom_vline(
+      xintercept=vline_pos,
+      color="grey50",
+      linewidth=0.3,
+      linetype=2
+    ) +
+
+    petem_theme_bw() +
+    scale_color_manual(
+      values=line_cols,
+      guide=guide_legend(
+        override.aes=list(
+          linewidth=1.2,
+          alpha=1,
+          fill=NA
+        )
+      )
+    ) +
+    scale_x_continuous(breaks=breaks, labels=labels) +
+    scale_y_continuous(breaks=c(0,50,100)) +
+    ggtitle(paste0(up_title, "; ", dn_title)) +
+    theme(
+      legend.position="top",
+      legend.title=element_blank(),
+      panel.grid.minor=element_blank()
+    ) +
+    labs(
+      x="Distance to gene (bp)",
+      y=paste0("TE ", type, " methylation level (%)"),
+      color=NULL
+    )
 
   print(p)
-
   dev.off()
 }
 

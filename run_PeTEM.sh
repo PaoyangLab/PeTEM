@@ -282,10 +282,10 @@ if [[ "$run0" == "y" || "$run1" == "y" ]]; then
   ask_file faidx "Genome fasta index (.fai): " ".fai" "Modules 0/1"
 fi
 
-# DEG + DETE files (run0, run3-2, run4, run5)
-if [[ "$run0" == "y" || "$run3" == "y" || "$run4" == "y" || "$run5" == "y" ]]; then
-  ask_file deg_file "DEG file: " ".txt" "Modules 0/3/4/5"
-  ask_file dete_file "DETE file: " ".txt" "Modules 0/3/4/5"
+# DEG + DETE files (run0, run3-2, run4)
+if [[ "$run0" == "y" || "$run3" == "y" || "$run4" == "y" ]]; then
+  ask_file deg_file "DEG file: " ".txt" "Modules 0/3/4"
+  ask_file dete_file "DETE file: " ".txt" "Modules 0/3/4"
 fi
 
 # Convert DEG + DETE files to expression.txt (run0, run3-2, run4)
@@ -416,7 +416,7 @@ if [[ "$run5" == "y" ]]; then
   (
     mkdir -p "$module5_dir"
     cd "$module5_dir"
-    Rscript "$SCRIPT_DIR/5_cross_condition_correlation.R" --DEG "$deg_file" --DETE "$dete_file" --module0-dir "$module0_dir" --outdir "$module5_dir" --unexp "$unexp"
+    Rscript "$SCRIPT_DIR/5_cross_condition_correlation.R" --module0-dir "$module0_dir" --outdir "$module5_dir" --unexp "$unexp"
   )
 fi
 

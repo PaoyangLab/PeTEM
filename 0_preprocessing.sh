@@ -218,8 +218,9 @@ normalize_score "$TE" "$TE_NORM"
 #####################################
 CURRENT_STEP="step 2 - preprocess methylation data"
 echo "[STEP 2] Preprocessing methylation data..."
-# only keep chromosomes with numeric names to avoid wigToBigWig errors on Mt/Pt
-awk '$1 ~ /^[0-9]+$/{print $1"\t"$2}' "$faidx" | awk '!seen[$1]++' > chrom.size
+# Keep the chromosome names exactly as they appear in the FAI after upstream
+# normalization so wigToBigWig and downstream tables use the same reference set.
+awk 'NF >= 2 {print $1"\t"$2}' "$faidx" | awk '!seen[$1]++' > chrom.size
 
 # clean old wig/bw/tab and set work dir for new ones
 WIG_DIR="$PWD/wig"

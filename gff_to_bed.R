@@ -72,6 +72,7 @@ extract_attr_vector <- function(attr_vec, keys) {
 normalize_attr_values <- function(values, remove_transcript_suffix = FALSE) {
   values <- trimws(values)
   values <- sub("^[^:]+:", "", values)
+  values <- gsub("[[:space:]]+", "_", values)
   if (remove_transcript_suffix) {
     values <- sub("\\.[0-9]+$", "", values)
   }
@@ -81,7 +82,7 @@ normalize_attr_values <- function(values, remove_transcript_suffix = FALSE) {
 
 extract_gene_names <- function(attr_vec) {
   normalize_attr_values(
-    extract_attr_vector(attr_vec, c("gene_id", "gene", "Name", "locus_tag", "ID", "Parent", "transcript_id")),
+    extract_attr_vector(attr_vec, c("gene_id", "locus_tag", "ID", "gene", "Parent", "transcript_id", "Name")),
     remove_transcript_suffix = FALSE
   )
 }

@@ -16,6 +16,29 @@ suppressPackageStartupMessages(library(optparse))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(tidyr))
 
+MODULE4_THEME_BASE_SIZE <- PETEM_THEME_BASE_SIZE + 2
+MODULE4_CEX_AXIS <- PETEM_BASE_CEX_AXIS * 1.1
+MODULE4_CEX_LABEL <- PETEM_BASE_CEX_LABEL * 1.1
+MODULE4_CEX_NOTE <- PETEM_BASE_CEX_NOTE * 1.1
+MODULE4_LINE_LABEL_SIZE <- 4.5
+MODULE4_BAR_LABEL_SIZE <- 4.4
+MODULE4_CG_COL <- "#CFA699"
+MODULE4_CHG_COL <- "#71A061"
+MODULE4_CHH_COL <- "#3871A6"
+MODULE4_FRAME_WIDTH <- 1
+MODULE4_GRID_COL <- "gray92"
+
+module4_theme_bw <- function() {
+  petem_theme_bw(base_size = MODULE4_THEME_BASE_SIZE) +
+    theme(
+      panel.background = element_rect(fill = "white", colour = NA),
+      plot.background = element_rect(fill = "white", colour = NA),
+      panel.border = element_rect(colour = "black", fill = NA, linewidth = MODULE4_FRAME_WIDTH),
+      panel.grid.major = element_line(color = MODULE4_GRID_COL, linewidth = 0.3),
+      panel.grid.minor = element_blank()
+    )
+}
+
 #---- Option parser ----
 option_list = list(
   make_option(c("--eg"), type="character", help="Gene expression file"),
@@ -62,32 +85,50 @@ calc_window <- function(df){
   return(window)
 }
 
+expand_ylim <- function(requested, values, pad=1.08) {
+  values <- values[is.finite(values)]
+  if (length(values) == 0) {
+    return(requested)
+  }
+  max(requested, max(values, na.rm=TRUE) * pad)
+}
+
+run_cor_test <- function(x, y, method="pearson") {
+  if (method == "spearman") {
+    return(cor.test(x, y, method=method, exact=FALSE))
+  }
+  cor.test(x, y, method=method)
+}
+
 corr_mC <- function(df, exp, CG, CHG, CHH, method="pearson") {
   log2exp<-as.numeric(log2(df[[exp]]))
+  cg_corr <- run_cor_test(log2exp, df[[CG]], method=method)
+  chg_corr <- run_cor_test(log2exp, df[[CHG]], method=method)
+  chh_corr <- run_cor_test(log2exp, df[[CHH]], method=method)
   data.frame(
     Corr = c(
-      cor.test(log2exp, df[[CG]], method=method)$estimate,
-      cor.test(log2exp, df[[CHG]], method=method)$estimate,
-      cor.test(log2exp, df[[CHH]], method=method)$estimate
+      cg_corr$estimate,
+      chg_corr$estimate,
+      chh_corr$estimate
     ),
     Pvalue = c(
-      cor.test(log2exp, df[[CG]], method=method)$p.value,
-      cor.test(log2exp, df[[CHG]], method=method)$p.value,
-      cor.test(log2exp, df[[CHH]], method=method)$p.value
+      cg_corr$p.value,
+      chg_corr$p.value,
+      chh_corr$p.value
     ),
     row.names = c("CG", "CHG", "CHH")
   )
 }
 
 corr_exp <- function(df, x, y, method="pearson") {
-  corr <- cor.test(as.numeric(log2(df[[x]])), as.numeric(log2(df[[y]])), method=method)
+  corr <- run_cor_test(as.numeric(log2(df[[x]])), as.numeric(log2(df[[y]])), method=method)
   data.frame(Corr=corr$estimate, Pvalue=corr$p.value, row.names=paste(x, y, sep="_vs_"))
 }
 
 plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
-  cg_col <- "#DFC2B1"
-  chg_col <- "#D7D1A5"
-  chh_col <- "#A8C8CD"
+  cg_col <- MODULE4_CG_COL
+  chg_col <- MODULE4_CHG_COL
+  chh_col <- MODULE4_CHH_COL
   te_gray <- "#9E9E9E"
 
   # correlations
@@ -129,7 +170,7 @@ plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
     Comparison = factor(c("TEexp vs TEmCG", "TEexp vs TEmCHG", "TEexp vs TEmCHH"),
                         levels = levels(corr_df$Comparison)),
     label = c("CG", "CHG", "CHH"),
-    color = c("#B78E79", "#A59C70", "#6D97A0"),
+    color = c(cg_col, chg_col, chh_col),
     x = max(0.03, 0.04 * max(abs(c(xmin, xmax)))),
     stringsAsFactors = FALSE
   )
@@ -137,23 +178,20 @@ plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
   png(file=outfile,width=2000,height=1500,res=400)
   print(
     ggplot(corr_df, aes(x=Corr,y=Comparison,fill=Color)) +
-      geom_bar(stat="identity") +
+      geom_bar(stat="identity", width=0.55) +
       geom_hline(yintercept=c(te_row - 0.5, te_row + 0.5), color="black", linewidth=0.6) +
       geom_text(aes(label=round(Corr,2)),
-                hjust=ifelse(corr_df$Corr>=0, -0.1, 1.1), size=4) +
+                hjust=ifelse(corr_df$Corr>=0, -0.1, 1.1), size=MODULE4_BAR_LABEL_SIZE) +
       geom_text(data=right_labels, aes(x=x, y=Comparison, label=label, color=color),
-                inherit.aes=FALSE, hjust=0, size=4.2, fontface="bold") +
+                inherit.aes=FALSE, hjust=0, size=MODULE4_BAR_LABEL_SIZE + 0.2, fontface="bold") +
       scale_fill_identity() +
       scale_color_identity() +
       scale_y_discrete(labels = group_axis_labels) +
       xlim(xmin, xmax) +
       labs(x=paste0(tools::toTitleCase(method)," correlation coefficient"), y=NULL) +
-      petem_theme_bw() +
+      module4_theme_bw() +
       theme(
-        panel.border=element_rect(colour="black", fill=NA, linewidth=1),
-        axis.ticks.y = element_blank(),
-        panel.grid.major.y = element_blank(),
-        panel.grid.minor = element_blank()
+        axis.ticks.y = element_blank()
       )
   )
   dev.off()
@@ -171,12 +209,6 @@ TE_exp <- read.table(opt$et, header=TRUE, sep="\t", row.names=1)
 
 #---- Determine stages ----
 stages <- intersect(colnames(gene_exp), colnames(TE_exp))
-if (length(colnames(gene_exp)) != 2 || length(colnames(TE_exp)) != 2) {
-  stop("Module 4 requires exactly two expression stages/conditions in both gene and TE expression matrices.")
-}
-if (length(stages) != 2) {
-  stop("Module 4 requires exactly two shared stages/conditions between gene and TE expression matrices.")
-}
 
 #---- Read methylation ----
 CG_TE <- read.table(module0_file("Tab_TE_CG.txt"), header=TRUE, sep="\t")
@@ -328,58 +360,205 @@ for(stage in stages){
   TE_window <- calc_window(TEdf)
   g_window  <- calc_window(gdf)
   gexp_window  <- calc_window(gdfexp)
-  #pmC_window <- calc_window(pmC)
+  pmC_window <- calc_window(pmC)
   wo_window <- calc_window(wo)
 
 
   #---- Plotting ----
-  CG_col <- "#CFA699"
-  CHG_col <- "#71A061"
-  CHH_col <- "#3871A6"
+  CG_col <- MODULE4_CG_COL
+  CHG_col <- MODULE4_CHG_COL
+  CHH_col <- MODULE4_CHH_COL
   TE_col <- "#B9653C"
   pro_wTE_col <- "#7F7F7F"
   pro_woTE_col <- "#BFBFBF"
   
-  # TE exp vs TE mC
-  png(file=output_file(paste0("OUTPUT_4_TEexp_TEmC_line_",stage,".png")), width=2600,height=2200,res=400)
-  petem_base_par(list(mar=c(6,4.5,6,5)+0.1))
-  plot(TE_CHG,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CHG_col,type="l",axes=FALSE,
-       ylim=c(0,opt$ylim_TEexpTEmC_CH),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
-  lines(TE_CHH,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CHH_col)
-  axis(4,las=1)
-  mtext(expression(bold("TE CH methylation level (%)")), side=4, line=3.5, cex=PETEM_BASE_CEX_LABEL)
-  box()
-  par(new=TRUE)
-  plot(TE_CG,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col=CG_col,type="l",axes=FALSE,ylim=c(0,opt$ylim_TEexpTEmC_CG),xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
-  axis(2, col="black", las=1)
-  mtext(expression(bold("TE CG methylation level (%)")), side=2, line=3, cex=PETEM_BASE_CEX_LABEL)
-  mtext("Lowly expressed TEs      Highly expressed TEs", side=1, line=1, cex=PETEM_BASE_CEX_LABEL, font=2)
-  par(xpd=NA)
-  legend("top", inset=c(0,-0.16), x.intersp=0.8, horiz=TRUE,
-         legend=c("CG","CHG","CHH"), text.font=2, bty='n', lty=1, lwd=PETEM_BASE_LINE_WIDTH, col=c(CG_col,CHG_col,CHH_col), cex=PETEM_BASE_CEX_AXIS)
-  par(xpd=FALSE)
-  grid(nx=NA, ny=NULL, col="gray70", lty=3, lwd=1)
-  mtext(paste0("TEs: ", nrow(TEdf), ", window size: ", TE_window), side=1, line=4, cex=PETEM_BASE_CEX_NOTE)
-  dev.off()
+# TE exp vs TE mC
+te_ch_ylim <- expand_ylim(opt$ylim_TEexpTEmC_CH, c(TE_CHG, TE_CHH))
+te_cg_ylim <- expand_ylim(opt$ylim_TEexpTEmC_CG, TE_CG)
+
+# ----- pretty ticks -----
+left_step <- 20
+right_step <- 10
+
+left_ticks <- seq(
+  0,
+  ceiling(te_cg_ylim / left_step) * left_step,
+  by = left_step
+)
+
+right_ticks <- seq(
+  0,
+  ceiling(te_ch_ylim / right_step) * right_step,
+  by = right_step
+)
+
+# map right ticks onto left axis coordinates
+mapped_right_ticks <- right_ticks / max(right_ticks) * max(left_ticks)
+
+png(
+  file=output_file(paste0("OUTPUT_4_TEexp_TEmC_line_",stage,".png")),
+  width=2600,
+  height=2200,
+  res=400
+)
+
+petem_base_par(list(
+  mar=c(6,4.5,6,5)+0.1,
+  bg="white",
+  cex.axis=MODULE4_CEX_AXIS,
+  cex.lab=MODULE4_CEX_LABEL,
+  cex.main=MODULE4_CEX_LABEL
+))
+
+# ---- CH axis ----
+plot(
+  TE_CHG,
+  lwd=PETEM_BASE_LINE_WIDTH,
+  lty=1,
+  col=CHG_col,
+  type="n",
+  axes=FALSE,
+  ylim=c(0, max(right_ticks)),
+  xlim=c(0,opt$wd_num),
+  xlab=NA,
+  ylab=NA,
+  xaxt='n'
+)
+
+# aligned horizontal grid
+abline(
+  h=right_ticks,
+  col=MODULE4_GRID_COL,
+  lty=1,
+  lwd=0.6
+)
+
+lines(
+  TE_CHG,
+  lwd=PETEM_BASE_LINE_WIDTH,
+  lty=1,
+  col=CHG_col
+)
+
+lines(
+  TE_CHH,
+  lwd=PETEM_BASE_LINE_WIDTH,
+  lty=1,
+  col=CHH_col
+)
+
+axis(
+  4,
+  at=right_ticks,
+  labels=right_ticks,
+  las=1,
+  lwd=MODULE4_FRAME_WIDTH,
+  font=2
+)
+
+mtext(
+  expression(bold("TE CH methylation level (%)")),
+  side=4,
+  line=3.5,
+  cex=MODULE4_CEX_LABEL
+)
+
+# ---- CG axis ----
+par(new=TRUE)
+
+plot(
+  TE_CG,
+  lwd=PETEM_BASE_LINE_WIDTH,
+  lty=1,
+  col=CG_col,
+  type="l",
+  axes=FALSE,
+  ylim=c(0, max(left_ticks)),
+  xlim=c(0,opt$wd_num),
+  xlab=NA,
+  ylab=NA,
+  xaxt='n'
+)
+
+axis(
+  2,
+  at=left_ticks,
+  labels=left_ticks,
+  col="black",
+  las=1,
+  lwd=MODULE4_FRAME_WIDTH,
+  font=2
+)
+
+mtext(
+  expression(bold("TE CG methylation level (%)")),
+  side=2,
+  line=3,
+  cex=MODULE4_CEX_LABEL
+)
+
+mtext(
+  "Lowly expressed TEs      Highly expressed TEs",
+  side=1,
+  line=1,
+  cex=MODULE4_CEX_LABEL,
+  font=2
+)
+
+par(xpd=NA)
+
+legend(
+  "top",
+  inset=c(0,-0.16),
+  x.intersp=0.8,
+  horiz=TRUE,
+  legend=c("CG","CHG","CHH"),
+  text.font=2,
+  bty='n',
+  lty=1,
+  lwd=PETEM_BASE_LINE_WIDTH,
+  col=c(CG_col,CHG_col,CHH_col),
+  cex=MODULE4_CEX_AXIS
+)
+
+par(xpd=FALSE)
+
+box(lwd=MODULE4_FRAME_WIDTH)
+
+mtext(
+  paste0(
+    "TEs: ",
+    nrow(TEdf),
+    ", window size: ",
+    TE_window
+  ),
+  side=1,
+  line=4,
+  cex=MODULE4_CEX_NOTE
+)
+
+dev.off()
   
   # gene exp vs TE exp
   png(file=output_file(paste0("OUTPUT_4_geneexp_TEexp_line_",stage,".png")), width=2600,height=2200,res=400)
-  petem_base_par(list(mar=c(5,4.5,4,5)+0.1))
-  plot(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50",type="l",axes=FALSE,xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
-  axis(2, ylim=c(0,1),col="black",las=1)
-  mtext(expression(bold("TE expression (log2 RPKM)")),side=2,line=3,cex=PETEM_BASE_CEX_LABEL)
-  mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=PETEM_BASE_CEX_LABEL,font=2)
-  grid(nx=NA,ny=NULL,col="gray70",lty=3,lwd=1)
-  box()
-  mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", gexp_window), side=1, line=4, cex=PETEM_BASE_CEX_NOTE)
+  petem_base_par(list(mar=c(5,4.5,4,5)+0.1, bg="white", cex.axis=MODULE4_CEX_AXIS, cex.lab=MODULE4_CEX_LABEL, cex.main=MODULE4_CEX_LABEL))
+  plot(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50",type="n",axes=FALSE,xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
+  grid(nx=NA, ny=NULL, col=MODULE4_GRID_COL, lty=1, lwd=0.6)
+  lines(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50")
+  axis(2, ylim=c(0,1), col="black", las=1, lwd=MODULE4_FRAME_WIDTH)
+  mtext(expression(bold("TE expression (log2 RPKM)")),side=2,line=3,cex=MODULE4_CEX_LABEL)
+  mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=MODULE4_CEX_LABEL,font=2)
+  box(lwd=MODULE4_FRAME_WIDTH)
+  mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", gexp_window), side=1, line=4, cex=MODULE4_CEX_NOTE)
+
   dev.off()
-  
+
   # gene exp vs TE/promoter mC
 
 for(mtype in c("CG","CHG","CHH")){
 
     # Select y-axis upper limit.
-    ylim_val <- switch(mtype, CG=opt$ylim_CG, CHG=opt$ylim_CHG, CHH=opt$ylim_CHH)
+    requested_ylim <- switch(mtype, CG=opt$ylim_CG, CHG=opt$ylim_CHG, CHH=opt$ylim_CHH)
 
     df <- data.frame(
         x = seq_along(get(paste0("wo", mtype))),
@@ -391,6 +570,7 @@ for(mtype in c("CG","CHG","CHH")){
     df_long <- df %>%
         pivot_longer(cols=c("woTE","wTE","TE"),
                      names_to="type", values_to="value")
+    ylim_val <- expand_ylim(requested_ylim, df_long$value)
 
     line_colors <- c(
         "TE"   = CG_col,
@@ -400,8 +580,8 @@ for(mtype in c("CG","CHG","CHH")){
 
     line_labels <- c(
         "TE"   = "TE",
-        "wTE"  = "Promoter with TEs",
-        "woTE" = "Promoter without TEs"
+        "wTE"  = "Promoter containing TEs",
+        "woTE" = "Promoter with no TEs"
     )
 
     rho_df <- data.frame(
@@ -414,12 +594,13 @@ for(mtype in c("CG","CHG","CHH")){
         stringsAsFactors = FALSE
     )
     rho_df$label <- sprintf("\u03c1=%.2f", rho_df$rho)
-    line_start_idx <- max(2, floor(opt$wd_num * 0.08))
-    rho_df$x <- line_start_idx
+    line_end_idx <- nrow(df)
+    rho_df$x <- line_end_idx + line_end_idx * 0.03
+    x_axis_max <- line_end_idx * 1.16
     rho_df$y <- c(
-      df$TE[line_start_idx] + ylim_val * 0.04,
-      df$wTE[line_start_idx] + ylim_val * 0.04,
-      df$woTE[line_start_idx] + ylim_val * 0.04
+      df$TE[line_end_idx] + ylim_val * 0.04,
+      df$wTE[line_end_idx] + ylim_val * 0.04,
+      df$woTE[line_end_idx] + ylim_val * 0.04
     )
     rho_df$y <- pmin(rho_df$y, ylim_val * 0.98)
     min_gap <- ylim_val * 0.07
@@ -439,25 +620,29 @@ for(mtype in c("CG","CHG","CHH")){
     p <- ggplot(df_long, aes(x=x, y=value, color=type)) +
         geom_line(linewidth=1.5) +
         geom_text(data=rho_df, aes(x=x, y=y, label=label, color=type),
-                  inherit.aes=FALSE, hjust=0, vjust=0, fontface="bold", size=4, show.legend=FALSE) +
+                  inherit.aes=FALSE, hjust=0, vjust=0.5, fontface="bold", size=MODULE4_LINE_LABEL_SIZE, show.legend=FALSE) +
         scale_color_manual(values=line_colors, labels=line_labels) +
-        coord_cartesian(ylim=c(0, ylim_val), xlim=c(0, opt$wd_num)) +
-        labs(y="Methylation level (%)",
+        coord_cartesian(ylim=c(0, ylim_val), xlim=c(0, x_axis_max)) +
+        labs(y=paste0(mtype, " methylation level (%)"),
              x="Lowly expressed genes             Highly expressed genes",
              caption=paste0(
                "TE-gene pairs: ", nrow(gdf),
-               ", window size: ", g_window,
-               "; Promoter without TEs: ", nrow(wo),
+               ", window size: ", g_window, "\n",
+               "Promoter containing TEs: ", nrow(pmC),
+               ", window size: ", pmC_window, "\n",
+               "Promoter with no TEs: ", nrow(wo),
                ", window size: ", wo_window
              ),
              color=NULL) +
-        petem_theme_bw() +
+        module4_theme_bw() +
         theme(
             legend.position = "top",
-            plot.margin = margin(t = 10, r = 10, b = 14, l = 10),
-            plot.caption = element_text(hjust = 1, size = PETEM_AXIS_TEXT_SIZE),
+            plot.margin = margin(t = 10, r = 10, b = 24, l = 10),
+            plot.caption = element_text(hjust = 0.5, size = PETEM_AXIS_TEXT_SIZE + 1, lineheight = 1.1),
             plot.caption.position = "plot",
-            panel.grid.minor = element_blank()
+            axis.text.x = element_blank(),
+            axis.ticks.x = element_blank(),
+            axis.line = element_blank()
         )
 
     ggsave(

@@ -86,10 +86,14 @@ plot_bar <- function(values, ylab, title, yuplim, y_limit = NA){
   p <- ggplot(df, aes(x=Region, y=Value, fill=Region)) +
     geom_bar(stat="identity", color="black") +
     geom_text(aes(x=Region, y=label_y, label=sprintf("%.2f", Value), vjust=vjust),
-              size=PETEM_ANNOTATION_TEXT_SIZE, color="firebrick4", fontface="bold") +
+              size=PETEM_ANNOTATION_TEXT_SIZE + 1, color="firebrick4", fontface="bold") +
     scale_fill_manual(values=colors) +
     petem_theme_classic() +
-    theme(axis.text.x = element_text(angle=40, hjust=1),
+    theme(axis.text.x = element_text(angle=40, hjust=1, size = PETEM_AXIS_TEXT_SIZE + 2),
+          axis.text.y = element_text(size = PETEM_AXIS_TEXT_SIZE + 2),
+          axis.title.x = element_text(size = PETEM_AXIS_TITLE_SIZE + 2),
+          axis.title.y = element_text(size = PETEM_AXIS_TITLE_SIZE + 2),
+          plot.title = element_text(size = PETEM_PLOT_TITLE_SIZE + 2),
           axis.ticks.x = element_blank(),
           legend.position="none") +
     labs(x="", y=ylab, title=title)
@@ -104,11 +108,11 @@ plot_bar <- function(values, ylab, title, yuplim, y_limit = NA){
 
 #------------------
 png("OUTPUT_1_TE_distribution_enrichment.png", width=2000, height=1800, res=300)
-print(plot_bar(TEinsert_enrich, "Log2 enrichment", "TE distribution", 1.8))
+print(plot_bar(TEinsert_enrich, expression(bold("Enrichment (Log2)")), "Enrichment of TE distribution", 1.8))
 dev.off()
 
 png("OUTPUT_1_TE_distribution_percentage.png", width=2000, height=1800, res=300)
-print(plot_bar(TE_insertion2, "Percentage (%)", "TE distribution", 1.2, y_limit = 100))
+print(plot_bar(TE_insertion2, "Percentage of TEs (%)", "Percentage of TEs across genomic features", 1.2, y_limit = 100))
 dev.off()
 
 end_time <- Sys.time()

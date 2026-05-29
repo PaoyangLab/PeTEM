@@ -10,9 +10,9 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # Usage:
 #   bash 3_TE_impact_distance.sh \
 #     -m sample1.CGmap.gz sample2.CGmap.gz ... \
-#     -g gene.bed -t TE.bed \
+#     -g gene.bed -t TE.bed -i TE_overlap_promoter.bed \
 #     -eg gene_expression.txt -et TE_expression.txt \
-#     [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
+#     [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
 
 die() {
   echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
@@ -20,7 +20,7 @@ die() {
 }
 
 usage() {
-  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -eg expression_gene.txt -et expression_TE.txt [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]" >&2
+  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -i TE_overlap_promoter.bed -eg expression_gene.txt -et expression_TE.txt [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]" >&2
   exit 1
 }
 
@@ -71,13 +71,16 @@ trap 'rc=$?; echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: co
 METH_FILES=()
 GENE_BED=""
 TE_BED=""
+PROMOTER_EMBEDDED_BED=""
 GENE_EXP=""
 TE_EXP=""
 LIMIT=15000
-MAJOR_TICK=5000
+MAJOR_TICK=0
 TOP_BOTTOM_PERCENT=10
 WINDOW_SIZE=100
 LINE_MODE="raw"
+SHOW_CI="n"
+SHOW_BORDER="y"
 INCLUDE_UNEXPRESSED_TE="n"
 RUN_CONTROL_PLOT="n"
 
@@ -91,6 +94,7 @@ while [[ $# -gt 0 ]]; do
       ;;
     -g) GENE_BED="$2"; shift 2 ;;
     -t) TE_BED="$2"; shift 2 ;;
+    -i) PROMOTER_EMBEDDED_BED="$2"; shift 2 ;;
     -eg) GENE_EXP="$2"; shift 2 ;;
     -et) TE_EXP="$2"; shift 2 ;;
     -d|-lim) LIMIT="$2"; shift 2 ;;
@@ -98,8 +102,10 @@ while [[ $# -gt 0 ]]; do
     -p) TOP_BOTTOM_PERCENT="$2"; shift 2 ;;
     -w|-WD) WINDOW_SIZE="$2"; shift 2 ;;
     -l) LINE_MODE="$2"; shift 2 ;;
+    -CI) SHOW_CI="$2"; shift 2 ;;
+    -border) SHOW_BORDER="$2"; shift 2 ;;
     -unexp) INCLUDE_UNEXPRESSED_TE="$2"; shift 2 ;;
-    -c) RUN_CONTROL_PLOT="$2"; shift 2 ;;
+    -nTE) RUN_CONTROL_PLOT="$2"; shift 2 ;;
     *) die "unknown option: $1" ;;
   esac
 done
@@ -107,6 +113,7 @@ done
 missing_args=()
 [[ -n ${GENE_BED:-} ]] || missing_args+=("-g gene.bed")
 [[ -n ${TE_BED:-} ]] || missing_args+=("-t TE.bed")
+[[ -n ${PROMOTER_EMBEDDED_BED:-} ]] || missing_args+=("-i TE_overlap_promoter.bed")
 [[ -n ${GENE_EXP:-} ]] || missing_args+=("-eg expression_gene.txt")
 [[ -n ${TE_EXP:-} ]] || missing_args+=("-et expression_TE.txt")
 (( ${#missing_args[@]} == 0 )) || usage_missing "${missing_args[*]}"
@@ -114,15 +121,19 @@ missing_args=()
 CURRENT_STEP="input validation"
 require_file "-g" "$GENE_BED"
 require_file "-t" "$TE_BED"
+require_file "-i" "$PROMOTER_EMBEDDED_BED"
 require_file "-eg" "$GENE_EXP"
 require_file "-et" "$TE_EXP"
 [[ $TOP_BOTTOM_PERCENT =~ ^[0-9]+([.][0-9]+)?$ ]] || die "invalid value for -p: ${TOP_BOTTOM_PERCENT}"
 [[ $WINDOW_SIZE =~ ^[0-9]+$ ]] || die "invalid value for -w: ${WINDOW_SIZE}"
 [[ $LIMIT =~ ^[0-9]+$ ]] || die "invalid value for -d: ${LIMIT}"
+[[ $MAJOR_TICK =~ ^[0-9]+$ ]] || die "invalid value for -tick: ${MAJOR_TICK}"
 awk "BEGIN {exit !(${TOP_BOTTOM_PERCENT} > 0 && ${TOP_BOTTOM_PERCENT} < 50)}" || die "value for -p must be greater than 0 and less than 50: ${TOP_BOTTOM_PERCENT}"
 (( WINDOW_SIZE > 0 )) || die "value for -w must be greater than 0: ${WINDOW_SIZE}"
 (( LIMIT > 0 )) || die "value for -d must be greater than 0: ${LIMIT}"
-[[ $LINE_MODE == "raw" || $LINE_MODE == "poly" ]] || die "invalid value for -l: ${LINE_MODE}. Supported values: poly"
+[[ $SHOW_CI == "y" || $SHOW_CI == "n" ]] || die "invalid value for -CI: ${SHOW_CI}. Supported values: y, n"
+[[ $SHOW_BORDER == "y" || $SHOW_BORDER == "n" ]] || die "invalid value for -border: ${SHOW_BORDER}. Supported values: y, n"
+[[ $LINE_MODE == "raw" || $LINE_MODE == "linear" || $LINE_MODE == "poly" || $LINE_MODE == "loess" ]] || die "invalid value for -l: ${LINE_MODE}. Supported values: raw, linear, poly, loess"
 for f in "${METH_FILES[@]}"; do
   require_file "-m" "$f"
 done
@@ -246,15 +257,18 @@ bedtools closest -a expressed_gene.bed -b expressed_TE.bed -id -d -D a > expgene
 
 CURRENT_STEP="step B2 - build expression strata and adjacent regions"
 echo "[`date`] [B] Step 2. Split high/low genes and build adjacent regions" | tee -a "$LOG"
-Rscript - "$GENE_EXP" "$LIMIT" "$TOP_BOTTOM_PERCENT" <<'EOF' 
+Rscript - "$GENE_EXP" "$LIMIT" "$TOP_BOTTOM_PERCENT" "$PROMOTER_EMBEDDED_BED" "${stages[@]}" <<'EOF' 
 args <- commandArgs(trailingOnly=TRUE)
 
 gene_exp <- args[1]
 limit <- as.numeric(args[2])
 top_bottom_percent <- as.numeric(args[3])
+promoter_embedded_bed <- args[4]
+allowed_stages <- args[-c(1:4)]
 
 gene_bed <- read.table("gene_sort.bed", header=F, stringsAsFactors=F)
 gene_exp    <- read.table(gene_exp, header=T, stringsAsFactors=F)
+promoter_embedded <- read.table(promoter_embedded_bed, header=F, stringsAsFactors=F)
 
 # Function for adjacent regions
 adjacent <- function(df, up=TRUE, limit=limit){
@@ -275,66 +289,101 @@ adjacent <- function(df, up=TRUE, limit=limit){
   return(df2)
 }
 
-# Focus on TEs located within adjacent regions of genes
-clo_TE <- read.table("expgene_closest_expTE.bed", sep="\t", header=F)
-clo_TE2 <- clo_TE[(clo_TE$V10)!= ".", ]
-clo_TE2 <- clo_TE2[clo_TE2$V13 >= (-limit), ]
+gene_col <- if(ncol(promoter_embedded) >= 10) 10 else if(ncol(promoter_embedded) >= 4) 4 else stop("TE_overlap_promoter.bed does not contain a recognizable gene ID column.")
+promoter_gene_ids <- unique(promoter_embedded[[gene_col]])
+promoter_gene_ids <- promoter_gene_ids[!is.na(promoter_gene_ids) & promoter_gene_ids != "."]
+gene_ids <- gene_bed$V4
 
-gene_exp2 <- gene_exp[row.names(gene_exp) %in% clo_TE2$V4, ]
+plot_gene_ids <- intersect(gene_ids, intersect(row.names(gene_exp), promoter_gene_ids))
+control_gene_ids <- setdiff(intersect(gene_ids, row.names(gene_exp)), promoter_gene_ids)
+
+gene_exp_plot <- gene_exp[row.names(gene_exp) %in% plot_gene_ids, , drop = FALSE]
+gene_exp_control <- gene_exp[row.names(gene_exp) %in% control_gene_ids, , drop = FALSE]
 
 # Highly and lowly expressed genes for each stage
-stages <- colnames(gene_exp2)
+stages <- intersect(colnames(gene_exp_plot), allowed_stages)
+if(length(stages) == 0){
+  stop("No overlapping expression stages matched the methylation stage names.")
+}
 sink("OUTPUT_3_TE_impact_distance_gene_TE_number.txt")
 
 for(stage in stages){
-  vals <- gene_exp2[, stage, drop=FALSE]
-  vals <- vals[vals[,1]>0, , drop=FALSE]
-  if(nrow(vals) == 0){
+  vals_plot <- gene_exp_plot[, stage, drop=FALSE]
+  vals_plot <- vals_plot[vals_plot[,1]>0, , drop=FALSE]
+  vals_control <- gene_exp_control[, stage, drop=FALSE]
+  vals_control <- vals_control[vals_control[,1]>0, , drop=FALSE]
+  if(nrow(vals_plot) == 0){
     next
   }
-  
-  sorted <- vals[order(vals[,1]), , drop=FALSE]
-  selected_n <- max(1, ceiling(nrow(sorted) * top_bottom_percent / 100))
-  low  <- head(sorted, selected_n)
-  high <- tail(sorted, selected_n)
-  
-  low_bed  <- merge(gene_bed, low, by.x= "V4", by.y= "row.names", all.y=T)
-  high_bed <- merge(gene_bed, high, by.x= "V4", by.y= "row.names", all.y=T)
-  low_bed <- low_bed[,c(2,3,4,1,7,6)]
-  high_bed <- high_bed[,c(2,3,4,1,7,6)]
 
-  write.table(high_bed, paste0("high_", stage, ".txt"), row.names=F, col.names=F, quote=F, sep="\t")
-  write.table(low_bed,  paste0("low_", stage, ".txt"),  row.names=F, col.names=F, quote=F, sep="\t")
+  sorted_plot <- vals_plot[order(vals_plot[,1]), , drop=FALSE]
+  selected_plot_n <- max(1, ceiling(nrow(sorted_plot) * top_bottom_percent / 100))
+  low_plot  <- head(sorted_plot, selected_plot_n)
+  high_plot <- tail(sorted_plot, selected_plot_n)
 
-  low_up   <- adjacent(low_bed, up=TRUE,  limit=limit)
-  high_up  <- adjacent(high_bed, up=TRUE,  limit=limit)
-  low_down <- adjacent(low_bed, up=FALSE, limit=limit)
-  high_down<- adjacent(high_bed, up=FALSE, limit=limit)
+  low_plot_bed  <- merge(gene_bed, low_plot, by.x= "V4", by.y= "row.names", all.y=T)
+  high_plot_bed <- merge(gene_bed, high_plot, by.x= "V4", by.y= "row.names", all.y=T)
+  low_plot_bed <- low_plot_bed[,c(2,3,4,1,7,6)]
+  high_plot_bed <- high_plot_bed[,c(2,3,4,1,7,6)]
+
+  write.table(high_plot_bed, paste0("high_", stage, ".txt"), row.names=F, col.names=F, quote=F, sep="\t")
+  write.table(low_plot_bed,  paste0("low_", stage, ".txt"),  row.names=F, col.names=F, quote=F, sep="\t")
+
+  low_up   <- adjacent(low_plot_bed, up=TRUE,  limit=limit)
+  high_up  <- adjacent(high_plot_bed, up=TRUE,  limit=limit)
+  low_down <- adjacent(low_plot_bed, up=FALSE, limit=limit)
+  high_down<- adjacent(high_plot_bed, up=FALSE, limit=limit)
 
   write.table(low_up,   paste0("low_",  stage, "_up.bed"),   row.names=F, col.names=F, quote=F, sep="\t")
   write.table(high_up,  paste0("high_", stage, "_up.bed"),   row.names=F, col.names=F, quote=F, sep="\t")
   write.table(low_down, paste0("low_",  stage, "_down.bed"), row.names=F, col.names=F, quote=F, sep="\t")
   write.table(high_down,paste0("high_", stage, "_down.bed"), row.names=F, col.names=F, quote=F, sep="\t")
 
-  cat( stage, ":","\n")
-  cat("  Highly expressed gene number:", nrow(high_bed), "\n")
-  cat("  Lowly expressed gene number:", nrow(low_bed), "\n")
-  
-  high_genes <- high_bed$V4
-  low_genes  <- low_bed$V4
+  if(nrow(vals_control) > 0){
+    sorted_control <- vals_control[order(vals_control[,1]), , drop=FALSE]
+    selected_control_n <- max(1, ceiling(nrow(sorted_control) * top_bottom_percent / 100))
+    low_control  <- head(sorted_control, selected_control_n)
+    high_control <- tail(sorted_control, selected_control_n)
 
-  high_te <- length(unique(clo_TE2$V10[clo_TE2$V4 %in% high_genes]))
-  low_te  <- length(unique(clo_TE2$V10[clo_TE2$V4 %in% low_genes]))
-  
-  cat("  TEs nearby highly expressed genes:", high_te, "\n")
-  cat("  TEs nearby lowly expressed genes:", low_te,  "\n\n")
+    low_control_bed  <- merge(gene_bed, low_control, by.x= "V4", by.y= "row.names", all.y=T)
+    high_control_bed <- merge(gene_bed, high_control, by.x= "V4", by.y= "row.names", all.y=T)
+    low_control_bed <- low_control_bed[,c(2,3,4,1,7,6)]
+    high_control_bed <- high_control_bed[,c(2,3,4,1,7,6)]
+
+    write.table(high_control_bed, paste0("ctrl_high_", stage, ".txt"), row.names=F, col.names=F, quote=F, sep="\t")
+    write.table(low_control_bed,  paste0("ctrl_low_", stage, ".txt"),  row.names=F, col.names=F, quote=F, sep="\t")
+
+    ctrl_low_up   <- adjacent(low_control_bed, up=TRUE,  limit=limit)
+    ctrl_high_up  <- adjacent(high_control_bed, up=TRUE,  limit=limit)
+    ctrl_low_down <- adjacent(low_control_bed, up=FALSE, limit=limit)
+    ctrl_high_down<- adjacent(high_control_bed, up=FALSE, limit=limit)
+
+    write.table(ctrl_low_up,   paste0("ctrl_low_",  stage, "_up.bed"),   row.names=F, col.names=F, quote=F, sep="\t")
+    write.table(ctrl_high_up,  paste0("ctrl_high_", stage, "_up.bed"),   row.names=F, col.names=F, quote=F, sep="\t")
+    write.table(ctrl_low_down, paste0("ctrl_low_",  stage, "_down.bed"), row.names=F, col.names=F, quote=F, sep="\t")
+    write.table(ctrl_high_down,paste0("ctrl_high_", stage, "_down.bed"), row.names=F, col.names=F, quote=F, sep="\t")
+  }
+
+  cat( stage, ":","\n")
+  cat("  Promoter-embedded highly expressed gene number:", nrow(high_plot_bed), "\n")
+  cat("  Promoter-embedded lowly expressed gene number:", nrow(low_plot_bed), "\n")
+  cat("  Non-promoter-embedded expressed gene number:", nrow(vals_control), "\n\n")
 }
 sink()
 EOF
 
 CURRENT_STEP="step B3 - intersect methylation tables"
 echo "[`date`] [B] Step 3. Intersect TE methylation data" | tee -a "$LOG"
-stages=($(ls *_up.bed | cut -d'_' -f2 | sort -u))
+shopt -s nullglob
+stage_files=(high_*.txt)
+shopt -u nullglob
+stages=()
+for file in "${stage_files[@]}"; do
+  stage=$(basename "$file")
+  stage=${stage#high_}
+  stage=${stage%.txt}
+  [[ -n $stage ]] && stages+=("$stage")
+done
 for stage in "${stages[@]}"; do
 (
   start=$(date +%s)
@@ -354,6 +403,7 @@ for stage in "${stages[@]}"; do
   for expr in low high; do
       for dir in up down; do
           input="${expr}_${stage}_${dir}.bed"
+          control_input="ctrl_${expr}_${stage}_${dir}.bed"
 
           # 1. with TE
           wTE="wTE_${expr}_${stage}_${dir}.bed"
@@ -361,7 +411,11 @@ for stage in "${stages[@]}"; do
 
           # 2. without TE
           woTE="woTE_${expr}_${stage}_${dir}.bed"
-          bedtools intersect -a "$input" -b expressed_TE.bed -v > "$woTE"
+          if [[ ! -f "$control_input" ]]; then
+              echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing control gene region BED for stage ${stage}: ${control_input}" | tee -a "$LOG"
+              exit 1
+          fi
+          bedtools intersect -a "$control_input" -b expressed_TE.bed -v > "$woTE"
 
           for type in CG CHG CHH; do
               bedtools intersect -a "$wTE" -b "pre_step3/pre3_${stage}_${type}.bed" -wa -wb > "wTE_${expr}_${stage}_${dir}_${type}.bed"
@@ -404,7 +458,7 @@ for stage in "${stages[@]}"; do
     start=$(date +%s)
     echo "[INFO] Processing stage $stage"  | tee -a "$LOG"
 
-    Rscript - "$LIMIT" "$MAJOR_TICK" "$WINDOW_SIZE" "$stage" "$SCRIPT_DIR" "$RUN_CONTROL_PLOT" "$LINE_MODE" <<'EOF'
+    Rscript - "$LIMIT" "$MAJOR_TICK" "$WINDOW_SIZE" "$stage" "$SCRIPT_DIR" "$RUN_CONTROL_PLOT" "$LINE_MODE" "$SHOW_CI" "$TOP_BOTTOM_PERCENT" "$SHOW_BORDER" <<'EOF'
 library(ggplot2)
 suppressPackageStartupMessages(library(gplots))
 
@@ -416,6 +470,9 @@ stage <- args[4]
 script_dir <- args[5]
 run_control_plot <- tolower(args[6])
 line_mode <- tolower(args[7])
+show_ci <- tolower(args[8])
+top_bottom_percent <- as.numeric(args[9])
+show_border <- tolower(args[10])
 source(file.path(script_dir, "plot_defaults.R"))
 
 # Functions
@@ -479,7 +536,8 @@ for(type in types){
   for(expr in exprs){
     for(dir in dirs){
       mydf <- read.table(paste0(prefix,"_",expr,"_",stage,"_",dir,"_",type,".bed"), sep="\t")
-      mybed <- read.table(paste0(expr,"_",stage,".txt"), sep="\t")
+      bed_prefix <- if(prefix == "woTE") "ctrl_" else ""
+      mybed <- read.table(paste0(bed_prefix, expr,"_",stage,".txt"), sep="\t")
       if(dir=="up"){
         df <- for_up(mydf,mybed)
         df$dist <- 0 - df$dist 
@@ -491,11 +549,8 @@ for(type in types){
     }
   }
 
-  point_low <- rbind(get("low_up"), get("low_down"))
-  point_low$expr <- "Lowly expressed genes"
-  point_high <- rbind(get("high_up"), get("high_down"))
-  point_high$expr <- "Highly expressed genes"
-  point_all <- rbind(point_low,point_high)
+  low_label <- paste0("Top ", format(top_bottom_percent, trim = TRUE), "% lowly expressed genes")
+  high_label <- paste0("Top ", format(top_bottom_percent, trim = TRUE), "% highly expressed genes")
 
   df_up_low   <- linedf(get("low_up"))
   df_down_low <- linedf(get("low_down"))
@@ -507,8 +562,8 @@ for(type in types){
   down_low_line <- data.frame(distance=c(seq(Start, RAN, SS)), mC=df_down_low)
   down_high_line<- data.frame(distance=c(seq(Start, RAN, SS)), mC=df_down_high)
 
-  low_line  <- rbind(up_low_line, down_low_line); low_line$expr <- "Lowly expressed genes"
-  high_line <- rbind(up_high_line, down_high_line); high_line$expr <- "Highly expressed genes"
+  low_line  <- rbind(up_low_line, down_low_line); low_line$expr <- low_label
+  high_line <- rbind(up_high_line, down_high_line); high_line$expr <- high_label
   line_all  <- rbind(low_line,high_line)
   line_all <- line_all[complete.cases(line_all),]
 
@@ -521,61 +576,119 @@ for(type in types){
 
   up_title <- if(nrow(border_up)>0) paste0("Upstream border: ", border_up$distance[1], " bp") else ""
   dn_title <- if(nrow(border_dn)>0) paste0("Downstream border: ", border_dn$distance[1], " bp") else ""
+  plot_title <- if(show_border == "y") paste0(up_title, "; ", dn_title) else NULL
+  border_lines <- data.frame(x = numeric(0))
 
   
   gap <- limit/10
-
-  up_df_point <- point_all[point_all$dist < 0,]
   up_df_line  <- line_all[line_all$distance < 0,]
-  up_df_point$dist_shift <- up_df_point$dist
   up_df_line$distance_shift <- up_df_line$distance
 
-  down_df_point <- point_all[point_all$dist > 0,]
   down_df_line  <- line_all[line_all$distance > 0,]
-  down_df_point$dist_shift <- down_df_point$dist + gap
   down_df_line$distance_shift <- down_df_line$distance + gap
 
-  df_point_all <- rbind(up_df_point, down_df_point)
-  
-  left_breaks <- if(major_tick < limit) seq(-limit, -major_tick, major_tick) else -limit
-  right_breaks <- if(major_tick < limit) seq(gap + major_tick, gap + limit, major_tick) else gap + limit
-  left_labels <- if(major_tick < limit) seq(-limit, -major_tick, major_tick) else -limit
-  right_labels <- if(major_tick < limit) seq(major_tick, limit, major_tick) else limit
+  if (major_tick <= 0) {
+    tick_values <- unique(round(seq(limit / 4, limit, by = limit / 4)))
+  } else {
+    tick_values <- unique(seq(major_tick, limit, by = major_tick))
+  }
+  left_breaks <- -rev(tick_values)
+  right_breaks <- gap + tick_values
+  left_labels <- -rev(tick_values)
+  right_labels <- tick_values
   breaks <- c(left_breaks, 0, gap, right_breaks)
   labels <- c(left_labels, "TSS", "TTS", right_labels)
+
+  if(show_border == "y"){
+    border_x <- c()
+    if(nrow(border_up) > 0){
+      border_x <- c(border_x, border_up$distance[1])
+    }
+    if(nrow(border_dn) > 0){
+      border_x <- c(border_x, border_dn$distance[1] + gap)
+    }
+    border_lines <- data.frame(x = border_x)
+  }
 
   output_file <- if(prefix == "woTE"){
     paste0("OUTPUT_3_TE_impact_distance_control_",stage,"_",type,".png")
   } else {
     paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png")
   }
-  y_label <- if(prefix == "woTE") "Control methylation level (%)" else "TE methylation level (%)"
+  y_label <- if(prefix == "woTE"){
+    paste0("nTE ", type, " methylation level (%)")
+  } else {
+    paste0("TE ", type, " methylation level (%)")
+  }
 
   png(file=output_file, width=5000, height=2000, res=400)
 
-  p <- ggplot() +
-  geom_point(df_point_all, mapping=aes(x=dist_shift,y=V11,color=expr), size=0.01, alpha=0.03)
+  p <- ggplot()
 
   if(line_mode == "poly"){
-    p <- p +
-      geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
-                  method="lm", formula=y ~ poly(x, 3), se=TRUE, linewidth=0.8, alpha=0.18) +
-      geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
-                  method="lm", formula=y ~ poly(x, 3), se=TRUE, linewidth=0.8, alpha=0.18)
+    if(show_ci == "y"){
+      p <- p +
+        geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,fill=expr,group=expr),
+                    method="lm", formula=y ~ poly(x, 3), se=TRUE, linewidth=1.1, alpha=0.25) +
+        geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,fill=expr,group=expr),
+                    method="lm", formula=y ~ poly(x, 3), se=TRUE, linewidth=1.1, alpha=0.25)
+    } else {
+      p <- p +
+        geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                    method="lm", formula=y ~ poly(x, 3), se=FALSE, linewidth=1.1) +
+        geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                    method="lm", formula=y ~ poly(x, 3), se=FALSE, linewidth=1.1)
+    }
+  } else if(line_mode == "linear"){
+    if(show_ci == "y"){
+      p <- p +
+        geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,fill=expr,group=expr),
+                    method="lm", formula=y ~ x, se=TRUE, linewidth=1.1, alpha=0.25) +
+        geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,fill=expr,group=expr),
+                    method="lm", formula=y ~ x, se=TRUE, linewidth=1.1, alpha=0.25)
+    } else {
+      p <- p +
+        geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                    method="lm", formula=y ~ x, se=FALSE, linewidth=1.1) +
+        geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                    method="lm", formula=y ~ x, se=FALSE, linewidth=1.1)
+    }
+  } else if(line_mode == "loess"){
+    if(show_ci == "y"){
+      p <- p +
+        geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,fill=expr,group=expr),
+                    method="loess", se=TRUE, linewidth=1.1, alpha=0.25, span=0.4) +
+        geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,fill=expr,group=expr),
+                    method="loess", se=TRUE, linewidth=1.1, alpha=0.25, span=0.4)
+    } else {
+      p <- p +
+        geom_smooth(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                    method="loess", se=FALSE, linewidth=1.1, span=0.4) +
+        geom_smooth(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr),
+                    method="loess", se=FALSE, linewidth=1.1, span=0.4)
+    }
   } else {
     p <- p +
-      geom_line(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr)) +
-      geom_line(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr))
+      geom_line(data=up_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr), linewidth=1.1) +
+      geom_line(data=down_df_line, mapping=aes(x=distance_shift,y=mC,color=expr,group=expr), linewidth=1.1)
   }
 
   p <- p +
   petem_theme_bw() +
-  scale_color_manual(values=c("#B44A53","#509ABC")) +
+  scale_color_manual(values=setNames(c("#509ABC","#B44A53"), c(low_label, high_label))) +
+  scale_fill_manual(values=setNames(c("#CFE6FA","#F8CDD5"), c(low_label, high_label)), guide = "none") +
   scale_x_continuous(breaks=breaks, labels=labels) +
-  ggtitle(paste0(up_title, "; ", dn_title)) +
+  scale_y_continuous(limits=c(0, 100), breaks=c(0, 25, 50, 75, 100)) +
+  ggtitle(plot_title) +
   theme(legend.position="top",
     panel.grid.minor = element_blank()) +
   labs(x="Distance to gene (bp)", y=y_label, color=NULL)
+
+  if(nrow(border_lines) > 0){
+    p <- p + geom_vline(data = border_lines, aes(xintercept = x),
+                        inherit.aes = FALSE, linetype = "dashed",
+                        linewidth = 0.8, color = "gray35")
+  }
 
   print(p)
 
@@ -592,7 +705,7 @@ done
 wait
 fi
 
-rm wTE_*.bed woTE_*.bed low_* high_* expgene_closest_expTE.bed expressed_gene.bed expressed_TE.bed
+rm wTE_*.bed woTE_*.bed low_* high_* ctrl_low_* ctrl_high_* expgene_closest_expTE.bed expressed_gene.bed expressed_TE.bed
 
 end_all=$(date +%s)
 echo "[`date`] Combined pipeline finished in $((end_all-start_all)) sec" | tee -a "$LOG"

@@ -14,18 +14,18 @@ die() {
 usage() {
   cat >&2 <<'EOF'
 Usage:
-  petem --0 -g annotation.gff3 -t TE.bed -eg gene_expression.txt -et TE_expression.txt -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
-  petem 0_preprocessing -g annotation.gff3 -t TE.bed -eg gene_expression.txt -et TE_expression.txt -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
-  petem --1 -g genome_bed_dir -t TE.bed -f genome.fa.fai [-o output_dir]
-  petem 1_TE_distribution -g genome_bed_dir -t TE.bed -f genome.fa.fai [-o output_dir]
-  petem --2 -t TE.bed -T TE_family.txt -i TE_overlap_promoter.bed [-o output_dir]
-  petem 2_TE_families -t TE.bed -T TE_family.txt -i TE_overlap_promoter.bed [-o output_dir]
-  petem --3 -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
-  petem 3_TE_impact_distance -g gene.bed_or_genome_bed_dir -t TE.bed -eg gene_expression.txt -et TE_expression.txt -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir] [-d 15000] [-tick 5000] [-p 10] [-w 100] [-l poly] [-unexp y|n] [-c y|n]
-  petem --4 -eg gene_expression.txt -et TE_expression.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n] [--wd_num 156]
-  petem 4_single_condition_correlation -eg gene_expression.txt -et TE_expression.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n] [--wd_num 156]
-  petem --5 --DEG DEG.txt --DETE DETE.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n]
-  petem 5_cross_condition_correlation --DEG DEG.txt --DETE DETE.txt --module0-dir module0_output_dir [-o output_dir] [--unexp y|n]
+  petem --0 -g annotation.gff3 -t TE.bed_or_TE.txt -eg gene_expression.txt -et TE_expression.txt [-DEG DEG.txt -DETE DETE.txt] -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
+  petem 0_preprocessing -g annotation.gff3 -t TE.bed_or_TE.txt -eg gene_expression.txt -et TE_expression.txt [-DEG DEG.txt -DETE DETE.txt] -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
+  petem --1 [-g genome_bed_dir] [-t TE.bed_or_TE.txt] [-f genome.fa.fai] [--manifest module0_manifest.json] [-o output_dir]
+  petem 1_TE_distribution [-g genome_bed_dir] [-t TE.bed_or_TE.txt] [-f genome.fa.fai] [--manifest module0_manifest.json] [-o output_dir]
+  petem --2 [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
+  petem 2_TE_families [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
+  petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+  petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+  petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [--wd_num 156]
+  petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [--wd_num 156]
+  petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
+  petem 5_cross_condition_correlation [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
 
 Required files inside genome_bed_dir:
   gene.bed
@@ -49,6 +49,302 @@ resolve_path() {
 import os
 import sys
 print(os.path.abspath(os.path.expanduser(sys.argv[1])))
+PYTHON_HELPER
+}
+
+manifest_get() {
+  local manifest=$1
+  local key=$2
+  python3 - "$manifest" "$key" <<'PYTHON_HELPER'
+import json
+import sys
+
+manifest_path, key = sys.argv[1:3]
+with open(manifest_path, "r", encoding="utf-8") as handle:
+    data = json.load(handle)
+
+value = data
+for part in key.split("."):
+    if not isinstance(value, dict) or part not in value:
+        sys.exit(1)
+    value = value[part]
+
+if value is None:
+    sys.exit(1)
+if isinstance(value, (dict, list)):
+    print(json.dumps(value))
+else:
+    print(value)
+PYTHON_HELPER
+}
+
+manifest_get_array() {
+  local manifest=$1
+  local key=$2
+  python3 - "$manifest" "$key" <<'PYTHON_HELPER'
+import json
+import sys
+
+manifest_path, key = sys.argv[1:3]
+with open(manifest_path, "r", encoding="utf-8") as handle:
+    data = json.load(handle)
+
+value = data
+for part in key.split("."):
+    if not isinstance(value, dict) or part not in value:
+        sys.exit(1)
+    value = value[part]
+
+if not isinstance(value, list):
+    sys.exit(1)
+
+for item in value:
+    print(item)
+PYTHON_HELPER
+}
+
+write_module0_manifest() {
+  local manifest_path=$1
+  local module0_outdir=$2
+  local gff_file=$3
+  local te_input=$4
+  local te_bed=$5
+  local gene_exp=$6
+  local te_exp=$7
+  local deg_file=$8
+  local dete_file=$9
+  local de_source=${10}
+  local fai=${11}
+  local up_bp=${12}
+  local down_bp=${13}
+  local annotation_dir=${14}
+  shift 14
+  local -a meth_files=("$@")
+
+  python3 - "$manifest_path" "$module0_outdir" "$gff_file" "$te_input" "$te_bed" "$gene_exp" "$te_exp" "$deg_file" "$dete_file" "$de_source" "$fai" "$up_bp" "$down_bp" "$annotation_dir" "${meth_files[@]}" <<'PYTHON_HELPER'
+import json
+import os
+import sys
+from datetime import datetime, timezone
+
+manifest_path, module0_outdir, gff_file, te_input, te_bed, gene_exp, te_exp, deg_file, dete_file, de_source, fai, up_bp, down_bp, annotation_dir, *meth_files = sys.argv[1:]
+
+data = {
+    "manifest_version": 1,
+    "created_at_utc": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+    "module0_output_dir": module0_outdir,
+    "inputs": {
+        "gff": gff_file,
+        "te_input_original": te_input,
+        "te_bed_prepared": te_bed,
+        "gene_expression": gene_exp,
+        "te_expression": te_exp,
+        "deg_file": deg_file or None,
+        "dete_file": dete_file or None,
+        "differential_expression_source": de_source,
+        "fai": fai,
+        "methylation_files": meth_files,
+    },
+    "parameters": {
+        "promoter_upstream_bp": int(up_bp),
+        "promoter_downstream_bp": int(down_bp),
+    },
+    "outputs": {
+        "annotation_dir": annotation_dir,
+        "gene_bed": os.path.join(annotation_dir, "gene.bed"),
+        "cds_bed": os.path.join(annotation_dir, "CDS.bed"),
+        "exon_bed": os.path.join(annotation_dir, "exon.bed"),
+        "utr5_bed": os.path.join(annotation_dir, "UTR5.bed"),
+        "utr3_bed": os.path.join(annotation_dir, "UTR3.bed"),
+        "promoter_bed": os.path.join(annotation_dir, "promoter.bed"),
+        "te_overlap_promoter_bed": os.path.join(module0_outdir, "TE_overlap_promoter.bed"),
+        "deg_file": deg_file or os.path.join(module0_outdir, "DEG.txt"),
+        "dete_file": dete_file or os.path.join(module0_outdir, "DETE.txt"),
+    },
+}
+
+with open(manifest_path, "w", encoding="utf-8") as handle:
+    json.dump(data, handle, indent=2, sort_keys=True)
+    handle.write("\n")
+PYTHON_HELPER
+}
+
+prepare_te_bed() {
+  local te_input=$1
+  local temp_dir=$2
+
+  mkdir -p "$temp_dir"
+
+  python3 - "$te_input" "$temp_dir" <<'PYTHON_HELPER'
+import csv
+import os
+import sys
+
+te_input, temp_dir = sys.argv[1:3]
+out_path = os.path.join(temp_dir, "TE.bed")
+
+def is_int(value):
+    try:
+        int(value)
+        return True
+    except ValueError:
+        return False
+
+rows = []
+mode = None
+
+with open(te_input, "r", encoding="utf-8") as handle:
+    reader = csv.reader(handle, delimiter="\t")
+    for row in reader:
+        if not row or all(not cell.strip() for cell in row):
+            continue
+        rows.append(row)
+        if mode is None:
+            if len(row) >= 6 and is_int(row[1]) and is_int(row[2]):
+                mode = "bed"
+            elif len(row) >= 6 and is_int(row[2]) and is_int(row[3]):
+                mode = "annotation"
+            else:
+                raise SystemExit(
+                    "unsupported TE input format. Expected BED (chr,start,end,name,score,strand) "
+                    "or annotation table (name,chr,start,end,score,strand,...)"
+                )
+
+if not rows:
+    raise SystemExit("TE input file is empty")
+
+with open(out_path, "w", encoding="utf-8", newline="") as out_handle:
+    writer = csv.writer(out_handle, delimiter="\t", lineterminator="\n")
+    for row in rows:
+        if mode == "bed":
+            writer.writerow(row[:6])
+        else:
+            writer.writerow([row[1], row[2], row[3], row[0], row[4], row[5]])
+
+print(out_path)
+PYTHON_HELPER
+}
+
+normalize_seqname_files() {
+  local reference_file=$1
+  local reference_kind=$2
+  local output_dir=$3
+  shift 3
+
+  mkdir -p "$output_dir"
+
+  python3 - "$reference_file" "$reference_kind" "$output_dir" "$@" <<'PYTHON_HELPER'
+import csv
+import gzip
+import os
+import sys
+
+reference_file = sys.argv[1]
+reference_kind = sys.argv[2]
+output_dir = sys.argv[3]
+targets = sys.argv[4:]
+
+if not targets:
+    raise SystemExit("no target files provided for seqname normalization")
+
+def canonical_key(name):
+    value = name.strip()
+    lowered = value.lower()
+    if lowered.startswith("chromosome"):
+        lowered = lowered[len("chromosome"):]
+    if lowered.startswith("chr"):
+        lowered = lowered[3:]
+    if lowered in {"m", "mt", "mitochondria", "mitochondrion"}:
+        return "mt"
+    if lowered in {"c", "pt", "plastid", "chloroplast"}:
+        return "pt"
+    return lowered
+
+def read_reference_names(path, kind):
+    names = []
+    with open(path, "r", encoding="utf-8") as handle:
+        for line in handle:
+            if not line.strip():
+                continue
+            row = line.rstrip("\n").split("\t")
+            if kind == "fai":
+                names.append(row[0])
+            elif kind == "bed":
+                if len(row) >= 1:
+                    names.append(row[0])
+            else:
+                raise SystemExit(f"unsupported reference kind: {kind}")
+    return names
+
+reference_names = read_reference_names(reference_file, reference_kind)
+if not reference_names:
+    raise SystemExit(f"no chromosome names found in reference file: {reference_file}")
+
+reference_by_exact = {name: name for name in reference_names}
+reference_by_key = {}
+ambiguous_keys = set()
+for name in reference_names:
+    key = canonical_key(name)
+    if key in reference_by_key and reference_by_key[key] != name:
+        ambiguous_keys.add(key)
+    else:
+        reference_by_key[key] = name
+
+for key in ambiguous_keys:
+    reference_by_key.pop(key, None)
+
+def map_name(name):
+    if name in reference_by_exact:
+        return name
+    key = canonical_key(name)
+    if key in reference_by_key:
+        return reference_by_key[key]
+    raise SystemExit(
+        f"unmatched chromosome name '{name}' while normalizing against {reference_file}"
+    )
+
+def normalize_tabular_file(src, dst, seq_col, delimiter="\t", gzip_mode=False):
+    opener = gzip.open if gzip_mode else open
+    mode = "rt" if gzip_mode else "r"
+    write_mode = "wt" if gzip_mode else "w"
+    with opener(src, mode, encoding="utf-8") as infile, open(dst, "w", encoding="utf-8", newline="") as outfile:
+        reader = csv.reader(infile, delimiter=delimiter)
+        writer = csv.writer(outfile, delimiter=delimiter, lineterminator="\n")
+        for row in reader:
+            if not row:
+                continue
+            row[seq_col] = map_name(row[seq_col])
+            writer.writerow(row)
+
+for target in targets:
+    src_path, file_kind = target.split("::", 1)
+    base_name = os.path.basename(src_path)
+    dst_path = os.path.join(output_dir, base_name)
+
+    if file_kind == "bed":
+        normalize_tabular_file(src_path, dst_path, 0)
+    elif file_kind == "gff":
+        with open(src_path, "r", encoding="utf-8") as infile, open(dst_path, "w", encoding="utf-8", newline="") as outfile:
+            for line in infile:
+                if not line.strip() or line.startswith("#"):
+                    outfile.write(line)
+                    continue
+                row = line.rstrip("\n").split("\t")
+                row[0] = map_name(row[0])
+                outfile.write("\t".join(row) + "\n")
+    elif file_kind == "cgmap":
+        with gzip.open(src_path, "rt", encoding="utf-8") as infile, gzip.open(dst_path, "wt", encoding="utf-8", newline="") as outfile:
+            reader = csv.reader(infile, delimiter="\t")
+            writer = csv.writer(outfile, delimiter="\t", lineterminator="\n")
+            for row in reader:
+                if not row:
+                    continue
+                row[0] = map_name(row[0])
+                writer.writerow(row)
+    else:
+        raise SystemExit(f"unsupported target kind: {file_kind}")
+
+    print(f"{src_path}\t{dst_path}")
 PYTHON_HELPER
 }
 
@@ -105,8 +401,12 @@ run_module_0() {
   local te_bed=""
   local gene_exp=""
   local te_exp=""
+  local deg_file=""
+  local dete_file=""
+  local de_source=""
   local fai=""
   local outdir=""
+  local original_te_input=""
   local up_bp=1500
   local down_bp=500
   local -a meth_files=()
@@ -117,6 +417,8 @@ run_module_0() {
       -t) te_bed=$2; shift 2 ;;
       -eg) gene_exp=$2; shift 2 ;;
       -et) te_exp=$2; shift 2 ;;
+      -DEG|--DEG) deg_file=$2; shift 2 ;;
+      -DETE|--DETE) dete_file=$2; shift 2 ;;
       -f|-fai) fai=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       -up) up_bp=$2; shift 2 ;;
@@ -135,7 +437,7 @@ run_module_0() {
 
   CURRENT_STEP="argument validation"
   [[ -n $gff_file ]] || die "missing required argument: -g annotation.gff3"
-  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed_or_TE.txt"
   [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
   [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
   [[ -n $fai ]] || die "missing required argument: -f genome.fa.fai"
@@ -143,15 +445,23 @@ run_module_0() {
 
   gff_file=$(resolve_path "$gff_file")
   te_bed=$(resolve_path "$te_bed")
+  original_te_input=$te_bed
   gene_exp=$(resolve_path "$gene_exp")
   te_exp=$(resolve_path "$te_exp")
+  if [[ -n $deg_file || -n $dete_file ]]; then
+    [[ -n $deg_file && -n $dete_file ]] || die "-DEG and -DETE must be provided together"
+    deg_file=$(resolve_path "$deg_file")
+    dete_file=$(resolve_path "$dete_file")
+  fi
   fai=$(resolve_path "$fai")
   outdir=$(resolve_path "${outdir:-$(pwd)}")
 
   require_file "GFF annotation file" "$gff_file"
-  require_file "TE BED file" "$te_bed"
+  require_file "TE input file" "$te_bed"
   require_file "Gene expression file" "$gene_exp"
   require_file "TE expression file" "$te_exp"
+  [[ -n $deg_file ]] && require_file "DEG file" "$deg_file"
+  [[ -n $dete_file ]] && require_file "DETE file" "$dete_file"
   require_file "FAI file" "$fai"
 
   local i
@@ -161,6 +471,58 @@ run_module_0() {
   done
 
   mkdir -p "$outdir"
+  local deg_out="$outdir/DEG.txt"
+  local dete_out="$outdir/DETE.txt"
+  CURRENT_STEP="DEG/DETE preparation"
+  if [[ -n $deg_file ]]; then
+    [[ $deg_file == "$deg_out" ]] || cp "$deg_file" "$deg_out"
+    [[ $dete_file == "$dete_out" ]] || cp "$dete_file" "$dete_out"
+    de_source="provided"
+  else
+    (
+      cd "$outdir"
+      Rscript "$SCRIPT_DIR/edgeR_for_expression.R" --eg "$gene_exp" --et "$te_exp" --outdir "$outdir"
+    )
+    [[ -f $deg_out || ! -f $outdir/PleosPC15_DEG.txt ]] || cp "$outdir/PleosPC15_DEG.txt" "$deg_out"
+    [[ -f $dete_out || ! -f $outdir/PleosPC15_DETE.txt ]] || cp "$outdir/PleosPC15_DETE.txt" "$dete_out"
+    require_file "generated DEG file" "$deg_out"
+    require_file "generated DETE file" "$dete_out"
+    de_source="$SCRIPT_DIR/edgeR_for_expression.R"
+  fi
+  deg_file="$deg_out"
+  dete_file="$dete_out"
+
+  te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_0_te_input")
+  local normalized_root="$outdir/tmp/module_0_normalized"
+  mkdir -p "$normalized_root"
+
+  CURRENT_STEP="seqname normalization"
+  local normalized_output
+  normalized_output=$(
+    normalize_seqname_files "$fai" "fai" "$normalized_root" \
+      "${gff_file}::gff" \
+      "${te_bed}::bed"
+  )
+  mapfile -t normalized_paths <<< "$normalized_output"
+
+  local mapped_src mapped_dst
+  for item in "${normalized_paths[@]}"; do
+    mapped_src=${item%%$'\t'*}
+    mapped_dst=${item#*$'\t'}
+    if [[ $mapped_src == "$gff_file" ]]; then
+      gff_file=$mapped_dst
+    elif [[ $mapped_src == "$te_bed" ]]; then
+      te_bed=$mapped_dst
+    else
+      for ((i = 0; i < ${#meth_files[@]}; i++)); do
+        if [[ ${meth_files[$i]} == "$mapped_src" ]]; then
+          meth_files[$i]=$mapped_dst
+          break
+        fi
+      done
+    fi
+  done
+
   local temp_root="$outdir/tmp/module_0_annotation"
   mkdir -p "$temp_root"
 
@@ -168,7 +530,7 @@ run_module_0() {
   local promoter_bed="$temp_root/promoter.bed"
 
   CURRENT_STEP="annotation conversion"
-  Rscript "$SCRIPT_DIR/gff_to_bed.R" --gff "$gff_file" --outdir "$temp_root" --protein-coding-only n
+  Rscript "$SCRIPT_DIR/gff_to_bed.R" --gff "$gff_file" --outdir "$temp_root" --protein-coding-only y
   generate_promoter_bed "$gene_bed" "$fai" "$promoter_bed" "$up_bp" "$down_bp"
   require_file "generated gene BED file" "$gene_bed"
   require_file "generated promoter BED file" "$promoter_bed"
@@ -185,6 +547,23 @@ run_module_0() {
       -fai "$fai" \
       -m "${meth_files[@]}"
   )
+  CURRENT_STEP="write manifest"
+  write_module0_manifest \
+    "$outdir/PETEM_MODULE0_MANIFEST.json" \
+    "$outdir" \
+    "$gff_file" \
+    "$original_te_input" \
+	    "$te_bed" \
+	    "$gene_exp" \
+	    "$te_exp" \
+	    "$deg_file" \
+	    "$dete_file" \
+	    "$de_source" \
+	    "$fai" \
+    "$up_bp" \
+    "$down_bp" \
+    "$temp_root" \
+    "${meth_files[@]}"
 }
 
 run_module_1() {
@@ -192,12 +571,14 @@ run_module_1() {
   local te_bed=""
   local fai=""
   local outdir=""
+  local manifest=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -g) genome_dir=$2; shift 2 ;;
       -t) te_bed=$2; shift 2 ;;
       -f) fai=$2; shift 2 ;;
+      --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 1: $1" ;;
@@ -205,9 +586,17 @@ run_module_1() {
   done
 
   CURRENT_STEP="argument validation"
-  [[ -n $genome_dir ]] || die "missing required argument: -g genome_bed_dir"
-  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
-  [[ -n $fai ]] || die "missing required argument: -f genome.fa.fai"
+  if [[ -n $manifest ]]; then
+    manifest=$(resolve_path "$manifest")
+    require_file "module 0 manifest file" "$manifest"
+    [[ -n $genome_dir ]] || genome_dir=$(manifest_get "$manifest" "outputs.annotation_dir" || true)
+    [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_input_original" || true)
+    [[ -n $fai ]] || fai=$(manifest_get "$manifest" "inputs.fai" || true)
+  fi
+
+  [[ -n $genome_dir ]] || die "missing required argument: -g genome_bed_dir or --manifest module0_manifest.json"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed_or_TE.txt or --manifest module0_manifest.json"
+  [[ -n $fai ]] || die "missing required argument: -f genome.fa.fai or --manifest module0_manifest.json"
 
   genome_dir=$(resolve_path "$genome_dir")
   te_bed=$(resolve_path "$te_bed")
@@ -215,7 +604,7 @@ run_module_1() {
   outdir=$(resolve_path "${outdir:-$(pwd)}")
 
   [[ -d $genome_dir ]] || die "genome BED directory not found: $genome_dir"
-  require_file "TE BED file" "$te_bed"
+  require_file "TE input file" "$te_bed"
   require_file "FAI file" "$fai"
 
   local gene_bed="$genome_dir/gene.bed"
@@ -234,6 +623,17 @@ run_module_1() {
 
   CURRENT_STEP="module 1 execution"
   mkdir -p "$outdir"
+  te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_1_te_input")
+  CURRENT_STEP="seqname normalization"
+  local normalized_output
+  normalized_output=$(
+    normalize_seqname_files "$fai" "fai" "$outdir/tmp/module_1_normalized" \
+      "${te_bed}::bed"
+  )
+  mapfile -t normalized_paths <<< "$normalized_output"
+  if (( ${#normalized_paths[@]} > 0 )); then
+    te_bed=${normalized_paths[0]#*$'\t'}
+  fi
   (
     cd "$outdir"
     bash "$SCRIPT_DIR/1_TE_distribution.sh" \
@@ -253,12 +653,14 @@ run_module_2() {
   local te_family=""
   local overlap_bed=""
   local outdir=""
+  local manifest=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       -t) te_bed=$2; shift 2 ;;
       -T) te_family=$2; shift 2 ;;
       -i) overlap_bed=$2; shift 2 ;;
+      --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 2: $1" ;;
@@ -266,21 +668,30 @@ run_module_2() {
   done
 
   CURRENT_STEP="argument validation"
-  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
-  [[ -n $te_family ]] || die "missing required argument: -T TE_family.txt"
-  [[ -n $overlap_bed ]] || die "missing required argument: -i TE_overlap_promoter.bed"
+  if [[ -n $manifest ]]; then
+    manifest=$(resolve_path "$manifest")
+    require_file "module 0 manifest file" "$manifest"
+    [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_input_original" || true)
+    [[ -n $te_family ]] || te_family=$(manifest_get "$manifest" "inputs.te_input_original" || true)
+    [[ -n $overlap_bed ]] || overlap_bed=$(manifest_get "$manifest" "outputs.te_overlap_promoter_bed" || true)
+  fi
+
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed_or_TE.txt or --manifest module0_manifest.json"
+  [[ -n $te_family ]] || die "missing required argument: -T TE_family.txt or --manifest module0_manifest.json"
+  [[ -n $overlap_bed ]] || die "missing required argument: -i TE_overlap_promoter.bed or --manifest module0_manifest.json"
 
   te_bed=$(resolve_path "$te_bed")
   te_family=$(resolve_path "$te_family")
   overlap_bed=$(resolve_path "$overlap_bed")
   outdir=$(resolve_path "${outdir:-$(pwd)}")
 
-  require_file "TE BED file" "$te_bed"
+  require_file "TE input file" "$te_bed"
   require_file "TE family file" "$te_family"
   require_file "TE overlap promoter BED file" "$overlap_bed"
 
   CURRENT_STEP="module 2 execution"
   mkdir -p "$outdir"
+  te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_2_te_input")
   (
     cd "$outdir"
     Rscript "$SCRIPT_DIR/2_TE_families.R" \
@@ -295,14 +706,18 @@ run_module_3() {
   local gene_input=""
   local gene_bed=""
   local te_bed=""
+  local overlap_bed=""
   local gene_exp=""
   local te_exp=""
   local outdir=""
+  local manifest=""
   local limit=15000
-  local tick=5000
+  local tick=0
   local percentile=10
   local window_size=100
   local line_mode="raw"
+  local show_ci="n"
+  local show_border="y"
   local unexp="n"
   local control="n"
   local -a meth_files=()
@@ -311,16 +726,20 @@ run_module_3() {
     case "$1" in
       -g) gene_input=$2; shift 2 ;;
       -t) te_bed=$2; shift 2 ;;
+      -i) overlap_bed=$2; shift 2 ;;
       -eg) gene_exp=$2; shift 2 ;;
       -et) te_exp=$2; shift 2 ;;
+      --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       -d|-lim) limit=$2; shift 2 ;;
       -tick) tick=$2; shift 2 ;;
       -p) percentile=$2; shift 2 ;;
       -w|-WD) window_size=$2; shift 2 ;;
       -l) line_mode=$2; shift 2 ;;
+      -CI) show_ci=$2; shift 2 ;;
+      -border) show_border=$2; shift 2 ;;
       -unexp) unexp=$2; shift 2 ;;
-      -c) control=$2; shift 2 ;;
+      -nTE) control=$2; shift 2 ;;
       -m)
         shift
         while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
@@ -334,14 +753,29 @@ run_module_3() {
   done
 
   CURRENT_STEP="argument validation"
-  [[ -n $gene_input ]] || die "missing required argument: -g gene.bed_or_genome_bed_dir"
-  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed"
-  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
-  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
-  (( ${#meth_files[@]} > 0 )) || die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...]"
+  if [[ -n $manifest ]]; then
+    manifest=$(resolve_path "$manifest")
+    require_file "module 0 manifest file" "$manifest"
+    [[ -n $gene_input ]] || gene_input=$(manifest_get "$manifest" "outputs.annotation_dir" || true)
+    [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_input_original" || true)
+    [[ -n $overlap_bed ]] || overlap_bed=$(manifest_get "$manifest" "outputs.te_overlap_promoter_bed" || true)
+    [[ -n $gene_exp ]] || gene_exp=$(manifest_get "$manifest" "inputs.gene_expression" || true)
+    [[ -n $te_exp ]] || te_exp=$(manifest_get "$manifest" "inputs.te_expression" || true)
+    if (( ${#meth_files[@]} == 0 )); then
+      mapfile -t meth_files < <(manifest_get_array "$manifest" "inputs.methylation_files" || true)
+    fi
+  fi
+
+  [[ -n $gene_input ]] || die "missing required argument: -g gene.bed_or_genome_bed_dir or --manifest module0_manifest.json"
+  [[ -n $te_bed ]] || die "missing required argument: -t TE.bed_or_TE.txt or --manifest module0_manifest.json"
+  [[ -n $overlap_bed ]] || die "missing required argument: -i TE_overlap_promoter.bed or --manifest module0_manifest.json"
+  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt or --manifest module0_manifest.json"
+  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt or --manifest module0_manifest.json"
+  (( ${#meth_files[@]} > 0 )) || die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...] or --manifest module0_manifest.json"
 
   gene_input=$(resolve_path "$gene_input")
   te_bed=$(resolve_path "$te_bed")
+  overlap_bed=$(resolve_path "$overlap_bed")
   gene_exp=$(resolve_path "$gene_exp")
   te_exp=$(resolve_path "$te_exp")
   outdir=$(resolve_path "${outdir:-$(pwd)}")
@@ -353,7 +787,8 @@ run_module_3() {
   fi
 
   require_file "gene BED file" "$gene_bed"
-  require_file "TE BED file" "$te_bed"
+  require_file "TE input file" "$te_bed"
+  require_file "TE overlap promoter BED file" "$overlap_bed"
   require_file "Gene expression file" "$gene_exp"
   require_file "TE expression file" "$te_exp"
 
@@ -365,12 +800,28 @@ run_module_3() {
 
   CURRENT_STEP="module 3 execution"
   mkdir -p "$outdir"
+  te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_3_te_input")
+  CURRENT_STEP="seqname normalization"
+  local normalized_output
+  normalized_output=$(
+    normalize_seqname_files "$gene_bed" "bed" "$outdir/tmp/module_3_normalized" \
+      "${te_bed}::bed"
+  )
+  mapfile -t normalized_paths <<< "$normalized_output"
+  for item in "${normalized_paths[@]}"; do
+    mapped_src=${item%%$'\t'*}
+    mapped_dst=${item#*$'\t'}
+    if [[ $mapped_src == "$te_bed" ]]; then
+      te_bed=$mapped_dst
+    fi
+  done
   (
     cd "$outdir"
     bash "$SCRIPT_DIR/3_TE_impact_distance.sh" \
       -m "${meth_files[@]}" \
       -g "$gene_bed" \
       -t "$te_bed" \
+      -i "$overlap_bed" \
       -eg "$gene_exp" \
       -et "$te_exp" \
       -lim "$limit" \
@@ -378,8 +829,10 @@ run_module_3() {
       -p "$percentile" \
       -w "$window_size" \
       -l "$line_mode" \
+      -CI "$show_ci" \
+      -border "$show_border" \
       -unexp "$unexp" \
-      -c "$control"
+      -nTE "$control"
   )
 }
 
@@ -388,6 +841,7 @@ run_module_4() {
   local te_exp=""
   local module0_dir=""
   local outdir=""
+  local manifest=""
   local unexp="n"
   local wd_num=156
   local ylim_cg=""
@@ -401,6 +855,7 @@ run_module_4() {
       -eg) gene_exp=$2; shift 2 ;;
       -et) te_exp=$2; shift 2 ;;
       --module0-dir) module0_dir=$2; shift 2 ;;
+      --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       --unexp) unexp=$2; shift 2 ;;
       --wd_num) wd_num=$2; shift 2 ;;
@@ -415,9 +870,17 @@ run_module_4() {
   done
 
   CURRENT_STEP="argument validation"
-  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
-  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
-  [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir"
+  if [[ -n $manifest ]]; then
+    manifest=$(resolve_path "$manifest")
+    require_file "module 0 manifest file" "$manifest"
+    [[ -n $gene_exp ]] || gene_exp=$(manifest_get "$manifest" "inputs.gene_expression" || true)
+    [[ -n $te_exp ]] || te_exp=$(manifest_get "$manifest" "inputs.te_expression" || true)
+    [[ -n $module0_dir ]] || module0_dir=$(manifest_get "$manifest" "module0_output_dir" || true)
+  fi
+
+  [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt or --manifest module0_manifest.json"
+  [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt or --manifest module0_manifest.json"
+  [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir or --manifest module0_manifest.json"
 
   gene_exp=$(resolve_path "$gene_exp")
   te_exp=$(resolve_path "$te_exp")
@@ -456,23 +919,36 @@ run_module_5() {
   local module0_dir=""
   local outdir=""
   local unexp="n"
+  local manifest=""
+  local stage_a=""
+  local stage_b=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --DEG) deg_file=$2; shift 2 ;;
       --DETE) dete_file=$2; shift 2 ;;
       --module0-dir) module0_dir=$2; shift 2 ;;
+      --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       --unexp) unexp=$2; shift 2 ;;
+      -stage|--stage) [[ $# -ge 3 ]] || die "-stage requires two values"; stage_a=$2; stage_b=$3; shift 3 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 5: $1" ;;
     esac
   done
 
   CURRENT_STEP="argument validation"
-  [[ -n $deg_file ]] || die "missing required argument: --DEG DEG.txt"
-  [[ -n $dete_file ]] || die "missing required argument: --DETE DETE.txt"
-  [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir"
+  if [[ -n $manifest ]]; then
+    manifest=$(resolve_path "$manifest")
+    require_file "module 0 manifest file" "$manifest"
+    [[ -n $module0_dir ]] || module0_dir=$(manifest_get "$manifest" "module0_output_dir" || true)
+    [[ -n $deg_file ]] || deg_file=$(manifest_get "$manifest" "outputs.deg_file" || true)
+    [[ -n $dete_file ]] || dete_file=$(manifest_get "$manifest" "outputs.dete_file" || true)
+  fi
+
+  [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir or --manifest module0_manifest.json"
+  [[ -n $deg_file ]] || deg_file="$module0_dir/DEG.txt"
+  [[ -n $dete_file ]] || dete_file="$module0_dir/DETE.txt"
 
   deg_file=$(resolve_path "$deg_file")
   dete_file=$(resolve_path "$dete_file")
@@ -487,13 +963,15 @@ run_module_5() {
   mkdir -p "$outdir"
   (
     cd "$outdir"
-    Rscript "$SCRIPT_DIR/5_cross_condition_correlation.R" \
-      --DEG "$deg_file" \
-      --DETE "$dete_file" \
-      --module0-dir "$module0_dir" \
-      --outdir "$outdir" \
-      --unexp "$unexp"
-  )
+    local -a cmd=(Rscript "$SCRIPT_DIR/5_cross_condition_correlation.R" \
+	      --DEG "$deg_file" \
+	      --DETE "$dete_file" \
+	      --module0-dir "$module0_dir" \
+	      --outdir "$outdir" \
+      --unexp "$unexp")
+    [[ -n $stage_a ]] && cmd+=(-stage "$stage_a" "$stage_b")
+    "${cmd[@]}"
+	  )
 }
 
 main() {

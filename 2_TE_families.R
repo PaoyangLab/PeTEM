@@ -101,6 +101,9 @@ out_df_TE<-df_TE
 
 df_TE$pvalue <- format.pval(p_list, digits=3, scientific=TRUE)
 
+df_TE <- df_TE[order(df_TE$enrich, decreasing = TRUE), , drop = FALSE]
+df_TE$TE <- factor(df_TE$TE, levels = df_TE$TE)
+
 colnames(out_df_TE)<-c("TE family","All TEs", "Promoter-embedded TEs", "All TEs (%)", "Promoter-embedded TEs (%)", "Log2 enrichment", "pvalue")
 write.table(out_df_TE, file=file.path(args$outdir, "OUTPUT_2_Promoter_embedded_TE_family.txt"), sep="\t", quote=F, row.names=F)
 
@@ -119,6 +122,7 @@ df_long <- data.frame(
 )
 
 set3_colors <- colorRampPalette(brewer.pal(12, "Set3"))(length(unique(df_long$TE)))
+names(set3_colors) <- levels(df_TE$TE)
 
 df_pos <- df_TE[df_TE$enrich > 0, ]
 df_pos <- df_pos[order(df_pos$pvalue_num, -df_pos$enrich), , drop = FALSE][1:3, , drop = FALSE]
@@ -140,21 +144,27 @@ ggplot(df_long, aes(x = type, y = percentage, alluvium = TE)) +
   geom_segment(data = df_label,
                aes(x = 2.12, xend = 2.5, y = y_start, yend = y_end),
                color = "gray30", linewidth = 0.7, inherit.aes = FALSE) +
-  geom_text(data = df_label,
-            aes(x = 2.6, y = y_end, label = text),
-            hjust = 0, size = PETEM_ANNOTATION_TEXT_SIZE, inherit.aes = FALSE) +
   scale_x_discrete(limits = c("All TEs", "Promoter-\nembedded TEs", "", "", "")) +
   scale_y_continuous(limits = c(0,100), expand=c(0,0)) +
   scale_fill_manual(values = set3_colors) +
   petem_theme_classic() +
   labs(title = "Enriched families of promoter-embedded TEs", x="", y="Percentage (%)", fill="TE Types") +
   theme(
+    axis.text.x = element_text(size = PETEM_AXIS_TEXT_SIZE + 2),
+    axis.text.y = element_text(size = PETEM_AXIS_TEXT_SIZE + 2),
+    axis.title.y = element_text(size = PETEM_AXIS_TITLE_SIZE + 2),
+    plot.title = element_text(size = PETEM_PLOT_TITLE_SIZE + 2),
+    legend.title = element_text(size = PETEM_LEGEND_TITLE_SIZE + 2),
+    legend.text = element_text(size = PETEM_LEGEND_TEXT_SIZE + 2),
     axis.ticks.x = element_blank(),
     panel.border = element_blank(),
     axis.line.x.bottom = element_line(color='black'),
     axis.line.y.left = element_line(color='black'),
     legend.key.size = unit(1.4, "lines")
-  )
+  ) +
+  geom_text(data = df_label,
+            aes(x = 2.6, y = y_end, label = text),
+            hjust = 0, size = PETEM_ANNOTATION_TEXT_SIZE + 1, inherit.aes = FALSE)
 
 dev.off()
 
