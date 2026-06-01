@@ -37,7 +37,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
-
+    
     * optparse
     * dplyr
     * tidyr
@@ -57,14 +57,14 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b><ins>Python version ≥ 3.8 (tested on 3.8.10)</ins></b></summary>
-
+    
     * pandas (≥ 1.2.4)
   
     </details>
   
     <details>
     <summary> 👉 <b><ins>Bioinformatics tools</ins></b></summary>
-
+    
     *	samtools (tested on 1.10)
     *	bedtools (tested on v2.27.1)
     *	wigToBigWig (bundled in this repository)
