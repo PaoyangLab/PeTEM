@@ -27,13 +27,13 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 
 ## System requirements
 
-#### Runtime dependencies 
+### Runtime dependencies 
 * Bash
 * Perl
 * gzip / gunzip
 * awk / sort / uniq
 
-#### Environment setup
+### Environment setup
 > We provide three alternative methods for setting up the environment [here](#set-up-environment).
 
 <details>
@@ -76,19 +76,19 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 
 ## Installation
 
-#### Clone repository:
+### Clone repository:
 ```bash
 git clone https://github.com/PaoyangLab/PeTEM.git
 cd PeTEM
 ```
 
-#### Download example data:
+### Download example data:
 ```bash
 wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.1/PeTEM_data.tar.gz
 tar -xzvf PeTEM_data.tar.gz
 ```
 
-#### Set up environment 
+### Set up environment 
 <details>
 <summary><b><ins>Docker image</ins></b></summary>
 <br>
