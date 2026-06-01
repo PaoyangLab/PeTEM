@@ -5,8 +5,6 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 ## Table of Contents
 
-## Table of Contents
-
 - [Tutorial](#tutorial)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
