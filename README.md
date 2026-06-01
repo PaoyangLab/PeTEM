@@ -29,7 +29,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
   - **Runtime dependencies** 
     - Bash
-    - Perl
+    - Perl (v5.22.0+)
     - gzip / gunzip
     - awk / sort / uniq
 
