@@ -96,33 +96,28 @@ tar -xzvf PeTEM_data.tar.gz
 ```
 
 #### Set up environment 
-  - Docker image
-    
-  > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
-  
-  ```bash
-  docker build -t petem:local .
-  docker run --rm petem:local --help
-  ```
 
-  - Conda setup
-  
-  > Use the checked-in environment definition:
-  
-  ```bash
-  conda env create -f environment.yml
-  conda activate petem
-  bash env_check.sh ##optional
-  ```
+  * Docker image
+    > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
+    ```bash
+    docker build -t petem:local .
+    docker run --rm petem:local --help
+    ```
 
-  - Local setup
-  
-  > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
-  
-  ```bash
-  bash setup.sh
-  bash env_check.sh ##optional
-  ```
+  * Conda setup
+    > Use the checked-in environment definition:
+    ```bash
+    conda env create -f environment.yml
+    conda activate petem
+    bash env_check.sh ##optional
+    ```
+
+  * Local setup
+    > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
+    ```bash
+    bash setup.sh
+    bash env_check.sh ##optional
+    ```
 
 <br>
 
