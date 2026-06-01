@@ -1,5 +1,5 @@
 # Tutorial
-This tutorial explains how to set up and run the PeTEM pipeline using the example files.
+> This tutorial explains how to set up and run the PeTEM pipeline using the example files.
 
 **Setup**
 1. [Clone repository](#clone-repository)
