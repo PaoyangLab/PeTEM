@@ -3,12 +3,8 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 <img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
-</br>
-
 ## Tutorial
 Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
-
-<br>
 
 ## Table of Contents
 
@@ -38,7 +34,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 ### Environment setup
 
-> Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
+>> Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
 
 
 <details>
