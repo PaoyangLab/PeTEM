@@ -179,7 +179,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
 - **Methylation Data**
-  > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
+  > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth.
   
   `*.CGmap.gz files`
   | chromosome | nucleotide | site | context | dinucleotide | methylation level | C site | C+T site |
