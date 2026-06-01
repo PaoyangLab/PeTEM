@@ -122,8 +122,6 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
 In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
-<br>
-
 - **Genome Annotation**
 
   - General features annotations file (GFF3 format) 
@@ -182,8 +180,6 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
     | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
-<br>
-
 - **Methylation Data**
   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
   
@@ -194,8 +190,6 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   | Chr3 | G | 557 | CG | CG | 0.787879 | 26 | 33 |
   | Chr3 | G | 558 | CHG | CC | 0.405405 | 15 | 37 |
   | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
-
-<br>
 
 - **Expression Data**
   > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
@@ -264,9 +258,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 0 results. |
 
 
-
-
-#### Module 1. TE Distribution
+#### Module 1. Profile TE genomic distribution
 > Analyze TE distribution across genomic features
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
@@ -297,7 +289,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
   
-#### Module 2. Enriched promoter-embedded TE Families
+#### Module 2. Identify enriched promoter-embedded TE families
 > Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.txt`, `promoter.bed` (from Step 0)
@@ -326,7 +318,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 2 results. |
 
 
-#### Module 3. TE methylation near gene
+#### Module 3. Visualize TE methylation near gene
 > Visualize distance impact of TE methylation on gene expression
 * __Inputs:__
     * `gene.bed`(from Step 0), `TE.txt`, `gene_expression.txt` and `TE_expression.txt`
@@ -373,7 +365,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-unexp` | To include TEs with zero expression across all samples in the analysis. Default: `no` |
   | `-nTE` | To show the methylation level of non transposon sites around genes. Default: `no` |
 
-#### Module 4. Correlation between methylation and expression
+#### Module 4. Calculate correlation coefficients
 > Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `gene_expression.txt` and `TE_expression.txt`
@@ -403,7 +395,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 4 results. |
 
 
-#### Module 5. Associated TE and gene pairs
+#### Module 5. Identify associated TE and gene pairs
 > Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
