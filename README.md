@@ -226,7 +226,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 ## Pipeline Modules
 Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
 
-<img width="1738" height="1215" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
+<img width="1477" height="1033" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
 
 
 ### Module 0. Preprocessing
