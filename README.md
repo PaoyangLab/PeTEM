@@ -37,56 +37,57 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 * awk / sort / uniq
 
 #### Environment setup
+
   > Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
+
   <details>
   <summary> 👉 <b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
-    
-    * optparse
-    * dplyr
-    * tidyr
-    * zoo
-    * reshape2
-    * stringr
-    * ggplot2
-    * gplots
-    * ggalluvial
-    * ggpointdensity
-    * ggbreak
-    * RColorBrewer
-    * viridis
-    * rlang
+  * optparse
+  * dplyr
+  * tidyr
+  * zoo
+  * reshape2
+  * stringr
+  * ggplot2
+  * gplots
+  * ggalluvial
+  * ggpointdensity
+  * ggbreak
+  * RColorBrewer
+  * viridis
+  * rlang
   </details>
 
   <details>
   <summary> 👉 <b><ins>Python version ≥ 3.8 (tested on 3.8.10)</ins></b></summary>
-    * pandas (≥ 1.2.4)
+  * pandas (≥ 1.2.4)
   </details>
 
   <details>
   <summary> 👉 <b><ins>Bioinformatics tools</ins></b></summary>
-    *	samtools (tested on 1.10)
-    *	bedtools (tested on v2.27.1)
-    *	wigToBigWig (bundled in this repository)
-    *	bigWigAverageOverBed (bundled in this repository)
+  *	samtools (tested on 1.10)
+  *	bedtools (tested on v2.27.1)
+  *	wigToBigWig (bundled in this repository)
+  *	bigWigAverageOverBed (bundled in this repository)
   </details>
 
 <br>
 
 ## Installation
 
-#### Clone repository:
-```bash
-git clone https://github.com/PaoyangLab/PeTEM.git
-cd PeTEM
+  #### Clone repository:
+  ```bash
+  git clone https://github.com/PaoyangLab/PeTEM.git
+  cd PeTEM
+  ```
+  
+  #### Download example data:
+  ```bash
+  wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
+  tar -xzvf PeTEM_data.tar.gz
 ```
 
-#### Download example data:
-```bash
-wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
-tar -xzvf PeTEM_data.tar.gz
-```
-
-#### Set up environment 
+  #### Set up environment 
 
   * Docker image
     > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
