@@ -89,27 +89,18 @@ tar -xzvf PeTEM_data.tar.gz
 ```
 
 ### Set up environment 
-<details>
-<summary><b><ins>Docker image</ins></b></summary>
-<br>
+#### Docker image
   
 > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
-<br>
 
 ```bash
 docker build -t petem:local .
 docker run --rm petem:local --help
 ```
 
-
-</details>
-
-<details>
-<summary><b><ins>Conda setup</ins></b></summary>
-<br>
+#### Conda setup
 
 > Use the checked-in environment definition:
-<br>
 
 ```bash
 conda env create -f environment.yml
@@ -117,21 +108,14 @@ conda activate petem
 bash env_check.sh ##optional
 ```
 
-</details>
-
-<details>
-<summary><b><ins>Local setup</ins></b></summary>
-<br>
+#### Local setup
 
 > The script uses apt-get, pip3 --user, and Rscript to install dependencies, then runs bash env_check.sh. If apt-get is not available the script prints the package list to install manually
-<br>
 
 ```bash
 bash setup.sh
 bash env_check.sh ##optional
 ```
-
-</details>
 
 ## Input Files
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
