@@ -37,7 +37,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b>R version ≥ 4.2 (tested on 4.3.2)</b></summary>
-    <b> </b> 
+    <br> 
       
     * optparse
     * dplyr
