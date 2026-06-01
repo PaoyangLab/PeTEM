@@ -40,24 +40,24 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 > Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
 
-&nbsp;&nbsp;&nbsp;&nbsp;
+
 <details>
-<summary><b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
+<summary>&nbsp;&nbsp;&nbsp;&nbsp;<b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
   
-  * optparse
-  * dplyr
-  * tidyr
-  * zoo
-  * reshape2
-  * stringr
-  * ggplot2
-  * gplots
-  * ggalluvial
-  * ggpointdensity
-  * ggbreak
-  * RColorBrewer
-  * viridis
-  * rlang
+>  * optparse
+>  * dplyr
+>  * tidyr
+>  * zoo
+>  * reshape2
+>  * stringr
+>  * ggplot2
+>  * gplots
+>  * ggalluvial
+>  * ggpointdensity
+>  * ggbreak
+>  * RColorBrewer
+>  * viridis
+>  * rlang
 
 </details>
 
