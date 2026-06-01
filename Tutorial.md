@@ -44,11 +44,12 @@ PeTEM provides an interactive bash script `run_PeTEM.sh` to select steps and inp
 -dn 500
 -o /work4/home/peiyu/tools/PeTEM/test/example_module0
 ```
-*__output__
-   * `OUTPUT_0_embedded_TE_gene_number.txt`: Table showing numbers of promoter-embedded TEs and genes with TE embedded in promoters
-   * `promoter.bed`
-   * `TE_overlap_promoter.bed`: Names and location of promoter-embedded TEs and their neighbouring genes
-   * `Tab_*.txt`: Tables showing CG/CHG/CHH methylation level of each TE, gene, promoter region under every condition
+
+* __output__
+  * `OUTPUT_0_embedded_TE_gene_number.txt`: Table showing numbers of promoter-embedded TEs and genes with TE embedded in promoters
+  * `promoter.bed`
+  * `TE_overlap_promoter.bed`: Names and location of promoter-embedded TEs and their neighbouring genes
+  * `Tab_*.txt`: Tables showing CG/CHG/CHH methylation level of each TE, gene, promoter region under every condition
 
 ### Module 1: TE Distribution
 ```
@@ -57,11 +58,12 @@ PeTEM provides an interactive bash script `run_PeTEM.sh` to select steps and inp
   --manifest PETEM_MODULE0_MANIFEST.json \
   -o /work4/home/peiyu/tools/PeTEM/test/example_module1
 ```
-*__output__
+
+* __output__
     * `OUTPUT_1_TE_distribution_enrichment.png`
     * `OUTPUT_1_TE_distribution_percentage.png`
 
-*__figure__
+* __figure__
 <img width="602" height="261" alt="image" src="https://github.com/user-attachments/assets/261594e5-2f99-4ce6-a73a-f6b0dd55c24d" />
 
 ## Module 2: Enriched promoter-embedded TE Families
@@ -73,11 +75,12 @@ Use the example files in PeTEM_data:
   --manifest PETEM_MODULE0_MANIFEST.json \  -o /work4/home/peiyu/tools/PeTEM/test/example_module2
 <img width="861" height="175" alt="image" src="https://github.com/user-attachments/assets/a780d748-9021-4b59-af05-5a6472513c99" />
 ```
-*__output__
+
+* __output__
    * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`
    * `OUTPUT_2_Promoter_embedded_TE_family.txt`
 
-*__figure__
+* __figure__
 <img width="1557" height="420" alt="image" src="https://github.com/user-attachments/assets/0b1f2ee7-6b26-41c8-86fe-ab359850d527" />
 
 ## Module 3: TE methylation near gene
@@ -95,6 +98,7 @@ Use the example files in PeTEM_data:
   -unexp n \
   -nTE n
 ```
+
 *__output__
     * `OUTPUT_3_gene_TE_number.txt`: In every figure, it shows the upstream and downstream border (bp) of TE methylation impact, and the number of highly/lowly expressed genes
     * `OUTPUT_3_gene_proximal_TE_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
@@ -103,7 +107,7 @@ Use the example files in PeTEM_data:
       - (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.   
       - (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
 
-*__figure__
+* __figure__
 <img width="1930" height="2243" alt="figure" src="https://github.com/user-attachments/assets/ee2d3a51-049e-474b-bdf3-7948a4ed5ccd" />
 
 
@@ -114,12 +118,12 @@ Use the example files in PeTEM_data:
   --manifest PETEM_MODULE0_MANIFEST.json \
   -o /work4/home/peiyu/tools/PeTEM/test/example_module4
 ```
-*__output__
 
+* __output__
    * `OUTPUT_4_geneexp/TEexp_*.png`: Line plots showing correlations between (1) TE methylation vs TE expression, (2) TE methylation, methylation of promoters with TEs/with no TEs vs gene expression, (3) TE expression vs gene expression under each stage. The TE-gene pairs number and the smoothing window size also showed in each figure.
    * `OUTPUT_4_correlation_*.png`: Bar plots showing pearson's or spearman's correlation coefficient between (1) TE CG/CHG/CHH methylation vs TE expression, (2) TE CG/CHG/CHH methylation vs gene expression, (3) TE expression vs gene expression under each stage
 
-*__figure__
+* __figure__
 <img width="1022" height="934" alt="image" src="https://github.com/user-attachments/assets/44ce1c5e-7d89-48b0-bc22-cfef639a2fef" />
 
 
@@ -133,10 +137,11 @@ Use the example files in PeTEM_data:
   --module0-dir /path/to/module0_output \
   -o /path/to/module5_output
 ```
-*__output__
+
+* __output__
    * `OUTPUT_5_*_scatter.png`: Scatter plots showing correlations between changes of (1) TE CG/CHG/CHH methylation vs TE expression, (2) TE CG/CHG/CHH methylation vs gene expression, (3) TE expression vs gene expression comparing each two stages. The TE-gene pairs number and the regression line also showed in each figure.
    * `OUTPUT_5_Q2/4_boxplot_*.png`: Box plots showing the expression and methylation level changes of those negatively correlated gene-TE pairs under each two stages.
    * `OUTPUT_5_Q2/4_*.txt`: The name lists of those negatively correlated gene-TE pairs are also in the output.
 
-*__figure__
+* __figure__
 <img width="1138" height="722" alt="image" src="https://github.com/user-attachments/assets/68b8bce7-a32d-415e-b066-81f75e03aa21" />
