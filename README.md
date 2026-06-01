@@ -3,11 +3,15 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 <img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
+</br>
+
+## Tutorial
+Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
+
 <br>
 
 ## Table of Contents
 
-- [Tutorial](#tutorial)
 - [System Requirements](#system-requirements)
 - [Installation](#installation)
 - [Input Files](#input-files)
@@ -21,11 +25,6 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
   - [Module 3. TE Methylation Near Gene](#module-3-te-methylation-near-gene)
   - [Module 4. Correlation Between Methylation and Expression](#module-4-correlation-between-methylation-and-expression)
   - [Module 5. Associated TE and Gene Pairs](#module-5-associated-te-and-gene-pairs)
-
-<br>
-
-## Tutorial
-Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
 <br>
 
