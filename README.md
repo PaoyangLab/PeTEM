@@ -43,17 +43,23 @@ tar -xzvf PeTEM_data.tar.gz
 
 #### Set up environment through one of following methods 
 <details>
-<summary><b><ins>Docker</ins></b></summary>
+<summary><b><ins>Docker image</ins></b></summary>
+
+We provide a container image that bundles the complete runtime used by the pipeline:
 
 ```bash
 docker build -t petem:local .
 docker run --rm petem:local --help
 ```
 
+Inside the container the runner starts in /data. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
+
 </details>
 
 <details>
-<summary><b><ins>Anaconda</ins></b></summary>
+<summary><b><ins>Conda setup</ins></b></summary>
+
+Use the checked-in environment definition:
 
 ```bash
 conda env create -f environment.yml
@@ -64,7 +70,10 @@ bash env_check.sh ##optional
 </details>
 
 <details>
-<summary><b><ins>Local</ins></b></summary>
+<summary><b><ins>Local setup</ins></b></summary>
+
+Run the helper script to install required system tools, Python packages, and R libraries (Ubuntu/Debian):
+> The script uses apt-get, pip3 --user, and Rscript to install dependencies, then runs bash env_check.sh. If apt-get is not available the script prints the package list to install manually
 
 ```bash
 bash setup.sh
