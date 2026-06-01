@@ -62,22 +62,24 @@ chmod +x ./bigWigAverageOverBed
 
 
 ### Module 0: Preprocessing
-```
-## Run module 0
-./petem --0 \
-  -g ./PeTEM_data/genomic.gff \
-  -t ./PeTEM_data/TE.txt \
-  -eg ./PeTEM_data/gene_expression.txt \
-  -et ./PeTEM_data/TE_expression.txt \
-  -f ./PeTEM_data/genome.fa.fai \
-  -m ./PeTEM_data/leaf_01.CGmap.gz \
-     ./PeTEM_data/leaf_02.CGmap.gz \
-     ./PeTEM_data/root_01.CGmap.gz \
-     ./PeTEM_data/root_02.CGmap.gz \
-  -up 1500 \
-  -dn 500 \
-  -o ./example/module0 
-```
+* __Usage:__
+
+  ```
+  ## Run module 0
+  ./petem --0 \
+    -g ./PeTEM_data/genomic.gff \
+    -t ./PeTEM_data/TE.txt \
+    -eg ./PeTEM_data/gene_expression.txt \
+    -et ./PeTEM_data/TE_expression.txt \
+    -f ./PeTEM_data/genome.fa.fai \
+    -m ./PeTEM_data/leaf_01.CGmap.gz \
+       ./PeTEM_data/leaf_02.CGmap.gz \
+       ./PeTEM_data/root_01.CGmap.gz \
+       ./PeTEM_data/root_02.CGmap.gz \
+    -up 1500 \
+    -dn 500 \
+    -o ./example/module0 
+  ```
 
 * __Outputs:__
 
@@ -89,12 +91,14 @@ chmod +x ./bigWigAverageOverBed
   | `Tab_*.txt` | Tables containing CG, CHG, and CHH methylation levels for each TE, gene, and promoter region across all conditions. |
 
 ### Module 1: TE Distribution
-```
-## Run module 1
-./petem --1 \
-  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
-  -o ./example/module1
-```
+* __Usage:__
+
+  ```
+  ## Run module 1
+  ./petem --1 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module1
+  ```
 
 * __Outputs:__
 
@@ -109,14 +113,14 @@ chmod +x ./bigWigAverageOverBed
 
 
 ## Module 2: Enriched promoter-embedded TE Families
-After selecting modules, you will be prompted to provide paths to necessary files.
-Use the example files in PeTEM_data:
-```
-## Run module 2
-./petem --2 \
-  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
-  -o ./example/module2
-```
+* __Usage:__
+
+  ```
+  ## Run module 2
+  ./petem --2 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module2
+  ```
 
 * __Outputs:__
 
@@ -131,20 +135,14 @@ Use the example files in PeTEM_data:
 
 
 ## Module 3: TE methylation near gene
-```
-## Run module 3
-./petem --3 \
-  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
-  -o ./example/module3 \
-  -d 10000 \ 
-  -p 10 \ 
-  -w 100 \ 
-  -l raw \ 
-  -CI n \ 
-  -border y \ 
-  -unexp n \ 
-  -nTE n 
-```
+* __Usage:__
+
+  ```
+  ## Run module 3
+  ./petem --3 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module3 \
+  ```
 
 * __Outputs:__
 
@@ -159,12 +157,14 @@ Use the example files in PeTEM_data:
 
 
 ## Module 4. Correlation between methylation and expression
-```
-## Run module 4
-./petem --4 \
-  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
-  -o ./example/module4
-```
+* __Usage:__
+
+  ```
+  ## Run module 4
+  ./petem --4 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module4
+  ```
 
 * __Outputs:__
 
@@ -180,14 +180,16 @@ Use the example files in PeTEM_data:
 
 
 ### Module 5. Associated TE and gene pairs
-```
-## Run module 5
-./petem --5 \
-  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
-  -stage root leaf \
-  -o ./example/module5
+* __Usage:__
 
-```
+  ```
+  ## Run module 5
+  ./petem --5 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -stage root leaf \
+    -o ./example/module5
+  
+  ```
 
 * __Outputs:__
 
