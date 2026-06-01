@@ -23,7 +23,7 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
   - [Module 5. Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs)
 
 ## Tutorial
-Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
+Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
 ## System requirements
 
