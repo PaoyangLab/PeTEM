@@ -238,6 +238,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   -o <OUTPUT_DIR>
 ```
 * __Options:__
+
 | Option | Description |
 |---|---|
 | `--0` | Run module 0. |
