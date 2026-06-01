@@ -39,9 +39,9 @@ PeTEM provides an interactive bash script `run_PeTEM.sh` to select steps and inp
 ```
 ## Run module 0
 ./petem --0 -g /work4/home/yuchun/2025_07_pipeline/example/Araport11.gff -t /work4/home/peiyu/2025_PeTEM/PeTEM/PeTEM_data/TE2.txt -eg /work4/home/yuchun/2025_07_pipeline/example/gene_expression.txt -et /work4/home/yuchun/2025_07_pipeline/example/TE_expression.txt -f /work4/home/yuchun/2025_07_pipeline/example/genome.fa.fai -m /work4/home/yuchun/2025_07_pipeline/example/leaf_01.CGmap.gz /work4/home/yuchun/2025_07_pipeline/example/leaf_02.CGmap.gz /work4/home/yuchun/2025_07_pipeline/example/root_01.CGmap.gz /work4/home/yuchun/2025_07_pipeline/example/root_02.CGmap.gz
-## optional
+## optional
 -up 1500
--dn 500
+-dn 500
 -o /work4/home/peiyu/tools/PeTEM/test/example_module0
 ```
 
@@ -73,7 +73,6 @@ Use the example files in PeTEM_data:
 ## Run module 2
 ./petem --2 \
   --manifest PETEM_MODULE0_MANIFEST.json \  -o /work4/home/peiyu/tools/PeTEM/test/example_module2
-<img width="861" height="175" alt="image" src="https://github.com/user-attachments/assets/a780d748-9021-4b59-af05-5a6472513c99" />
 ```
 
 * __output__
@@ -89,7 +88,8 @@ Use the example files in PeTEM_data:
 ./petem --3 \
   --manifest PETEM_MODULE0_MANIFEST.json \
   -o /work4/home/peiyu/tools/PeTEM/test/example_module3 \
-## optional  -d 10000 \
+## optional
+  -d 10000 \
   -p 10 \
   -w 100 \
   -l raw \
@@ -100,13 +100,14 @@ Use the example files in PeTEM_data:
 ```
 
 *__output__
-    * `OUTPUT_3_gene_TE_number.txt`: In every figure, it shows the upstream and downstream border (bp) of TE methylation impact, and the number of highly/lowly expressed genes
-    * `OUTPUT_3_gene_proximal_TE_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
-      > Following are the examples using different methods to show the TE methylation pattern within 4 kb around top/bottom 10 % expressed genes:
-      - (A) Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
-      - (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.   
-      - (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
+ * `OUTPUT_3_gene_TE_number.txt`: In every figure, it shows the upstream and downstream border (bp) of TE methylation impact, and the number of highly/lowly expressed genes
+ * `OUTPUT_3_gene_proximal_TE_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
+   > Following are the examples using different methods to show the TE methylation pattern within 4 kb around top/bottom 10 % expressed genes:
+   - (A) Using “average TE methylation within each window” (`average`) with following parameters: 100 bp window size, 100 bp window step, showing 95% CI, not showing the points of each TE site.
+   - (B) Using “second-degree polynomial regression line” (`poly2`) with following parameters: showing 95% CI, showing the points of each TE site.   
+   - (C) Using “local regression line” (`loess `) with following parameters: span 0.02, showing 95% CI, showing the points of each TE site.
 
+   
 * __figure__
 <img width="1930" height="2243" alt="figure" src="https://github.com/user-attachments/assets/ee2d3a51-049e-474b-bdf3-7948a4ed5ccd" />
 
