@@ -158,7 +158,7 @@ Use the example files in PeTEM_data:
 
    
 * __Figure:__
-<img width="1930" height="2243" alt="figure" src="https://github.com/user-attachments/assets/ee2d3a51-049e-474b-bdf3-7948a4ed5ccd" />
+<img width="5000" height="2000" alt="OUTPUT_3_TE_impact_distance_leaf_CHG" src="https://github.com/user-attachments/assets/681277e8-3973-4988-a120-b93fec4de4c6" />
 
 
 ## Module 4. Correlation between methylation and expression
