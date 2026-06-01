@@ -3,8 +3,12 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 <img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
+<br>
+
 ## Tutorial
 Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
+
+<br>
 
 ## Table of Contents
 
@@ -26,15 +30,15 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 ## System requirements
 
-### Runtime dependencies 
+#### Runtime dependencies 
 * Bash
 * Perl
 * gzip / gunzip
 * awk / sort / uniq
 
-### Environment setup
+#### Environment setup
 
->> Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
+> Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
 
 
 <details>
@@ -79,20 +83,20 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 ## Installation
 
-### Clone repository:
+#### Clone repository:
 ```bash
 git clone https://github.com/PaoyangLab/PeTEM.git
 cd PeTEM
 ```
 
-### Download example data:
+#### Download example data:
 ```bash
 wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
 tar -xzvf PeTEM_data.tar.gz
 ```
 
-### Set up environment 
-  #### Docker image
+#### Set up environment 
+  - Docker image
     
   > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
   
@@ -101,7 +105,7 @@ tar -xzvf PeTEM_data.tar.gz
   docker run --rm petem:local --help
   ```
 
-  #### Conda setup
+  - Conda setup
   
   > Use the checked-in environment definition:
   
@@ -111,7 +115,7 @@ tar -xzvf PeTEM_data.tar.gz
   bash env_check.sh ##optional
   ```
 
-  #### Local setup
+  - Local setup
   
   > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
   
@@ -126,8 +130,8 @@ tar -xzvf PeTEM_data.tar.gz
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
 In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
-### Genome Annotation
-#### General features annotations file (GFF3 format) 
+#### Genome Annotation
+- General features annotations file (GFF3 format) 
 > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
 
 
@@ -160,7 +164,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 </details>
 
-#### Gene annotation file (FASTA index) 
+- Gene annotation file (FASTA index) 
 > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
 `genome.fa.fai`
@@ -174,7 +178,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | ChrC | 154478 | 120654981 | 79 | 80 |
 | ChrM | 367808 | 120811562 | 70 | 71 |
 
-#### Transposable element coordinates 
+- Transposable element coordinates 
 > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
 
 `TE.txt`
@@ -186,7 +190,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
 
-### Methylation Data
+#### Methylation Data
 > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
 
 `*.CGmap.gz files`
@@ -198,7 +202,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
 
 
-### Expression Data
+#### Expression Data
 > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
 
 > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
@@ -227,7 +231,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 <img width="1477" height="1033" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
 
 
-### Module 0. Preprocessing
+#### Module 0. Preprocessing
 > Generate promoter regions (`promoter.bed`) and integrate methylation and expression data
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
@@ -267,7 +271,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 
-### Module 1. TE Distribution
+#### Module 1. TE Distribution
 > Analyze TE distribution across genomic features
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
@@ -298,7 +302,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
   
-### Module 2. Enriched promoter-embedded TE Families
+#### Module 2. Enriched promoter-embedded TE Families
 > Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.txt`, `promoter.bed` (from Step 0)
@@ -327,7 +331,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 2 results. |
 
 
-### Module 3. TE methylation near gene
+#### Module 3. TE methylation near gene
 > Visualize distance impact of TE methylation on gene expression
 * __Inputs:__
     * `gene.bed`(from Step 0), `TE.txt`, `gene_expression.txt` and `TE_expression.txt`
@@ -375,7 +379,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-unexp` | ... |
   | `-nTE` | ... |
 
-### Module 4. Correlation between methylation and expression
+#### Module 4. Correlation between methylation and expression
 > Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `gene_expression.txt` and `TE_expression.txt`
@@ -411,7 +415,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `--ylim_TEexpTEmC_CG` | Maximum y-axis value for TE expression vs. TE CG methylation correlation plots. Default: `80`. |
 
 
-### Module 5. Associated TE and gene pairs
+#### Module 5. Associated TE and gene pairs
 > Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
