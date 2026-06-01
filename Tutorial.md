@@ -149,13 +149,6 @@ Use the example files in PeTEM_data:
   |---|---|
   | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, together with the numbers of highly and lowly expressed genes included in each analysis. |
   | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
-
-> Examples of visualization methods for displaying TE methylation patterns within ±4 kb of the top and bottom 10% expressed genes:
->
-> - **Average methylation (`average`)**: Displays the average TE methylation level within each window (100 bp window size and 100 bp step size), with 95% confidence intervals and without individual TE methylation points.
-> - **Second-degree polynomial regression (`poly2`)**: Fits a quadratic regression curve with 95% confidence intervals and displays individual TE methylation points.
-> - **Local regression (`loess`)**: Fits a LOESS smoothing curve (span = 0.02) with 95% confidence intervals and displays individual TE methylation points.
-
    
 * __Figure:__
 <img width="5000" height="2000" alt="OUTPUT_3_TE_impact_distance_leaf_CHG" src="https://github.com/user-attachments/assets/681277e8-3973-4988-a120-b93fec4de4c6" />
@@ -176,8 +169,8 @@ Use the example files in PeTEM_data:
   | `OUTPUT_4_geneexp/TEexp_*.png` | Line plots showing the relationships between (1) TE methylation and TE expression, (2) TE methylation, promoter methylation (with or without embedded TEs), and gene expression, and (3) TE expression and gene expression across conditions. Each figure also reports the number of TE–gene pairs analyzed and the smoothing window size used. |
   | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson's or Spearman's correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
 
-* __Figure:__
-<img width="1022" height="934" alt="image" src="https://github.com/user-attachments/assets/44ce1c5e-7d89-48b0-bc22-cfef639a2fef" />
+* __Figures:__
+<img width="985" height="1770" alt="image" src="https://github.com/user-attachments/assets/2ed383b7-b8ad-4572-8747-565f407b5118" />
 
 
 
@@ -200,4 +193,4 @@ Use the example files in PeTEM_data:
   | `OUTPUT_5_Q2/4_*.txt` | Tables containing the lists of negatively correlated TE–gene pairs identified in the analysis. |
 
 * __Figure:__
-<img width="1138" height="722" alt="image" src="https://github.com/user-attachments/assets/68b8bce7-a32d-415e-b066-81f75e03aa21" />
+<img width="1035" height="1670" alt="image" src="https://github.com/user-attachments/assets/78602725-3811-44e4-a107-26ab89c999de" />
