@@ -3,7 +3,7 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 <img width="865" height="439" alt="image" src="https://github.com/user-attachments/assets/56516953-0937-4c9c-951f-f474a6b0ee67" />
 
-<br><br>
+<br>
 ## Table of Contents
 
 - [Tutorial](#tutorial)
@@ -21,11 +21,11 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
   - [Module 4. Correlation Between Methylation and Expression](#module-4-correlation-between-methylation-and-expression)
   - [Module 5. Associated TE and Gene Pairs](#module-5-associated-te-and-gene-pairs)
 
-<br><br>
+<br>
 ## Tutorial
 Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
-<br><br>
+<br>
 ## System requirements
 
 ### Runtime dependencies 
@@ -74,7 +74,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 </details>
 
-<br><br>
+<br>
 ## Installation
 
 ### Clone repository:
@@ -118,7 +118,7 @@ bash setup.sh
 bash env_check.sh ##optional
 ```
 
-<br><br>
+<br>
 ## Input Files
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
 In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
