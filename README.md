@@ -35,7 +35,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
   - **Environment setup**
   
-    > Following sections shows the required environment and packages. In [installation](#set-up-environment) section, we provide three alternative methods for setting up the environment.
+    > Following sections shows the required environment and packages. In [installation](#installation) section, we provide three alternative methods for setting up the environment.
   
     <details>
     <summary> 👉 <b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
