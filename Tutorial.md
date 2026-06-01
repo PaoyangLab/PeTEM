@@ -154,7 +154,7 @@ chmod +x ./bigWigAverageOverBed
   ## Run module 3
   ./petem --3 \
     --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
-    -o ./example/module3 \
+    -o ./example/module3 
   ```
 
 * __Outputs:__
