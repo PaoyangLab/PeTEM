@@ -76,16 +76,16 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 ## Installation
 
   - **Clone repository** 
-  ```bash
-  git clone https://github.com/PaoyangLab/PeTEM.git
-  cd PeTEM
-  ```
+    ```bash
+    git clone https://github.com/PaoyangLab/PeTEM.git
+    cd PeTEM
+    ```
   
   - **Download example data**
-  ```bash
-  wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
-  tar -xzvf PeTEM_data.tar.gz
-  ```
+    ```bash
+    wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
+    tar -xzvf PeTEM_data.tar.gz
+    ```
 
   - **Set up environment**
 
