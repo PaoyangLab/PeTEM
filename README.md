@@ -38,7 +38,8 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 * awk / sort / uniq
 
 ### Environment setup
-> We provide [three alternative methods](#set-up-environment) for setting up the environment.
+
+> Following sections shows the required environment and packages.
 
 <details>
 <summary><b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
@@ -76,6 +77,8 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   *	bigWigAverageOverBed (bundled in this repository)
 
 </details>
+
+> We provide [three alternative methods](#set-up-environment) for setting up the environment.
 
 <br>
 
