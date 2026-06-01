@@ -242,13 +242,13 @@ Users must run module 0 at the first time to preprocess the input files before r
 | Option | Description |
 |---|---|
 | `--0` | Run module 0. |
-| `-g <ANNOTATION_GFF3>` | Path to the genome annotation file in GFF3 format. |
-| `-t <TE_BED>` | Path to the transposable element annotation file in BED format. |
-| `-eg <GENE_EXPRESSION>` | Path to the gene expression table. |
-| `-et <TE_EXPRESSION>` | Path to the transposable element expression table. |
-| `-f <GENOME_FAI>` | Path to the genome FASTA index file (`.fai`). This is used to automatically generate gene, promoter, intergenic region, and other BED files. |
-| `-m <CGMAP_FILES>` | One or more CGmap files, separated by spaces. Compressed files such as `.CGmap.gz` are supported. |
-| `-o <OUTPUT_DIR>` | Output directory for module 0 results. |
+| `-g` | Path to the genome annotation file in GFF3 format. |
+| `-t` | Path to the transposable element annotation file in BED format. |
+| `-eg` | Path to the gene expression table. |
+| `-et` | Path to the transposable element expression table. |
+| `-f` | Path to the genome FASTA index file (`.fai`). This is used to automatically generate gene, promoter, intergenic region, and other BED files. |
+| `-m` | One or more CGmap files, separated by spaces. Compressed files such as `.CGmap.gz` are supported. |
+| `-o` | Output directory for module 0 results. |
 
 
 
