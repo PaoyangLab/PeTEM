@@ -1,6 +1,6 @@
 #!/usr/bin/env Rscript
 # Rscript 4_single_condition_correlation.R --eg expression_gene.txt --et expression_TE.txt --unexp y/n \
-#   --wd_num 156 --ylim_CG 40 --ylim_CHG 5 --ylim_CHH 5 --ylim_TEexpTEmC_CH 8 --ylim_TEexpTEmC_CG 40
+#   --smooth 3 --ylim_CG 40 --ylim_CHG 5 --ylim_CHH 5 --ylim_TEexpTEmC_CH 8 --ylim_TEexpTEmC_CG 40
 
 
 start_time <- Sys.time()
@@ -46,7 +46,7 @@ option_list = list(
   make_option(c("--module0-dir"), type="character", default=".", help="Directory containing Module 0 outputs such as Tab_* and TE_overlap_promoter.bed"),
   make_option(c("--outdir"), type="character", default=".", help="Output directory"),
   make_option(c("--unexp"), type="character", default="n", help="Include unexpressed TEs for sliding plots? (y/n)"),
-  make_option(c("--wd_num"), type="numeric", default=156, help="number of sliding window (default=156)"),
+  make_option(c("--smooth"), type="numeric", default=3, help="sliding window multiplier, 1-5 (default=3)"),
   make_option(c("--ylim_CG"), type="numeric", default=50, help="ylim for gene exp vs TE/promoter mC, CG (default=50)"),
   make_option(c("--ylim_CHG"), type="numeric", default=10, help="ylim for gene exp vs TE/promoter mC, CHG (default=10)"),
   make_option(c("--ylim_CHH"), type="numeric", default=10, help="ylim for gene exp vs TE/promoter mC, CHH (default=10)"),
@@ -56,6 +56,7 @@ option_list = list(
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser)
+if (opt$smooth < 1 || opt$smooth > 5) stop("--smooth must be between 1 and 5.")
 
 include_unexp <- tolower(opt$unexp) == "y"
 dir.create(opt$outdir, recursive = TRUE, showWarnings = FALSE)
@@ -74,14 +75,17 @@ sort_exp <- function(df, stage_exp){
 
 sliding <- function(vec){
   lth <- length(vec)
-  step <- floor(lth/opt$wd_num)
-  window <- lth-(opt$wd_num-1)*step
+  step <- floor(lth / 100)
+  step <- max(1, step)
+  window <- lth - (100 - 1) * step
+  window <- max(1, window)
   return(as.vector(rollapply(zoo(vec), width=window, by=step, FUN=mean, align="center")))
 }
 
 calc_window <- function(df){
-  step <- floor(nrow(df)/opt$wd_num)
-  window <- nrow(df)-(opt$wd_num-1)*step
+  step <- max(1, floor(nrow(df)/100))
+  window <- max(1, step*opt$smooth)
+  window <- min(window, nrow(df))
   return(window)
 }
 
@@ -419,7 +423,7 @@ plot(
   type="n",
   axes=FALSE,
   ylim=c(0, max(right_ticks)),
-  xlim=c(0,opt$wd_num),
+  xlim=c(0,100),
   xlab=NA,
   ylab=NA,
   xaxt='n'
@@ -474,7 +478,7 @@ plot(
   type="l",
   axes=FALSE,
   ylim=c(0, max(left_ticks)),
-  xlim=c(0,opt$wd_num),
+  xlim=c(0,100),
   xlab=NA,
   ylab=NA,
   xaxt='n'
@@ -534,22 +538,22 @@ mtext(
   ),
   side=1,
   line=4,
-  cex=MODULE4_CEX_NOTE
+  cex=MODULE4_CEX_NOTE+0.2
 )
 
 dev.off()
   
   # gene exp vs TE exp
   png(file=output_file(paste0("OUTPUT_4_geneexp_TEexp_line_",stage,".png")), width=2600,height=2200,res=400)
-  petem_base_par(list(mar=c(5,4.5,4,5)+0.1, bg="white", cex.axis=MODULE4_CEX_AXIS, cex.lab=MODULE4_CEX_LABEL, cex.main=MODULE4_CEX_LABEL))
-  plot(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50",type="n",axes=FALSE,xlim=c(0,opt$wd_num),xlab=NA,ylab=NA,xaxt='n')
+  petem_base_par(list(mar=c(5,4.5,4,5)+0.1, bg="white", cex.axis=MODULE4_CEX_AXIS+1, cex.lab=MODULE4_CEX_LABEL, cex.main=MODULE4_CEX_LABEL))
+  plot(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50",type="n",axes=FALSE,xlim=c(0,100),xlab=NA,ylab=NA,xaxt='n')
   grid(nx=NA, ny=NULL, col=MODULE4_GRID_COL, lty=1, lwd=0.6)
   lines(gTE_exp,lwd=PETEM_BASE_LINE_WIDTH,lty=1,col="gray50")
-  axis(2, ylim=c(0,1), col="black", las=1, lwd=MODULE4_FRAME_WIDTH)
+  axis(2, ylim=c(0,1), col="black", las=1, lwd=MODULE4_FRAME_WIDTH, cex.axis=MODULE4_CEX_AXIS)
   mtext(expression(bold("TE expression (log2 RPKM)")),side=2,line=3,cex=MODULE4_CEX_LABEL)
   mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=MODULE4_CEX_LABEL,font=2)
   box(lwd=MODULE4_FRAME_WIDTH)
-  mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", gexp_window), side=1, line=4, cex=MODULE4_CEX_NOTE)
+  mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", g_window), side=1, line=4, cex=MODULE4_CEX_NOTE+0.2)
 
   dev.off()
 
@@ -557,19 +561,35 @@ dev.off()
 
 for(mtype in c("CG","CHG","CHH")){
 
-    # Select y-axis upper limit.
-    requested_ylim <- switch(mtype, CG=opt$ylim_CG, CHG=opt$ylim_CHG, CHH=opt$ylim_CHH)
-
-    df <- data.frame(
-        x = seq_along(get(paste0("wo", mtype))),
-        woTE = get(paste0("wo", mtype)),
-        wTE  = get(paste0("p", mtype)),
-        TE   = get(paste0("gTE_", mtype))
+    requested_ylim <- switch(
+        mtype,
+        CG = opt$ylim_CG,
+        CHG = opt$ylim_CHG,
+        CHH = opt$ylim_CHH
     )
 
-    df_long <- df %>%
-        pivot_longer(cols=c("woTE","wTE","TE"),
-                     names_to="type", values_to="value")
+    wo_vec <- get(paste0("wo", mtype))
+    p_vec  <- get(paste0("p", mtype))
+    te_vec <- get(paste0("gTE_", mtype))
+
+    df_long <- bind_rows(
+        data.frame(
+            x = seq_along(wo_vec),
+            type = "woTE",
+            value = wo_vec
+        ),
+        data.frame(
+            x = seq_along(p_vec),
+            type = "wTE",
+            value = p_vec
+        ),
+        data.frame(
+            x = seq_along(te_vec),
+            type = "TE",
+            value = te_vec
+        )
+    )
+
     ylim_val <- expand_ylim(requested_ylim, df_long$value)
 
     line_colors <- c(
@@ -584,71 +604,120 @@ for(mtype in c("CG","CHG","CHH")){
         "woTE" = "Promoter with no TEs"
     )
 
+    
+
     rho_df <- data.frame(
         type = c("TE", "wTE", "woTE"),
         rho = c(
-            cor(log2(gdf[[paste0(stage,"_exp")]]), gdf[[paste0(stage,"_TE_", mtype)]] * 100, method = "spearman", use = "complete.obs"),
-            cor(log2(pmC[[paste0(stage,"_exp")]]), pmC[[paste0(stage,"_promoterselves_", mtype)]] * 100, method = "spearman", use = "complete.obs"),
-            cor(log2(wo[[paste0(stage)]]), wo[[paste0(stage,"_promoter_", mtype)]] * 100, method = "spearman", use = "complete.obs")
+            cor(
+                log2(gdf[[paste0(stage,"_exp")]]),
+                gdf[[paste0(stage,"_TE_", mtype)]] * 100,
+                method = "spearman",
+                use = "complete.obs"
+            ),
+            cor(
+                log2(pmC[[paste0(stage,"_exp")]]),
+                pmC[[paste0(stage,"_promoterselves_", mtype)]] * 100,
+                method = "spearman",
+                use = "complete.obs"
+            ),
+            cor(
+                log2(wo[[paste0(stage)]]),
+                wo[[paste0(stage,"_promoter_", mtype)]] * 100,
+                method = "spearman",
+                use = "complete.obs"
+            )
         ),
         stringsAsFactors = FALSE
     )
+
     rho_df$label <- sprintf("\u03c1=%.2f", rho_df$rho)
-    line_end_idx <- nrow(df)
-    rho_df$x <- line_end_idx + line_end_idx * 0.03
-    x_axis_max <- line_end_idx * 1.16
-    rho_df$y <- c(
-      df$TE[line_end_idx] + ylim_val * 0.04,
-      df$wTE[line_end_idx] + ylim_val * 0.04,
-      df$woTE[line_end_idx] + ylim_val * 0.04
-    )
+
+    line_end_df <- df_long %>%
+        group_by(type) %>%
+        filter(x == max(x)) %>%
+        slice(1) %>%
+        ungroup() %>%
+        select(type, end_x = x, end_y = value)
+
+    rho_df <- rho_df %>%
+        left_join(line_end_df, by = "type")
+
+    x_axis_max <- max(df_long$x, na.rm = TRUE) * 1.18
+    rho_df$x <- rho_df$end_x + max(df_long$x, na.rm = TRUE) * 0.03
+    rho_df$y <- rho_df$end_y + ylim_val * 0.04
     rho_df$y <- pmin(rho_df$y, ylim_val * 0.98)
+
     min_gap <- ylim_val * 0.07
     rho_df <- rho_df[order(rho_df$y), , drop = FALSE]
+
     if (nrow(rho_df) > 1) {
-      for (i in 2:nrow(rho_df)) {
-        if ((rho_df$y[i] - rho_df$y[i - 1]) < min_gap) {
-          rho_df$y[i] <- rho_df$y[i - 1] + min_gap
+        for (i in 2:nrow(rho_df)) {
+            if ((rho_df$y[i] - rho_df$y[i - 1]) < min_gap) {
+                rho_df$y[i] <- rho_df$y[i - 1] + min_gap
+            }
         }
-      }
     }
-    if (max(rho_df$y) > ylim_val * 0.98) {
-      rho_df$y <- rho_df$y - (max(rho_df$y) - ylim_val * 0.98)
+
+    if (max(rho_df$y, na.rm = TRUE) > ylim_val * 0.98) {
+        rho_df$y <- rho_df$y - (max(rho_df$y, na.rm = TRUE) - ylim_val * 0.98)
     }
+
     rho_df$y <- pmax(rho_df$y, ylim_val * 0.08)
 
-    p <- ggplot(df_long, aes(x=x, y=value, color=type)) +
-        geom_line(linewidth=1.5) +
-        geom_text(data=rho_df, aes(x=x, y=y, label=label, color=type),
-                  inherit.aes=FALSE, hjust=0, vjust=0.5, fontface="bold", size=MODULE4_LINE_LABEL_SIZE, show.legend=FALSE) +
-        scale_color_manual(values=line_colors, labels=line_labels) +
-        coord_cartesian(ylim=c(0, ylim_val), xlim=c(0, x_axis_max)) +
-        labs(y=paste0(mtype, " methylation level (%)"),
-             x="Lowly expressed genes             Highly expressed genes",
-             caption=paste0(
-               "TE-gene pairs: ", nrow(gdf),
-               ", window size: ", g_window, "\n",
-               "Promoter containing TEs: ", nrow(pmC),
-               ", window size: ", pmC_window, "\n",
-               "Promoter with no TEs: ", nrow(wo),
-               ", window size: ", wo_window
-             ),
-             color=NULL) +
+    p <- ggplot(df_long, aes(x = x, y = value, color = type)) +
+        geom_line(linewidth = 1.5) +
+        geom_text(
+            data = rho_df,
+            aes(x = x, y = y, label = label, color = type),
+            inherit.aes = FALSE,
+            hjust = 0,
+            vjust = 0.5,
+            fontface = "bold",
+            size = MODULE4_LINE_LABEL_SIZE + 1.5,
+            show.legend = FALSE
+        ) +
+        scale_color_manual(values = line_colors, labels = line_labels, breaks = c( "TE", "wTE","woTE")) +
+        coord_cartesian(ylim = c(0, ylim_val), xlim = c(0, x_axis_max)) +
+        labs(
+            y = paste0(mtype, " methylation level (%)"),
+            x = "Lowly expressed genes             Highly expressed genes",
+            caption = paste0(
+                "TE-gene pairs: ", nrow(gdf),
+                ", window size: ", g_window, "\n",
+                "Promoter containing TEs: ", nrow(pmC),
+                ", window size: ", pmC_window, "\n",
+                "Promoter with no TEs: ", nrow(wo),
+                ", window size: ", wo_window
+            ),
+            color = NULL
+        ) +
         module4_theme_bw() +
         theme(
             legend.position = "top",
+            legend.background = element_rect(fill = "white", color = NA),
+            legend.box.background = element_rect(fill = "white", color = NA),
+            legend.key = element_rect(fill = "white", color = NA),
             plot.margin = margin(t = 10, r = 10, b = 24, l = 10),
-            plot.caption = element_text(hjust = 0.5, size = PETEM_AXIS_TEXT_SIZE + 1, lineheight = 1.1),
+            plot.caption = element_text(
+                hjust = 0.5,
+                size = PETEM_AXIS_TEXT_SIZE + 1.3,
+                lineheight = 1.1
+            ),
             plot.caption.position = "plot",
             axis.text.x = element_blank(),
             axis.ticks.x = element_blank(),
-            axis.line = element_blank()
+            axis.line = element_blank(),
+            axis.text.y = element_text(size = PETEM_AXIS_TEXT_SIZE + 2)
         )
 
     ggsave(
-        filename = output_file(paste0("OUTPUT_4_geneexp_TEm",mtype,"_line_",stage,".png")),
+        filename = output_file(paste0("OUTPUT_4_geneexp_TEm", mtype, "_line_", stage, ".png")),
         plot = p,
-        width = 2600/400, height = 2200/400, dpi=400, units="in"
+        width = 2600 / 400,
+        height = 2200 / 400,
+        dpi = 400,
+        units = "in"
     )
 }
 

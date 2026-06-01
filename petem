@@ -22,8 +22,8 @@ Usage:
   petem 2_TE_families [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
   petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
   petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
-  petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [--wd_num 156]
-  petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [--wd_num 156]
+  petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
+  petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
   petem 5_cross_condition_correlation [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
 
@@ -843,7 +843,7 @@ run_module_4() {
   local outdir=""
   local manifest=""
   local unexp="n"
-  local wd_num=156
+  local smooth=3
   local ylim_cg=""
   local ylim_chg=""
   local ylim_chh=""
@@ -858,7 +858,7 @@ run_module_4() {
       --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       --unexp) unexp=$2; shift 2 ;;
-      --wd_num) wd_num=$2; shift 2 ;;
+      --smooth) smooth=$2; shift 2 ;;
       --ylim_CG) ylim_cg=$2; shift 2 ;;
       --ylim_CHG) ylim_chg=$2; shift 2 ;;
       --ylim_CHH) ylim_chh=$2; shift 2 ;;
@@ -902,7 +902,7 @@ run_module_4() {
       --module0-dir "$module0_dir"
       --outdir "$outdir"
       --unexp "$unexp"
-      --wd_num "$wd_num"
+      --smooth "$smooth"
     )
     [[ -n $ylim_cg ]] && cmd+=(--ylim_CG "$ylim_cg")
     [[ -n $ylim_chg ]] && cmd+=(--ylim_CHG "$ylim_chg")
@@ -919,6 +919,7 @@ run_module_5() {
   local module0_dir=""
   local outdir=""
   local unexp="n"
+  local positive="n"
   local manifest=""
   local stage_a=""
   local stage_b=""
@@ -931,6 +932,7 @@ run_module_5() {
       --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       --unexp) unexp=$2; shift 2 ;;
+      --positive) positive=$2; shift 2 ;;
       -stage|--stage) [[ $# -ge 3 ]] || die "-stage requires two values"; stage_a=$2; stage_b=$3; shift 3 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 5: $1" ;;
@@ -968,7 +970,8 @@ run_module_5() {
 	      --DETE "$dete_file" \
 	      --module0-dir "$module0_dir" \
 	      --outdir "$outdir" \
-      --unexp "$unexp")
+      --unexp "$unexp"\
+      --positive "$positive")
     [[ -n $stage_a ]] && cmd+=(-stage "$stage_a" "$stage_b")
     "${cmd[@]}"
 	  )
