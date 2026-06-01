@@ -127,9 +127,8 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 
 
-<details>
+`genomic.gff` <details>
 <summary>
-`genomic.gff`
 </summary>
 
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
