@@ -41,6 +41,12 @@ tar -xzvf PeTEM_data.tar.gz
 
 ## System requirements
 
+#### Runtime dependencies 
+* Bash
+* Perl
+* gzip / gunzip
+* awk / sort / uniq
+
 #### Set up environment through one of following methods 
 <details>
 <summary><b><ins>Docker image</ins></b></summary>
@@ -86,15 +92,9 @@ bash env_check.sh ##optional
 
 #### Details of required environment and packages
 
-<b> Runtime dependencies </b>
-- Bash
-- Perl
-- gzip / gunzip
-- awk / sort / uniq
-
 <details>
 <summary><b><ins>R version ≥ 4.2</ins></b></summary>
-  
+<br>
 (packages tested on 4.3.2)
 * optparse
 * dplyr
@@ -106,20 +106,18 @@ bash env_check.sh ##optional
 * gplots
 * ggalluvial
 * ggpointdensity
+* ggbreak
 * RColorBrewer
 * viridis
+* rlang
 
 </details>
 
 <details>
 <summary><b><ins>Python version ≥ 3.8</ins></b></summary>
-  
+<br>
 (packages tested on 3.8.10)
 * pandas (≥ 1.2.4)
-* built-in packages:
-  * glob
-  * os
-  * time
 
 </details>
 
@@ -128,8 +126,8 @@ bash env_check.sh ##optional
    
 *	samtools (tested on 1.10)
 *	bedtools (tested on v2.27.1)
-*	wigToBigWig
-*	bigWigAverageOverBed
+*	wigToBigWig (bundled in this repository)
+*	bigWigAverageOverBed (bundled in this repository)
 
 </details>
 
