@@ -1,5 +1,5 @@
 # Tutorial
-> This tutorial explains how to set up and run the PeTEM pipeline using the example files.
+> This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/yc811/PeTEM/blob/main/README.md).
 
 **Setup**
 1. [Clone repository](#clone-repository)
