@@ -75,19 +75,19 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 ## Installation
 
-  #### Clone repository:
+  <b> Clone repository </b>
   ```bash
   git clone https://github.com/PaoyangLab/PeTEM.git
   cd PeTEM
   ```
   
-  #### Download example data:
+  <b> Download example data </b>
   ```bash
   wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
   tar -xzvf PeTEM_data.tar.gz
-```
+  ```
 
-  #### Set up environment 
+  <b> Set up environment </b>
 
   * Docker image
     > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
