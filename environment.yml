@@ -1,0 +1,28 @@
+name: petem
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - bash
+  - python=3.11
+  - pip
+  - pandas>=1.2.4
+  - r-base=4.3
+  - r-optparse
+  - r-dplyr
+  - r-tidyr
+  - r-zoo
+  - r-reshape2
+  - r-stringr
+  - r-ggplot2
+  - r-gplots
+  - r-ggalluvial
+  - r-ggpointdensity
+  - r-rcolorbrewer
+  - r-viridis
+  - r-rlang
+  - r-ggbreak
+  - bedtools
+  - samtools
+  - perl
+  - gzip

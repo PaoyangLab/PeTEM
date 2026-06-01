@@ -1,9 +1,33 @@
-#!/bin/bash
-# 1_TE_distribution.sh
-# Usage example:
-# bash 1_TE_distribution.sh \
-#   -g gene.bed -c CDS.bed -5 5UTR.bed -e exon.bed -3 3UTR.bed \
-#   -p promoter.bed -t TE.bed -fai genome.fa.fai 
+#!/usr/bin/env bash
+set -euo pipefail
+
+MODULE_NAME="Module 1"
+SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
+CURRENT_STEP="argument parsing"
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+
+die() {
+  echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
+  exit 1
+}
+
+usage() {
+  echo "Usage: bash 1_TE_distribution.sh -g gene.bed -c CDS.bed -5 5UTR.bed -e exon.bed -3 3UTR.bed -p promoter.bed -t TE.bed -fai genome.fa.fai" >&2
+  exit 1
+}
+
+usage_missing() {
+  echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: missing required argument(s): $*" >&2
+  usage
+}
+
+require_file() {
+  local flag=$1
+  local path=$2
+  [[ -f $path ]] || die "input file for ${flag} not found: ${path}"
+}
+
+trap 'rc=$?; echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: command failed with exit code ${rc}" >&2; exit ${rc}' ERR
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -15,18 +39,34 @@ while [[ $# -gt 0 ]]; do
     -p) promoter=$2; shift 2;;
     -t) te=$2; shift 2;;
     -fai) faidx=$2; shift 2;;
-    *) echo "Unknown option $1"; exit 1;;
+    *) die "unknown option: $1";;
   esac
 done
 
-# 必要參數檢查
-if [[ -z $gene || -z $cds || -z $utr5 || -z $exon || -z $utr3 || -z $promoter || -z $te || -z $faidx  ]]; then
-  echo "Usage: bash 1_TE_distribution.sh -g gene.bed -c CDS.bed -5 5UTR.bed -e exon.bed -3 3UTR.bed -p promoter.bed -t TE.bed -fai genome.fa.fai"
-  exit 1
-fi
+missing_args=()
+[[ -n ${gene:-} ]] || missing_args+=("-g gene.bed")
+[[ -n ${cds:-} ]] || missing_args+=("-c CDS.bed")
+[[ -n ${utr5:-} ]] || missing_args+=("-5 5UTR.bed")
+[[ -n ${exon:-} ]] || missing_args+=("-e exon.bed")
+[[ -n ${utr3:-} ]] || missing_args+=("-3 3UTR.bed")
+[[ -n ${promoter:-} ]] || missing_args+=("-p promoter.bed")
+[[ -n ${te:-} ]] || missing_args+=("-t TE.bed")
+[[ -n ${faidx:-} ]] || missing_args+=("-fai genome.fa.fai")
+(( ${#missing_args[@]} == 0 )) || usage_missing "${missing_args[*]}"
+
+CURRENT_STEP="input validation"
+require_file "-g" "$gene"
+require_file "-c" "$cds"
+require_file "-5" "$utr5"
+require_file "-e" "$exon"
+require_file "-3" "$utr3"
+require_file "-p" "$promoter"
+require_file "-t" "$te"
+require_file "-fai" "$faidx"
 
 #------------------
 # Sorting
+CURRENT_STEP="step 1 - sorting and interval preparation"
 sort -k1,1 -k2,2n "$gene" > gene_sort.bed
 sort -k1,1 -k2,2n "$cds" > CDS_sort.bed
 sort -k1,1 -k2,2n "$exon" > exon_sort.bed
@@ -63,15 +103,13 @@ done
 
 #------------------
 # Call R script
-Rscript 1_TE_distribution.R \
+CURRENT_STEP="step 2 - TE distribution plotting"
+Rscript "$SCRIPT_DIR/1_TE_distribution.R" \
   TE_on_gene.bed TE_on_CDS.bed TE_on_5UTR.bed TE_on_exon.bed TE_on_intron.bed TE_on_3UTR.bed TE_on_promoter.bed TE_on_IGR.bed \
   merge_2strands_TE.bed merge_2strands_gene.bed merge_2strands_CDS.bed merge_2strands_5UTR.bed merge_2strands_exon.bed \
   merge_2strands_intron.bed merge_2strands_3UTR.bed merge_2strands_promoter.bed merge_2strands_IGR.bed genome.bed 
 
-
-rm *_sort.bed
-rm merge_2strands_*bed
-rm TE_on_*bed
-
-
-
+CURRENT_STEP="cleanup"
+rm -f *_sort.bed
+rm -f merge_2strands_*bed
+rm -f TE_on_*bed
