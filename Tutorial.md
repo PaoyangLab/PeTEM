@@ -94,8 +94,8 @@ example/
     * `OUTPUT_1_TE_distribution_percentage.png`
 
 * __figure__
-<img width="2000" height="1800" alt="OUTPUT_1_TE_distribution_enrichment" src="https://github.com/user-attachments/assets/f8779d6d-9968-4753-ae9a-3a1dc160a27b" />
-<img width="2000" height="1800" alt="OUTPUT_1_TE_distribution_percentage" src="https://github.com/user-attachments/assets/77b5a5d5-0ce4-4de4-8a11-562bbc03f973" />
+<img width="500" height="450" alt="OUTPUT_1_TE_distribution_enrichment" src="https://github.com/user-attachments/assets/f8779d6d-9968-4753-ae9a-3a1dc160a27b" />
+<img width="500" height="450" alt="OUTPUT_1_TE_distribution_percentage" src="https://github.com/user-attachments/assets/77b5a5d5-0ce4-4de4-8a11-562bbc03f973" />
 
 ## Module 2: Enriched promoter-embedded TE Families
 After selecting modules, you will be prompted to provide paths to necessary files.
@@ -112,7 +112,7 @@ Use the example files in PeTEM_data:
    * `OUTPUT_2_Promoter_embedded_TE_family.txt`
 
 * __figure__
-<img width="4500" height="2200" alt="OUTPUT_2_Promoter_embedded_TE_family_enrichment" src="https://github.com/user-attachments/assets/64acd1ad-a862-46d1-a868-c57a7a5f03f9" />
+<img width="3600" height="1760" alt="OUTPUT_2_Promoter_embedded_TE_family_enrichment" src="https://github.com/user-attachments/assets/64acd1ad-a862-46d1-a868-c57a7a5f03f9" />
 
 ## Module 3: TE methylation near gene
 ```
