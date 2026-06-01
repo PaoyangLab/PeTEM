@@ -74,6 +74,21 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 
 </details>
 
+
+## Installation
+
+#### Clone repository:
+```bash
+git clone https://github.com/PaoyangLab/PeTEM.git
+cd PeTEM
+```
+
+#### Download example data:
+```bash
+wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.1/PeTEM_data.tar.gz
+tar -xzvf PeTEM_data.tar.gz
+```
+
 #### Set up environment through one of following methods 
 <details>
 <summary><b><ins>Docker image</ins></b></summary>
@@ -116,23 +131,6 @@ bash env_check.sh ##optional
 ```
 
 </details>
-
-
-## Installation
-
-#### Clone repository:
-```bash
-git clone https://github.com/PaoyangLab/PeTEM.git
-cd PeTEM
-```
-
-#### Download example data:
-```bash
-wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.1/PeTEM_data.tar.gz
-tar -xzvf PeTEM_data.tar.gz
-```
-
-
 
 ## Input Files
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
