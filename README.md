@@ -127,10 +127,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 
 
-`genomic.gff` <details>
-<summary>
-</summary>
-
+`genomic.gff`
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
 |---|---|---|---|---|---|---|---|---|
 | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
@@ -139,9 +136,6 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
 | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
 | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
-
-</details>
-
 
 <details>
 <summary><b><ins>Sources of commonly used genome annotations</ins></b></summary>
