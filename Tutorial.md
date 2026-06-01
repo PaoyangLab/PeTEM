@@ -52,6 +52,12 @@ mkdir -p ./example/module{0..5}
 ├── module4/ <br>
 └── module5/ <br>
 
+### Set up execution permission
+> Before running PeTEM, ensure the executable file has the proper execution permission:
+```bash
+chmod +x ./petem
+```
+
 
 ### Module 0: Preprocessing
 ```
@@ -66,9 +72,9 @@ mkdir -p ./example/module{0..5}
      ./PeTEM_data/leaf_02.CGmap.gz \
      ./PeTEM_data/root_01.CGmap.gz \
      ./PeTEM_data/root_02.CGmap.gz \
-  -up 1500 \ ## optional
-  -dn 500 \ ## optional
-  -o ./example/module0 ## optional
+  -up 1500 \
+  -dn 500 \
+  -o ./example/module0 
 ```
 
 * __Outputs:__
