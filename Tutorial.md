@@ -40,9 +40,10 @@ tar -xzvf PeTEM_data.tar.gz
 | `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap files         |
 
 ## Set up environment 
-> Here we use local setup as example. **Docker image** and **Conda setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
+> Here we use Conda setup as example. **Docker image** and **Local setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
 ```bash
-bash setup.sh
+conda env create -f environment.yml
+conda activate petem
 bash env_check.sh ##optional
 ```
 
