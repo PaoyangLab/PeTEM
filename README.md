@@ -72,7 +72,9 @@ bash env_check.sh ##optional
 <details>
 <summary><b><ins>Local setup</ins></b></summary>
 <br>
+
 Run the helper script to install required system tools, Python packages, and R libraries (Ubuntu/Debian):
+
 > The script uses apt-get, pip3 --user, and Rscript to install dependencies, then runs bash env_check.sh. If apt-get is not available the script prints the package list to install manually
 
 ```bash
@@ -83,6 +85,14 @@ bash env_check.sh ##optional
 </details>
 
 #### Details of required environment and packages
+
+<details>
+<summary><b><ins>Runtime dependencies</ins></b></summary>
+- Bash
+- Perl
+- gzip / gunzip
+- awk / sort / uniq
+</details>
 
 <details>
 <summary><b><ins>R version ≥ 4.2</ins></b></summary>
