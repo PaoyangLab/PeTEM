@@ -170,7 +170,7 @@ Use the example files in PeTEM_data:
   | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson's or Spearman's correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
 
 * __Figures:__
-<img width="1127" height="1627" alt="image" src="https://github.com/user-attachments/assets/2136dedd-7ed7-4b49-b92f-75ea6f5db303" />
+<img width="986" height="1627" alt="image" src="https://github.com/user-attachments/assets/a616c5cf-d428-468d-817c-aed9b43a25e4" />
 
 
 
