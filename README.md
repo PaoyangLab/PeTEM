@@ -34,7 +34,7 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 * awk / sort / uniq
 
 #### Environment setup
-We provide three alternative methods for setting up the environment [here](#set-up-environment).
+We provide three alternative methods for setting up the environment [here](#set-up-environment). <br>
 The following sections list the software packages and tools used in PeTEM.
 
 <details>
