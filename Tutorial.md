@@ -56,6 +56,8 @@ mkdir -p ./example/module{0..5}
 > Before running PeTEM, ensure the executable file has the proper execution permission:
 ```bash
 chmod +x ./petem
+chmod +x ./wigToBigWig
+chmod +x ./bigWigAverageOverBed
 ```
 
 
