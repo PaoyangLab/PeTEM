@@ -84,7 +84,7 @@ cd PeTEM
 
 ### Download example data:
 ```bash
-wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.1/PeTEM_data.tar.gz
+wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
 tar -xzvf PeTEM_data.tar.gz
 ```
 
