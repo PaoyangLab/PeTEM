@@ -105,8 +105,8 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
   
-  <img width="450" height="400" alt="OUTPUT_1_TE_distribution_enrichment" src="https://github.com/user-attachments/assets/f8779d6d-9968-4753-ae9a-3a1dc160a27b" />
-  <img width="450" height="400" alt="OUTPUT_1_TE_distribution_percentage" src="https://github.com/user-attachments/assets/77b5a5d5-0ce4-4de4-8a11-562bbc03f973" />
+  <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/640d4216-d9a0-481b-bb36-f90440d6759f" />
+
 
 ## Module 2: Enriched promoter-embedded TE Families
 After selecting modules, you will be prompted to provide paths to necessary files.
