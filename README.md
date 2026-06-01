@@ -3,12 +3,10 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 
 <img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
-<br><br>
 
 ## Tutorial
 Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
-<br>
 
 ## Table of Contents
 
@@ -26,7 +24,6 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   - [Module 4. Correlation Between Methylation and Expression](#module-4-correlation-between-methylation-and-expression)
   - [Module 5. Associated TE and Gene Pairs](#module-5-associated-te-and-gene-pairs)
 
-<br>
 
 ## System requirements
 
@@ -77,7 +74,6 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     </details>
 
-<br>
 
 ## Installation
 
@@ -116,7 +112,6 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
       bash setup.sh
       bash env_check.sh ##optional
       ```
-<br>
 
 ## Input Files
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
@@ -212,7 +207,6 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   | AT1G01020 | 0 | 0 | 0 | 1 | 1 |
   | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
-<br>
 
 ## Pipeline Modules
 Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
