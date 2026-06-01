@@ -81,13 +81,13 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   cd PeTEM
   ```
   
-  - **Download example data **
+  - **Download example data**
   ```bash
   wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
   tar -xzvf PeTEM_data.tar.gz
   ```
 
-  - **Set up environment **
+  - **Set up environment**
 
     * Docker image
       > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
