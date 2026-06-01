@@ -42,7 +42,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 
 <details>
-<summary><b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
+<summary> 👉 <b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
   
   * optparse
   * dplyr
@@ -62,14 +62,14 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 </details>
 
 <details>
-<summary><b><ins>Python version ≥ 3.8 (tested on 3.8.10)</ins></b></summary>
+<summary> 👉 <b><ins>Python version ≥ 3.8 (tested on 3.8.10)</ins></b></summary>
   
   * pandas (≥ 1.2.4)
 
 </details>
 
 <details>
-<summary><b><ins>Bioinformatics tools</ins></b></summary>
+<summary> 👉 <b><ins>Bioinformatics tools</ins></b></summary>
   
   *	samtools (tested on 1.10)
   *	bedtools (tested on v2.27.1)
@@ -147,7 +147,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
 
 <details>
-<summary><b><ins>Sources of commonly used genome annotations</ins></b></summary>
+<summary> 👉 <b><ins>Sources of commonly used genome annotations</ins></b></summary>
    
 * Animals:
    * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
