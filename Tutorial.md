@@ -9,6 +9,7 @@ This tutorial explains how to run the PeTEM pipeline using the example files.
 - [Set up environment](#set-up-environment)
 - [Create example output directories](#create-example-output-directories)
 - [Set up execution permission](#set-up-execution-permission)
+
 **Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
 - [Module 0: Preprocessing](#module-0-preprocessing)
 - [Module 1: TE Distribution](#module-1-te-distribution)
