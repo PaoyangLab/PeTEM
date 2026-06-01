@@ -23,11 +23,12 @@ cd PeTEM
 ```
 
 ## Download example data
-> This command will download and set up a directory `PeTEM_data` including 9 files.
 ```bash
 wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
 tar -xzvf PeTEM_data.tar.gz
 ```
+
+> This command will download and set up a directory `PeTEM_data` including 9 files.
 
 | File                                                                           | Description                     |
 | ------------------------------------------------------------------------------ | ------------------------------- |
