@@ -154,7 +154,8 @@ Use the example files in PeTEM_data:
   | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
    
 * __Figures:__
-  <img width="5000" height="2000" alt="OUTPUT_3_TE_impact_distance_leaf_CHG" src="https://github.com/user-attachments/assets/681277e8-3973-4988-a120-b93fec4de4c6" />
+
+  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/fb4a54fe-f946-4a44-92eb-ae33dd9a487e" />
 
 
 ## Module 4. Correlation between methylation and expression
