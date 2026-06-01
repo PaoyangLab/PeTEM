@@ -167,50 +167,50 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | ChrC | 154478 | 120654981 | 79 | 80 |
     | ChrM | 367808 | 120811562 | 70 | 71 |
 
-  - Transposable element coordinates 
-    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
-    
-    `TE.txt`
-    | TE name | chromosome | start | end | score | strand | TE family |
-    |---|---|---|---|---|---|---|
-    | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
-    | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
-    | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
-    | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
+- Transposable element coordinates 
+  > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+  
+  `TE.txt`
+  | TE name | chromosome | start | end | score | strand | TE family |
+  |---|---|---|---|---|---|---|
+  | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
+  | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
+  | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
+  | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
 
-  - **Methylation Data**
-    > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
-    
-    `*.CGmap.gz files`
-    | chromosome | nucleotide | site | context | dinucleotide | methylation level | C site | C+T site |
-    |---|---|---|---|---|---|---|---|
-    | Chr3 | C | 556 | CG | CG | 0.877551 | 43 | 49 |
-    | Chr3 | G | 557 | CG | CG | 0.787879 | 26 | 33 |
-    | Chr3 | G | 558 | CHG | CC | 0.405405 | 15 | 37 |
-    | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
+- **Methylation Data**
+  > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
+  
+  `*.CGmap.gz files`
+  | chromosome | nucleotide | site | context | dinucleotide | methylation level | C site | C+T site |
+  |---|---|---|---|---|---|---|---|
+  | Chr3 | C | 556 | CG | CG | 0.877551 | 43 | 49 |
+  | Chr3 | G | 557 | CG | CG | 0.787879 | 26 | 33 |
+  | Chr3 | G | 558 | CHG | CC | 0.405405 | 15 | 37 |
+  | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
 
 
-  - **Expression Data**
-    > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
-    
-    > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
-    
-    > The column names should be arranged by: **conditions names** ("root", "leaf"), **logFC_condition1_condition2** ("logFC_root_leaf"), **PValue_condition1_condition2** ("PValue_root_leaf"), **FDR_condition1_condition2** ("FDR_root_leaf"), logFC_condition2_condition3, ... etc.
-    
-    `gene_expression.txt`
-    |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
-    |---|---|---|---|---|---|
-    | AT1G01010 | 11.64 | 10.93 | 0.09 | 0.60 | 1 |
-    | AT1G01020 | 6.39 | 5.95 | 0.10 | 0.62 | 1 |
-    | AT1G01030 | 0.65 | 1.01 | -0.63 | 0.19 | 0.84 |
-    
-    `TE_expression.txt`
-    |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
-    |---|---|---|---|---|---|
-    | AT1G01010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
-    | AT1G01020 | 0 | 0 | 0 | 1 | 1 |
-    | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
+- **Expression Data**
+  > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
+  
+  > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+  
+  > The column names should be arranged by: **conditions names** ("root", "leaf"), **logFC_condition1_condition2** ("logFC_root_leaf"), **PValue_condition1_condition2** ("PValue_root_leaf"), **FDR_condition1_condition2** ("FDR_root_leaf"), logFC_condition2_condition3, ... etc.
+  
+  `gene_expression.txt`
+  |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
+  |---|---|---|---|---|---|
+  | AT1G01010 | 11.64 | 10.93 | 0.09 | 0.60 | 1 |
+  | AT1G01020 | 6.39 | 5.95 | 0.10 | 0.62 | 1 |
+  | AT1G01030 | 0.65 | 1.01 | -0.63 | 0.19 | 0.84 |
+  
+  `TE_expression.txt`
+  |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
+  |---|---|---|---|---|---|
+  | AT1G01010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
+  | AT1G01020 | 0 | 0 | 0 | 1 | 1 |
+  | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
 <br>
 
