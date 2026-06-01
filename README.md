@@ -141,6 +141,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
     <details>
     <summary> 👉 <b><ins>Sources of commonly used genome annotations</ins></b></summary>
+    
     * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
        * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
@@ -153,6 +154,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
        * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
     * Fungi
        * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    
     </details>
 
   - Gene annotation file (FASTA index) 
