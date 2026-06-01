@@ -58,7 +58,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b>Python version ≥ 3.8 (tested on 3.8.10)</b></summary>
-    <b> </b> 
+    <br> 
       
     * pandas (≥ 1.2.4)
   
@@ -66,7 +66,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b>Bioinformatics tools</b></summary>
-    <b> </b> 
+    <br> 
       
     *	samtools (tested on 1.10)
     *	bedtools (tested on v2.27.1)
@@ -136,7 +136,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   
     <details>
     <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
-    <b> </b> 
+    <br>
       
     * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
