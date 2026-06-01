@@ -125,9 +125,12 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 #### General features annotations file (GFF3 format) 
 > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
 
-`genomic.gff`
+
 
 <details>
+<summary>
+`genomic.gff`
+</summary>
 
 | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
 |---|---|---|---|---|---|---|---|---|
