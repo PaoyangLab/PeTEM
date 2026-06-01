@@ -90,7 +90,7 @@ chmod +x ./petem
 ```
 ## Run module 1
 ./petem --1 \
-  --manifest PETEM_MODULE0_MANIFEST.json \
+  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
   -o ./example/module1
 ```
 
@@ -111,7 +111,7 @@ Use the example files in PeTEM_data:
 ```
 ## Run module 2
 ./petem --2 \
-  --manifest PETEM_MODULE0_MANIFEST.json \
+  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
   -o ./example/module2
 ```
 
@@ -129,7 +129,7 @@ Use the example files in PeTEM_data:
 ```
 ## Run module 3
 ./petem --3 \
-  --manifest PETEM_MODULE0_MANIFEST.json \
+  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
   -o ./example/module3 \
   -d 10000 \ ## optional
   -p 10 \ ## optional
@@ -163,7 +163,7 @@ Use the example files in PeTEM_data:
 ```
 ## Run module 4
 ./petem --4 \
-  --manifest PETEM_MODULE0_MANIFEST.json \
+  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
   -o ./example/module4
 ```
 
@@ -183,7 +183,7 @@ Use the example files in PeTEM_data:
 ```
 ## Run module 5
 ./petem --5 \
-  --manifest PETEM_MODULE0_MANIFEST.json \
+  --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
   -stage root leaf \
   -o ./example/module5
 
