@@ -66,10 +66,9 @@ mkdir -p ./example/module{0..5}
      ./PeTEM_data/leaf_02.CGmap.gz \
      ./PeTEM_data/root_01.CGmap.gz \
      ./PeTEM_data/root_02.CGmap.gz \
-  ## optional \
-  -up 1500 \
-  -dn 500 \
-  -o ./example/module0
+  -up 1500 \ ## optional
+  -dn 500 \ ## optional
+  -o ./example/module0 ## optional
 ```
 
 * __Outputs:__
@@ -126,15 +125,14 @@ Use the example files in PeTEM_data:
 ./petem --3 \
   --manifest PETEM_MODULE0_MANIFEST.json \
   -o ./example/module3 \
-## optional \
-  -d 10000 \
-  -p 10 \
-  -w 100 \
-  -l raw \
-  -CI n \
-  -border y \
-  -unexp n \
-  -nTE n
+  -d 10000 \ ## optional
+  -p 10 \ ## optional
+  -w 100 \ ## optional
+  -l raw \ ## optional
+  -CI n \ ## optional
+  -border y \ ## optional
+  -unexp n \ ## optional
+  -nTE n ## optional
 ```
 
 * __Outputs:__
