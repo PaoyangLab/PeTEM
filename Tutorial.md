@@ -62,7 +62,7 @@ chmod +x ./bigWigAverageOverBed
 
 
 ### Module 0: Preprocessing
-* __Usage:__
+* __Command:__
 
   ```
   ## Run module 0
@@ -91,7 +91,7 @@ chmod +x ./bigWigAverageOverBed
   | `Tab_*.txt` | Tables containing CG, CHG, and CHH methylation levels for each TE, gene, and promoter region across all conditions. |
 
 ### Module 1: TE Distribution
-* __Usage:__
+* __Command:__
 
   ```
   ## Run module 1
@@ -113,7 +113,7 @@ chmod +x ./bigWigAverageOverBed
 
 
 ## Module 2: Enriched promoter-embedded TE Families
-* __Usage:__
+* __Command:__
 
   ```
   ## Run module 2
@@ -135,7 +135,7 @@ chmod +x ./bigWigAverageOverBed
 
 
 ## Module 3: TE methylation near gene
-* __Usage:__
+* __Command:__
 
   ```
   ## Run module 3
@@ -157,7 +157,7 @@ chmod +x ./bigWigAverageOverBed
 
 
 ## Module 4. Correlation between methylation and expression
-* __Usage:__
+* __Command:__
 
   ```
   ## Run module 4
@@ -180,7 +180,7 @@ chmod +x ./bigWigAverageOverBed
 
 
 ### Module 5. Associated TE and gene pairs
-* __Usage:__
+* __Command:__
 
   ```
   ## Run module 5
