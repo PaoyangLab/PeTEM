@@ -104,6 +104,7 @@ chmod +x ./bigWigAverageOverBed
   | `OUTPUT_1_TE_distribution_percentage.png` | Bar plot showing the percentage distribution of transposable elements across different genomic features. |
 
 * __Figures:__
+  
   <img width="450" height="400" alt="OUTPUT_1_TE_distribution_enrichment" src="https://github.com/user-attachments/assets/f8779d6d-9968-4753-ae9a-3a1dc160a27b" />
   <img width="450" height="400" alt="OUTPUT_1_TE_distribution_percentage" src="https://github.com/user-attachments/assets/77b5a5d5-0ce4-4de4-8a11-562bbc03f973" />
 
