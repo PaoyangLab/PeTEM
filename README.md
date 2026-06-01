@@ -31,10 +31,10 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 ## System requirements
 
   - **Runtime dependencies** 
-  * Bash
-  * Perl
-  * gzip / gunzip
-  * awk / sort / uniq
+    - Bash
+    - Perl
+    - gzip / gunzip
+    - awk / sort / uniq
 
   - **Environment setup**
   
