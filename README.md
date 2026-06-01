@@ -259,7 +259,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 > Analyze TE distribution across genomic features
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
-    * `promoter.bed`: generated automatically in Step 0
+    * `promoter.bed` (from Module 0)
 * __Outputs:__
     * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
 * __Usage:__
@@ -289,7 +289,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 2. Identify enriched promoter-embedded TE families
 > Identify enriched TE families overlapping with promoters
 * __Inputs:__
-    * `TE.txt`, `promoter.bed` (from Step 0)
+    * `TE.txt`
+    * `promoter.bed` (from Module 0)
 * __Outputs:__
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
 * __Usage:__
@@ -318,7 +319,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 3. Visualize TE methylation near gene
 > Visualize distance impact of TE methylation on gene expression
 * __Inputs:__
-    * `gene.bed`(from Step 0), `TE.txt`, `gene_expression.txt` and `TE_expression.txt`
+    * `TE.txt`, `gene_expression.txt`, `TE_expression.txt`
+    * `gene.bed`(from Module 0)
 * __Outputs:__
     * `OUTPUT_3_gene_TE_number.txt`, `OUTPUT_3_gene_proximal_TE_*.png`
     
@@ -371,7 +373,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 4. Calculate correlation coefficients
 > Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
-    * `gene_expression.txt` and `TE_expression.txt`
+    * `gene_expression.txt`, `TE_expression.txt`
 * __Outputs:__
     * `OUTPUT_4_geneexp/TEexp_*.png`, `OUTPUT_4_*_correlation_*.png`
 * __Usage:__
