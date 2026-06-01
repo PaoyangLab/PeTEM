@@ -131,14 +131,14 @@ Use the example files in PeTEM_data:
 ./petem --3 \
   --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
   -o ./example/module3 \
-  -d 10000 \ ## optional
-  -p 10 \ ## optional
-  -w 100 \ ## optional
-  -l raw \ ## optional
-  -CI n \ ## optional
-  -border y \ ## optional
-  -unexp n \ ## optional
-  -nTE n ## optional
+  -d 10000 \ 
+  -p 10 \ 
+  -w 100 \ 
+  -l raw \ 
+  -CI n \ 
+  -border y \ 
+  -unexp n \ 
+  -nTE n 
 ```
 
 * __Outputs:__
