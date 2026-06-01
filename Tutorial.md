@@ -4,11 +4,11 @@ This tutorial explains how to run the PeTEM pipeline using the example files.
 ## Table of Contents
 
 **Setup**
-- [Clone repository](#clone-repository)
-- [Download example data](#download-example-data)
-- [Set up environment](#set-up-environment)
-- [Create example output directories](#create-example-output-directories)
-- [Set up execution permission](#set-up-execution-permission)
+1. [Clone repository](#clone-repository)
+2. [Download example data](#download-example-data)
+3. [Set up environment](#set-up-environment)
+4. [Create example output directories](#create-example-output-directories)
+5. [Set up execution permission](#set-up-execution-permission)
 
 **Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
 - [Module 0: Preprocessing](#module-0-preprocessing)
