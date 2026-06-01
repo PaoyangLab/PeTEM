@@ -227,14 +227,15 @@ Users must run module 0 at the first time to preprocess the input files before r
 * __Parameters:__ 
   * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS.
   ```
+  ## Run module 0
   ./petem --0 \ # add cml version
-  -g /path/to/annotation.gff3 \
-  -t /path/to/TE.bed \
-  -eg /path/to/gene_expression.txt \
-  -et /path/to/TE_expression.txt \
-  -f /path/to/genome.fa.fai \ # automatically generate gene, promoter, IGR … bed files
-  -m /path/to/sample1.CGmap.gz /path/to/sample2.CGmap.gz ... \
-  -o /path/to/module0_output
+    -g /path/to/annotation.gff3 \
+    -t /path/to/TE.bed \
+    -eg /path/to/gene_expression.txt \
+    -et /path/to/TE_expression.txt \
+    -f /path/to/genome.fa.fai \ # automatically generate gene, promoter, IGR … bed files
+    -m /path/to/sample1.CGmap.gz /path/to/sample2.CGmap.gz ... \
+    -o /path/to/module0_output
   ```
 
 ### Module 1. TE Distribution
@@ -246,6 +247,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
 * __Parameters:__ 
   ```
+  ## Run module 1
   ./petem --1 \  ## or petem 0_preprocessing
     -g /path/to/module0_output/tmp/module_0_annotation \
     -t /path/to/TE.bed \
@@ -261,6 +263,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
 * __Parameters:__ 
   ```
+  ## Run module 2
   ./petem --2 \
     -t /path/to/TE.bed \
     -T /path/to/TE_family.txt \
@@ -289,6 +292,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     *	__Point__: To show the points representing the methylation level of each TE site on the plot or not. (Default: `yes`)
     
   ```
+  ## Run module 3
   ./petem --3 \
     -g /path/to/module0_output/tmp/module_0_annotation \
     -t /path/to/TE.bed \
@@ -299,7 +303,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     -d 4000 \
     -p 10 \
     -w 100 \
-    -nTE y \ ## control yes
+    -c y \ ## control yes
     -l poly ## control yes
   ``` 
 
@@ -318,7 +322,7 @@ Users must run module 0 at the first time to preprocess the input files before r
         * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `40`)
         * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `80`)
   ```
-  # to be revised
+  ## Run module 4
   ./petem --4 \
     -eg /path/to/gene_expression.txt \
     -et /path/to/TE_expression.txt \
@@ -337,10 +341,11 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 * __Parameters:__ 
   ```
-  # to be revised
+  ## Run module 5
   ./petem --5 \
     --DEG /path/to/DEG.txt \
     --DETE /path/to/DETE.txt \
     --module0-dir /path/to/module0_output \
     -o /path/to/module5_output
+
   ``` 
