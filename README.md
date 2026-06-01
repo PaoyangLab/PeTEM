@@ -22,7 +22,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   - [Module 5. Associated TE and Gene Pairs](#module-5-associated-te-and-gene-pairs)
 
 
-## System requirements
+## System Requirements
 
   - **Runtime dependencies** 
     - Bash
