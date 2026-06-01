@@ -250,6 +250,7 @@ limit=""
 tick=""
 window=""
 wd_num=""
+smooth=""
 ylim_cg=""
 ylim_chg=""
 ylim_chh=""
@@ -345,7 +346,8 @@ fi
 
 # Module 4 parameters
 if [[ "$run4" == "y" ]]; then
-  ask_with_default wd_num "Window number (default 156): " 156
+  ask_with_default wd_num "Window step number (default 100): " 100
+  ask_with_default smooth "Sliding window smooth multiplier (1-5, default 3): " 3
   ask_with_default ylim_cg "y-axis limit gene exp vs TE/promoter mC (CG, default 50): " 50
   ask_with_default ylim_chg "y-axis limit gene exp vs TE/promoter mC (CHG, default 10): " 10
   ask_with_default ylim_chh "y-axis limit gene exp vs TE/promoter mC (CHH, default 10): " 10
@@ -407,7 +409,7 @@ if [[ "$run4" == "y" ]]; then
   (
     mkdir -p "$module4_dir"
     cd "$module4_dir"
-    Rscript "$SCRIPT_DIR/4_single_condition_correlation.R" --eg "$gene_exp" --et "$te_exp" --module0-dir "$module0_dir" --outdir "$module4_dir" --unexp "$unexp" --wd_num "$wd_num" --ylim_CG "$ylim_cg" --ylim_CHG "$ylim_chg" --ylim_CHH "$ylim_chh" --ylim_TEexpTEmC_CH "$ylim_te_ch" --ylim_TEexpTEmC_CG "$ylim_te_cg"
+    Rscript "$SCRIPT_DIR/4_single_condition_correlation.R" --eg "$gene_exp" --et "$te_exp" --module0-dir "$module0_dir" --outdir "$module4_dir" --unexp "$unexp" --wd_num "$wd_num" --smooth "$smooth" --ylim_CG "$ylim_cg" --ylim_CHG "$ylim_chg" --ylim_CHH "$ylim_chh" --ylim_TEexpTEmC_CH "$ylim_te_ch" --ylim_TEexpTEmC_CG "$ylim_te_cg"
   )
 fi
 

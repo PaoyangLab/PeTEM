@@ -89,7 +89,7 @@ extract_gene_names <- function(attr_vec) {
 
 extract_feature_names <- function(attr_vec, fallback_prefix) {
   values <- normalize_attr_values(
-    extract_attr_vector(attr_vec, c("gene_id", "gene", "Name", "locus_tag", "Parent", "transcript_id", "ID")),
+    extract_attr_vector(attr_vec, c("gene_id", "gene", "Parent", "transcript_id", "locus_tag", "Name", "ID")),
     remove_transcript_suffix = TRUE
   )
   missing <- is.na(values) | values == ""
@@ -188,6 +188,15 @@ for (output_name in names(feature_map)) {
   }
 
   feature_names <- extract_feature_names(rows$attributes, tolower(output_name))
+  if (tolower(opt$`protein-coding-only`) == "y") {
+    keep <- feature_names %in% gene_bed$name
+    rows <- rows[keep, , drop = FALSE]
+    feature_names <- feature_names[keep]
+    if (nrow(rows) == 0) {
+      message(sprintf("[INFO] No protein-coding rows retained for %s; skipping %s.bed", paste(feature_types, collapse = ", "), output_name))
+      next
+    }
+  }
   write_bed(to_bed6(rows, feature_names), sprintf("%s.bed", output_name))
 }
 
