@@ -1,5 +1,5 @@
 # Tutorial
-> This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/yc811/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
+> This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/PaoyangLab/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
 
 **Setup**
 1. [Clone repository](#clone-repository)
