@@ -8,7 +8,7 @@ PeTEM is designed to analyse the association between promoter-embedded TE methyl
 - [Tutorial](#tutorial)
 - [Installation](#installation)
 - [System Requirements](#system-requirements)
-  - [Set up environment](#set-up-environment-through-one-of-following-methods)
+  - [Set up environment](#set-up-environment)
   - [Required packages and tools](#details-of-required-environment-and-packages)
 - [Input Files](#input-files)
   - [Genome Annotation](#genome-annotation)
@@ -33,7 +33,9 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 * gzip / gunzip
 * awk / sort / uniq
 
-#### Details of required environment and packages
+#### Environment setup
+We provide three alternative methods for setting up the environment [here](#set-up-environment).
+The following sections list the software packages and tools used in PeTEM.
 
 <details>
 <summary><b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
@@ -87,7 +89,7 @@ wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.1/PeTEM_data.tar
 tar -xzvf PeTEM_data.tar.gz
 ```
 
-#### Set up environment through one of following methods 
+#### Set up environment 
 <details>
 <summary><b><ins>Docker image</ins></b></summary>
 <br>
