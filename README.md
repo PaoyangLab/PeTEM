@@ -88,6 +88,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
     ```
 
   - **Set up environment**
+    > Choose **one** of the following installation methods to set up the PeTEM environment.
 
     * Docker image
       > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
