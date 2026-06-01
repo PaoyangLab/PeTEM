@@ -36,7 +36,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
     > In [installation](#installation) section, we provide three alternative methods for setting up the environment.
   
     <details>
-    <summary> 👉 <b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
+    <summary> 👉 <b>R version ≥ 4.2 (tested on 4.3.2)</b></summary>
     
     * optparse
     * dplyr
@@ -56,14 +56,14 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
     </details>
   
     <details>
-    <summary> 👉 <b><ins>Python version ≥ 3.8 (tested on 3.8.10)</ins></b></summary>
+    <summary> 👉 <b>Python version ≥ 3.8 (tested on 3.8.10)</b></summary>
     
     * pandas (≥ 1.2.4)
   
     </details>
   
     <details>
-    <summary> 👉 <b><ins>Bioinformatics tools</ins></b></summary>
+    <summary> 👉 <b>Bioinformatics tools</b></summary>
     
     *	samtools (tested on 1.10)
     *	bedtools (tested on v2.27.1)
