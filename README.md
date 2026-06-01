@@ -42,6 +42,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
+
     * optparse
     * dplyr
     * tidyr
@@ -56,19 +57,24 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
     * RColorBrewer
     * viridis
     * rlang
+
     </details>
   
     <details>
     <summary> 👉 <b><ins>Python version ≥ 3.8 (tested on 3.8.10)</ins></b></summary>
+
     * pandas (≥ 1.2.4)
+  
     </details>
   
     <details>
     <summary> 👉 <b><ins>Bioinformatics tools</ins></b></summary>
+
     *	samtools (tested on 1.10)
     *	bedtools (tested on v2.27.1)
     *	wigToBigWig (bundled in this repository)
     *	bigWigAverageOverBed (bundled in this repository)
+  
     </details>
 
 <br>
@@ -117,7 +123,7 @@ PeTEM integrates inputs data including [genome annotations](#genome-annotation),
 In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 - **Genome Annotation**
-  
+
   - General features annotations file (GFF3 format) 
   > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
 
