@@ -90,27 +90,27 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   - **Set up environment**
     > Choose **one** of the following installation methods to set up the PeTEM environment.
 
-    ** Docker image**
-    > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
-    ```bash
-    docker build -t petem:local .
-    docker run --rm petem:local --help
-    ```
+    - **Docker image**
+      > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
+      ```bash
+      docker build -t petem:local .
+      docker run --rm petem:local --help
+      ```
   
-    ** Conda setup**
-    > Use the checked-in environment definition:
-    ```bash
-    conda env create -f environment.yml
-    conda activate petem
-    bash env_check.sh ##optional
-    ```
+    - **Conda setup**
+      > Use the checked-in environment definition:
+      ```bash
+      conda env create -f environment.yml
+      conda activate petem
+      bash env_check.sh ##optional
+      ```
   
-    ** Local setup**
-    > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
-    ```bash
-    bash setup.sh
-    bash env_check.sh ##optional
-    ```
+    - **Local setup**
+      > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
+      ```bash
+      bash setup.sh
+      bash env_check.sh ##optional
+      ```
 
 ## Input Files
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
@@ -118,61 +118,61 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 - **Genome Annotation**
 
-  **General features annotations file (GFF3 format)** 
-  > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
-
-  `genomic.gff`
-  | seqid | source | type | start | end | score | strand | phase | attributes |
-  |---|---|---|---|---|---|---|---|---|
-  | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
-  | Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
-  | Chr1 | Araport11 | CDS | 3760 | 3913 | . | + | 0 | ID=AT1G01010:CDS:1;Parent=AT1G01010.1 |
-  | Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
-  | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
-  | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
-
-  <details>
-  <summary> 👉 <b><ins>Sources of commonly used genome annotations</ins></b></summary>
+  - **General features annotations file (GFF3 format)** 
+    > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
   
-  * Animals:
-     * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
-     * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
-     * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
-     * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
-  * Plants:
-     * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
-     * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
-     * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
-     * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
-  * Fungi
-     * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    `genomic.gff`
+    | seqid | source | type | start | end | score | strand | phase | attributes |
+    |---|---|---|---|---|---|---|---|---|
+    | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
+    | Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
+    | Chr1 | Araport11 | CDS | 3760 | 3913 | . | + | 0 | ID=AT1G01010:CDS:1;Parent=AT1G01010.1 |
+    | Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
+    | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
+    | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
   
-  </details>
+    <details>
+    <summary> 👉 <b><ins>Sources of commonly used genome annotations</ins></b></summary>
+    
+    * Animals:
+       * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
+       * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
+       * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
+       * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
+    * Plants:
+       * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
+       * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
+       * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
+       * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
+    * Fungi
+       * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    
+    </details>
 
-  **Genome index file (FASTA index)** 
-  > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
-  
-  `genome.fa.fai`
-  | name | length | offset | linebases | linewidth |
-  |---|---|---|---|---|
-  | Chr1 | 30427671 | 74 | 79 | 80 |
-  | Chr2 | 19698289 | 30812981 | 79 | 80 |
-  | Chr3 | 23459830 | 50760691 | 79 | 80 |
-  | Chr4 | 18585056 | 74517556 | 79 | 80 |
-  | Chr5 | 26975502 | 93337941 | 79 | 80 |
-  | ChrC | 154478 | 120654981 | 79 | 80 |
-  | ChrM | 367808 | 120811562 | 70 | 71 |
+  - **Genome index file (FASTA index)** 
+    > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
+    
+    `genome.fa.fai`
+    | name | length | offset | linebases | linewidth |
+    |---|---|---|---|---|
+    | Chr1 | 30427671 | 74 | 79 | 80 |
+    | Chr2 | 19698289 | 30812981 | 79 | 80 |
+    | Chr3 | 23459830 | 50760691 | 79 | 80 |
+    | Chr4 | 18585056 | 74517556 | 79 | 80 |
+    | Chr5 | 26975502 | 93337941 | 79 | 80 |
+    | ChrC | 154478 | 120654981 | 79 | 80 |
+    | ChrM | 367808 | 120811562 | 70 | 71 |
 
-  **Transposable element coordinates** 
-  > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
-  
-  `TE.txt`
-  | TE name | chromosome | start | end | score | strand | TE family |
-  |---|---|---|---|---|---|---|
-  | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
-  | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
-  | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
-  | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
+  - **Transposable element coordinates** 
+    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+    
+    `TE.txt`
+    | TE name | chromosome | start | end | score | strand | TE family |
+    |---|---|---|---|---|---|---|
+    | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
+    | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
+    | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
+    | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
 - **Methylation Data**
   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
