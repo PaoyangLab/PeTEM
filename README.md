@@ -1,7 +1,7 @@
 # Promoter-embedded TE Methylation (PeTEM) analyzer
 PeTEM is designed to analyse the association between promoter-embedded TE methylation and neighbouring gene expression. It integrates genome annotations with methylome and transcriptome data, enabling users to evaluate the genome-wide correlations between TE methylation and gene expression, and identify specific TE and gene pairs with associated methylation and expression changes across different conditions (such as stages, treatments, or phenotypes).
 
-<img width="865" height="439" alt="image" src="https://github.com/user-attachments/assets/56516953-0937-4c9c-951f-f474a6b0ee67" />
+<img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
 <br>
 
@@ -226,7 +226,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 ## Pipeline Modules
 Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
 
-<img width="865" height="638" alt="image" src="https://github.com/user-attachments/assets/6cafee51-1022-412e-b2e1-ab7e3cb1a213" />
+<img width="1738" height="1215" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
 
 
 ### Module 0. Preprocessing
