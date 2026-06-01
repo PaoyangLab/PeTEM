@@ -128,7 +128,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
   
     `genomic.gff`
-    | sequence ID | source | feature type | feature start | feature end | score | strand | phase | attributes |
+    | seqid | source | type | start | end | score | strand | phase | attributes |
     |---|---|---|---|---|---|---|---|---|
     | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
     | Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
@@ -155,7 +155,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     
     </details>
 
-  - Gene annotation file (FASTA index) 
+  - Genome index file (FASTA index) 
     > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
     
     `genome.fa.fai`
