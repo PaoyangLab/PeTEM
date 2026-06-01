@@ -387,7 +387,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   |---|---|
   | `--manifest`  | Use manifest from module 0 to simplify input path |
   | `-o` | Output directory for module 4 results. |
-
+  | `--smooth` | Adjust the degree of curve smoothing. Values range from `1` to `5`; `1` preserves the original curve shape (no smoothing), while `5` produces the smoothest curve. Default: `3`.|
 
 #### Module 5. Identify associated TE and gene pairs
 > Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
@@ -417,4 +417,5 @@ Users must run module 0 at the first time to preprocess the input files before r
   |---|---|
   | `--manifest`  | Use manifest from module 0 to simplify input path |
   | `-o` | Output directory for module 5 results. |
+  | `--positive` | Specify the correlation direction to analyze. Set to `yes` for positive correlation analysis or `no` for negative correlation analysis. Default: `yes`.|
 
