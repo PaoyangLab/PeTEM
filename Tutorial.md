@@ -127,7 +127,7 @@ Use the example files in PeTEM_data:
 
 * __Figure:__
 
-  <img width="1127" height="631" alt="image" src="https://github.com/user-attachments/assets/adb3858a-3b63-43a1-ae5b-19fea5d48f16" />
+  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/1ac50d9c-8c72-4abd-9d1a-3f1ccf73b4b3" />
 
 
 ## Module 3: TE methylation near gene
