@@ -150,7 +150,7 @@ Use the example files in PeTEM_data:
   | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, together with the numbers of highly and lowly expressed genes included in each analysis. |
   | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
    
-* __Figure:__
+* __Figures:__
 <img width="5000" height="2000" alt="OUTPUT_3_TE_impact_distance_leaf_CHG" src="https://github.com/user-attachments/assets/681277e8-3973-4988-a120-b93fec4de4c6" />
 
 
@@ -192,5 +192,29 @@ Use the example files in PeTEM_data:
   | `OUTPUT_5_Q2/4_boxplot_*.png` | Box plots showing expression and methylation changes of negatively correlated TE–gene pairs identified between two conditions. |
   | `OUTPUT_5_Q2/4_*.txt` | Tables containing the lists of negatively correlated TE–gene pairs identified in the analysis. |
 
-* __Figure:__
+* __Figures:__
 <img width="1000" height="1200" alt="image" src="https://github.com/user-attachments/assets/16a561ce-394a-4140-8461-3143843945dc" />
+
+* __Tables:__
+
+`OUTPUT_5_Q2_gene_TE_pairs_CG_root_leaf.txt`
+| gene_id | TE_id |
+|----------|----------|
+| AT1G63055 | AT1TE77010 |
+| AT1G63057 | AT1TE77010 |
+| AT3G47965 | AT3TE71740 |
+| AT5G28660 | AT5TE38885 |
+
+`OUTPUT_5_Q4_gene_TE_pairs_CG_root_leaf.txt`
+| gene_id | TE_id |
+|----------|----------|
+| AT1G07135 | AT1TE07165 |
+| AT1G32880 | AT1TE38580 |
+| AT1G61340 | AT1TE74615 |
+| AT3G25820 | AT3TE39395 |
+| AT3G27710 | AT3TE42655 |
+| AT3G44260 | AT3TE64560 |
+| AT3G50800 | AT3TE76570 |
+| AT3G58860 | AT3TE88640 |
+| AT4G04840 | AT4TE11400 |
+| AT5G47440 | AT5TE69240 |
