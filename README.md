@@ -86,13 +86,11 @@ bash env_check.sh ##optional
 
 #### Details of required environment and packages
 
-<details>
-<summary><b><ins>Runtime dependencies</ins></b></summary>
+##### Runtime dependencies
 - Bash
 - Perl
 - gzip / gunzip
 - awk / sort / uniq
-</details>
 
 <details>
 <summary><b><ins>R version ≥ 4.2</ins></b></summary>
