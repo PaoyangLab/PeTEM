@@ -118,7 +118,7 @@ tar -xzvf PeTEM_data.tar.gz
 
   #### Local setup
   
-  > The script uses apt-get, pip3 --user, and Rscript to install dependencies, then runs bash env_check.sh. If apt-get is not available the script prints the package list to install manually
+  > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
   
   ```bash
   bash setup.sh
