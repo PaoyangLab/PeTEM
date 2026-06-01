@@ -37,40 +37,42 @@ Please see the tutorial [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main
 
 <details>
 <summary><b><ins>R version ≥ 4.2</ins></b></summary>
-<br>
-(packages tested on 4.3.2)
-* optparse
-* dplyr
-* tidyr
-* zoo
-* reshape2
-* stringr
-* ggplot2
-* gplots
-* ggalluvial
-* ggpointdensity
-* ggbreak
-* RColorBrewer
-* viridis
-* rlang
+  <br>
+  
+  (packages tested on 4.3.2)
+  * optparse
+  * dplyr
+  * tidyr
+  * zoo
+  * reshape2
+  * stringr
+  * ggplot2
+  * gplots
+  * ggalluvial
+  * ggpointdensity
+  * ggbreak
+  * RColorBrewer
+  * viridis
+  * rlang
 
 </details>
 
 <details>
 <summary><b><ins>Python version ≥ 3.8</ins></b></summary>
-<br>
-(packages tested on 3.8.10)
-* pandas (≥ 1.2.4)
+  <br>
+  
+  (packages tested on 3.8.10)
+  * pandas (≥ 1.2.4)
 
 </details>
 
 <details>
 <summary><b><ins>Bioinformatics tools</ins></b></summary>
-   
-*	samtools (tested on 1.10)
-*	bedtools (tested on v2.27.1)
-*	wigToBigWig (bundled in this repository)
-*	bigWigAverageOverBed (bundled in this repository)
+  <br>
+  *	samtools (tested on 1.10)
+  *	bedtools (tested on v2.27.1)
+  *	wigToBigWig (bundled in this repository)
+  *	bigWigAverageOverBed (bundled in this repository)
 
 </details>
 
