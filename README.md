@@ -11,9 +11,13 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 ## Table of Contents
 
 [System Requirements](#system-requirements)
+
 [Installation](#installation)
+
 [Input Files](#input-files)
+
 [Pipeline Modules](#pipeline-modules)
+
 - [Module 0. Preprocessing](#module-0-preprocessing)
 - [Module 1. TE Distribution](#module-1-te-distribution)
 - [Module 2. Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families)
