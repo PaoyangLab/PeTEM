@@ -37,7 +37,8 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b>R version ≥ 4.2 (tested on 4.3.2)</b></summary>
-    
+    <b> </b> 
+      
     * optparse
     * dplyr
     * tidyr
@@ -57,14 +58,16 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
   
     <details>
     <summary> 👉 <b>Python version ≥ 3.8 (tested on 3.8.10)</b></summary>
-    
+    <b> </b> 
+      
     * pandas (≥ 1.2.4)
   
     </details>
   
     <details>
     <summary> 👉 <b>Bioinformatics tools</b></summary>
-    
+    <b> </b> 
+      
     *	samtools (tested on 1.10)
     *	bedtools (tested on v2.27.1)
     *	wigToBigWig (bundled in this repository)
@@ -132,8 +135,9 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
   
     <details>
-    <summary> 👉 <b><ins>Sources of commonly used genome annotations</ins></b></summary>
-    
+    <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
+    <b> </b> 
+      
     * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
        * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
