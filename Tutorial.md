@@ -193,4 +193,4 @@ Use the example files in PeTEM_data:
   | `OUTPUT_5_Q2/4_*.txt` | Tables containing the lists of negatively correlated TE–gene pairs identified in the analysis. |
 
 * __Figure:__
-<img width="1035" height="1670" alt="image" src="https://github.com/user-attachments/assets/78602725-3811-44e4-a107-26ab89c999de" />
+<img width="1000" height="1100" alt="image" src="https://github.com/user-attachments/assets/16a561ce-394a-4140-8461-3143843945dc" />
