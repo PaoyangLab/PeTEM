@@ -1,15 +1,13 @@
 # Tutorial
 This tutorial explains how to run the PeTEM pipeline using the example files.
 
-## Installation
-
-#### Clone repository
+## Clone repository
 ```bash
 git clone https://github.com/PaoyangLab/PeTEM.git
 cd PeTEM
 ```
 
-#### Download example data
+## Download example data
 > This command will download and set up a directory `PeTEM_data` including 9 files.
 ```bash
 wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
@@ -25,16 +23,14 @@ tar -xzvf PeTEM_data.tar.gz
 | `TE_expression.txt`                                                            | TE expression file              |
 | `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap files         |
 
-### Set up environment 
+## Set up environment 
 > Here we use local setup as example. **Docker image** and **Conda setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
 ```bash
 bash setup.sh
 bash env_check.sh ##optional
 ```
 
-## Running the pipeline
-
-#### Create example output directories
+## Create example output directories
 
 > Create the example output directory structure used throughout the tutorial:
 
@@ -52,7 +48,7 @@ mkdir -p ./example/module{0..5}
 ├── module4/ <br>
 └── module5/ <br>
 
-#### Set up execution permission
+## Set up execution permission
 > Before running PeTEM, ensure the executable file has the proper execution permission:
 ```bash
 chmod +x ./petem
@@ -61,7 +57,7 @@ chmod +x ./bigWigAverageOverBed
 ```
 
 
-#### Module 0: Preprocessing
+## Module 0: Preprocessing
 * __Command:__
 
   ```
@@ -90,7 +86,7 @@ chmod +x ./bigWigAverageOverBed
   | `TE_overlap_promoter.bed` | Genomic locations of promoter-embedded TEs and their associated neighbouring genes. |
   | `Tab_*.txt` | Tables containing CG, CHG, and CHH methylation levels for each TE, gene, and promoter region across all conditions. |
 
-#### Module 1: TE Distribution
+## Module 1: TE Distribution
 * __Command:__
 
   ```
@@ -112,7 +108,7 @@ chmod +x ./bigWigAverageOverBed
   <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/640d4216-d9a0-481b-bb36-f90440d6759f" />
 
 
-#### Module 2: Enriched promoter-embedded TE Families
+## Module 2: Enriched promoter-embedded TE Families
 * __Command:__
 
   ```
@@ -134,7 +130,7 @@ chmod +x ./bigWigAverageOverBed
   <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/1ac50d9c-8c72-4abd-9d1a-3f1ccf73b4b3" />
 
 
-#### Module 3: TE methylation near gene
+## Module 3: TE methylation near gene
 * __Command:__
 
   ```
@@ -156,7 +152,7 @@ chmod +x ./bigWigAverageOverBed
   <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/fb4a54fe-f946-4a44-92eb-ae33dd9a487e" />
 
 
-#### Module 4. Correlation between methylation and expression
+## Module 4. Correlation between methylation and expression
 * __Command:__
 
   ```
@@ -179,7 +175,7 @@ chmod +x ./bigWigAverageOverBed
 
 
 
-#### Module 5. Associated TE and gene pairs
+## Module 5. Associated TE and gene pairs
 * __Command:__
 
   ```
