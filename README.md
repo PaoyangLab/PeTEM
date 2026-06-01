@@ -359,10 +359,10 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-unexp` | To include TEs with zero expression across all samples in the analysis. Default: `no` |
   | `-nTE` | To show the methylation level of non transposon sites around genes. Default: `no` |
 
-> Methods for gene-proximal TE methylation:
-> - **Average methylation (`average`)**: Displays the average TE methylation level within each window (100 bp window size and 100 bp step size), with 95% confidence intervals and without individual TE methylation points.
-> - **Second-degree polynomial regression (`poly2`)**: Fits a quadratic regression curve with 95% confidence intervals and displays individual TE methylation points.
-> - **Local regression (`loess`)**: Fits a LOESS smoothing curve (span = 0.02) with 95% confidence intervals and displays individual TE methylation points.
+  > Methods for gene-proximal TE methylation:
+  > - **Average methylation (`average`)**: Displays the average TE methylation level within each window (100 bp window size and 100 bp step size), with 95% confidence intervals and without individual TE methylation points.
+  > - **Second-degree polynomial regression (`poly2`)**: Fits a quadratic regression curve with 95% confidence intervals and displays individual TE methylation points.
+  > - **Local regression (`loess`)**: Fits a LOESS smoothing curve (span = 0.02) with 95% confidence intervals and displays individual TE methylation points.
 
 
 #### Module 4. Calculate correlation coefficients
