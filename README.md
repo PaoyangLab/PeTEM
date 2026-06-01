@@ -226,20 +226,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
 * __Parameters:__ 
   * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS.
-  ```
-  ## Run module 0
-  ./petem --0 \ # add cml version
-    -g /path/to/annotation.gff3 \
-    -t /path/to/TE.bed \
-    -eg /path/to/gene_expression.txt \
-    -et /path/to/TE_expression.txt \
-    -f /path/to/genome.fa.fai \ # automatically generate gene, promoter, IGR … bed files
-    -m /path/to/sample1.CGmap.gz /path/to/sample2.CGmap.gz ... \
-    -o /path/to/module0_output
-  ```
-  
-**Usage:**
-
+* __Usage:__
 ```bash
 ./petem --0 \
   -g <ANNOTATION_GFF3> \
@@ -250,9 +237,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   -m <CGMAP_FILES> \
   -o <OUTPUT_DIR>
 ```
-
-**Options:**
-
+* __Options:__
 | Option | Description |
 |---|---|
 | `--0` | Run module 0. |
