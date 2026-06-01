@@ -122,6 +122,8 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
 In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
+<br>
+
 - **Genome Annotation**
 
   - General features annotations file (GFF3 format) 
@@ -167,17 +169,18 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | ChrC | 154478 | 120654981 | 79 | 80 |
     | ChrM | 367808 | 120811562 | 70 | 71 |
 
-- Transposable element coordinates 
-  > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
-  
-  `TE.txt`
-  | TE name | chromosome | start | end | score | strand | TE family |
-  |---|---|---|---|---|---|---|
-  | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
-  | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
-  | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
-  | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
+  - Transposable element coordinates 
+    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+    
+    `TE.txt`
+    | TE name | chromosome | start | end | score | strand | TE family |
+    |---|---|---|---|---|---|---|
+    | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
+    | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
+    | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
+    | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
+<br>
 
 - **Methylation Data**
   > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
@@ -190,6 +193,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   | Chr3 | G | 558 | CHG | CC | 0.405405 | 15 | 37 |
   | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
 
+<br>
 
 - **Expression Data**
   > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
