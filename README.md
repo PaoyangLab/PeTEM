@@ -86,7 +86,7 @@ bash env_check.sh ##optional
 
 #### Details of required environment and packages
 
-##### Runtime dependencies
+<b> Runtime dependencies </b>
 - Bash
 - Perl
 - gzip / gunzip
