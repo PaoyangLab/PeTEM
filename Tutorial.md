@@ -126,7 +126,9 @@ Use the example files in PeTEM_data:
   | `OUTPUT_2_Promoter_embedded_TE_family.txt` | Table containing enrichment statistics and proportions of promoter-embedded TE families. |
 
 * __Figure:__
-  <img width="3600" height="1760" alt="OUTPUT_2_Promoter_embedded_TE_family_enrichment" src="https://github.com/user-attachments/assets/64acd1ad-a862-46d1-a868-c57a7a5f03f9" />
+
+  <img width="1127" height="631" alt="image" src="https://github.com/user-attachments/assets/adb3858a-3b63-43a1-ae5b-19fea5d48f16" />
+
 
 ## Module 3: TE methylation near gene
 ```
