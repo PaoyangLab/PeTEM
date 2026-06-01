@@ -42,22 +42,22 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 
 <details>
-<summary>&nbsp;&nbsp;&nbsp;&nbsp;<b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
+<summary><b><ins>R version ≥ 4.2 (tested on 4.3.2)</ins></b></summary>
   
->  * optparse
->  * dplyr
->  * tidyr
->  * zoo
->  * reshape2
->  * stringr
->  * ggplot2
->  * gplots
->  * ggalluvial
->  * ggpointdensity
->  * ggbreak
->  * RColorBrewer
->  * viridis
->  * rlang
+  * optparse
+  * dplyr
+  * tidyr
+  * zoo
+  * reshape2
+  * stringr
+  * ggplot2
+  * gplots
+  * ggalluvial
+  * ggpointdensity
+  * ggbreak
+  * RColorBrewer
+  * viridis
+  * rlang
 
 </details>
 
@@ -373,11 +373,10 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-p` | The top/bottom X% of genes will be considered as the highly/lowly expressed genes. (Default: `10`, means top/bottom 10% of genes will be the highly/lowly expressed genes) |
   | `-w` | For choosing `average`. Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `100`) |
   | `-l` | There are several options to show the pattern of gene-proximal TE methylation, including (1) average TE methylation within each window, (2) linear regression line, (3) second-degree polynomial regression line, and (4) local regression line (`average`, `linear`, `poly2`, and `poly`) |
-  | `-c` | ... |
-  | `-cr` | ... |
-  | `-border` | ... |
-  | `-unexp` | ... |
-  | `-nTE` | ... |
+  | `-CI` | To show the 95% CI on the plot or not. Default: `no` |
+  | `-border` | To show the border that TE methylation near lowly expressed genes is significantly higher than that near highly expressed genes on the plot or not. Default: `no` |
+  | `-unexp` | To include TEs with zero expression across all samples in the analysis. Default: `no` |
+  | `-nTE` | To show the methylation level of non transposon sites around genes. Default: `no` |
 
 #### Module 4. Correlation between methylation and expression
 > Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
@@ -407,12 +406,6 @@ Users must run module 0 at the first time to preprocess the input files before r
   |---|---|
   | `--manifest`  | Use manifest from module 0 to simplify input path |
   | `-o` | Output directory for module 4 results. |
-  | `--window-number` | Number of sliding windows used to smooth the correlation curves. Default: `100`. |
-  | `--ylim_CG` | Maximum y-axis value for gene expression vs. TE/promoter CG methylation correlation plots. Default: `80`. |
-  | `--ylim_CHG` | Maximum y-axis value for gene expression vs. TE/promoter CHG methylation correlation plots. Default: `40`. |
-  | `--ylim_CHH` | Maximum y-axis value for gene expression vs. TE/promoter CHH methylation correlation plots. Default: `40`. |
-  | `--ylim_TEexpTEmC_CH` | Maximum y-axis value for TE expression vs. TE CHG/CHH methylation correlation plots. Default: `40`. |
-  | `--ylim_TEexpTEmC_CG` | Maximum y-axis value for TE expression vs. TE CG methylation correlation plots. Default: `80`. |
 
 
 #### Module 5. Associated TE and gene pairs
