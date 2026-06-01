@@ -217,7 +217,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 <img width="1197" height="837" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
 
 
-#### Module 0. Preprocessing
+### Module 0. Preprocessing
 > Generate promoter regions (`promoter.bed`) and integrate methylation and expression data
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
@@ -255,7 +255,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 0 results. |
 
 
-#### Module 1. Profile TE genomic distribution
+### Module 1. Profile TE genomic distribution
 > Analyze TE distribution across genomic features
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
@@ -286,7 +286,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
   
-#### Module 2. Identify enriched promoter-embedded TE families
+### Module 2. Identify enriched promoter-embedded TE families
 > Identify enriched TE families overlapping with promoters
 * __Inputs:__
     * `TE.txt`, `promoter.bed` (from Step 0)
@@ -315,7 +315,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 2 results. |
 
 
-#### Module 3. Visualize TE methylation near gene
+### Module 3. Visualize TE methylation near gene
 > Visualize distance impact of TE methylation on gene expression
 * __Inputs:__
     * `gene.bed`(from Step 0), `TE.txt`, `gene_expression.txt` and `TE_expression.txt`
@@ -368,7 +368,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   > - **Local regression (`loess`)**: Fits a LOESS smoothing curve (span = 0.02) with 95% confidence intervals and displays individual TE methylation points.
 
 
-#### Module 4. Calculate correlation coefficients
+### Module 4. Calculate correlation coefficients
 > Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
 * __Inputs:__
     * `gene_expression.txt` and `TE_expression.txt`
@@ -398,7 +398,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-o` | Output directory for module 4 results. |
   | `--smooth` | Adjust the degree of curve smoothing. Values range from `1` to `5`; `1` preserves the original curve shape (no smoothing), while `5` produces the smoothest curve. Default: `3`.|
 
-#### Module 5. Identify associated TE and gene pairs
+### Module 5. Identify associated TE and gene pairs
 > Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
