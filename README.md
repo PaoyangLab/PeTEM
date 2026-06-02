@@ -94,13 +94,6 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
   - **Set up environment**
     > Choose **one** of the following installation methods to set up the PeTEM environment.
-
-    - **Docker image**
-      > Inside the container the runner starts in `/data`. Mount any directory containing your BED, CGmap, and expression files to that path before launching the container.
-      ```bash
-      docker build -t petem:local .
-      docker run --rm petem:local --help
-      ```
   
     - **Conda setup**
       > Use the checked-in environment definition:
@@ -108,6 +101,12 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
       conda env create -f environment.yml
       conda activate petem
       bash env_check.sh ##optional
+      ```
+
+    - **Docker image**
+      ```bash
+      docker build -t petem:local .
+      docker run --rm petem:local --help
       ```
   
     - **Local setup**
