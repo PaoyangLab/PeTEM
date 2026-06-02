@@ -32,7 +32,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
   - **Environment setup**
   
-    > Following sections shows the required environment and packages. <br>
+    > Following sections shows the required environments and packages. <br>
     > In [installation](#installation) section, we provide three alternative methods for setting up the environment.
   
     <details>
