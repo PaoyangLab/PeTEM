@@ -197,11 +197,11 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
   
   > The column names should be arranged by: <br>
-  > &nbsp;**conditions names** ("root", "leaf"), <br>
-  > &nbsp;**logFC_condition1_condition2** ("logFC_root_leaf"), <br>
-  > &nbsp;**PValue_condition1_condition2** ("PValue_root_leaf"), <br>
-  > &nbsp;**FDR_condition1_condition2** ("FDR_root_leaf"), <br>
-  > &nbsp;logFC_condition2_condition3, ... etc.
+  > &nbsp;&nbsp;&nbsp;**conditions names** ("root", "leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;**logFC_condition1_condition2** ("logFC_root_leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;**PValue_condition1_condition2** ("PValue_root_leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;**FDR_condition1_condition2** ("FDR_root_leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;logFC_condition2_condition3, ... etc.
   
   `gene_expression.txt`
   |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
