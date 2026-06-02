@@ -256,7 +256,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-f` | Path to the genome FASTA index file (`.fai`). This is used to automatically generate gene, promoter, intergenic region, and other BED files. |
   | `-m` | One or more CGmap files, separated by spaces. Compressed files such as `.CGmap.gz` are supported. |
 
-  | <div style="width: 150px;"> Optional </div>| Description |
+  | Optional | Description |
   |---|---|
   | `-up` | Promoter region at the upstream of TSS. (Default: `1500`)|
   | `-dn` | Promoter region at the downstream of TSS. (Default: `500`) |
@@ -289,7 +289,7 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `-t` | Path to the transposable element annotation file in BED format. |
   | `-f` | Path to the genome FASTA index file (`.fai`). |
 
-  | Optional | Description |
+  | &nbsp;&nbsp;Optional&nbsp;&nbsp; | Description |
   |---|---|
   | `--manifest`  | Use manifest from module 0 to simplify input path |
   | `-o` | Output directory for module 1 results. |
