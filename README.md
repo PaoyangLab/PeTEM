@@ -421,7 +421,8 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `--smooth` | Adjust the degree of curve smoothing. Values range from `1` to `5`; `1` preserves the original curve shape (no smoothing), while `5` produces the smoothest curve. Default: `3`.|
 
 ### Module 5. Identify associated TE and gene pairs
-> Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions. <br>
+> Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
+
 > This identifies specific TE-gene pairs whose condition-specific dynamics are modulated by TE methylation changes.
 
 * __Inputs:__
