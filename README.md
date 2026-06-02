@@ -118,7 +118,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
       ```
 
 ## Input Files
-PeTEM integrates inputs data including [genome annotations](#genome-annotation), [DNA methylation data](#methylation-data), and [expression data](#expression-data). 
+PeTEM integrates inputs data including **genome annotations**, **DNA methylation data**, and **expression data**. 
 In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 - **Genome Annotation**
