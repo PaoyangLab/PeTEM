@@ -15,11 +15,11 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 - [Input Files](#input-files)
 - [Pipeline Modules](#pipeline-modules)
   - [Module 0. Preprocessing](#module-0-preprocessing)
-  - [Module 1. TE Distribution](#module-1-te-distribution)
-  - [Module 2. Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families)
-  - [Module 3. TE Methylation Near Gene](#module-3-te-methylation-near-gene)
-  - [Module 4. Correlation Between Methylation and Expression](#module-4-correlation-between-methylation-and-expression)
-  - [Module 5. Associated TE and Gene Pairs](#module-5-associated-te-and-gene-pairs)
+  - [Module 1. Profile TE genomic distribution](#module-1-profile-te-genomic-distribution)
+  - [Module 2. Identify enriched promoter-embedded TE families](#module-2-identify-enriched-promoter-embedded-te-families)
+  - [Module 3. Visualize TE methylation near gene](#module-3-visualize-te-methylation-near-gene)
+  - [Module 4. Calculate correlation coefficients](#module-4-calculate-correlation-coefficients)
+  - [Module 5. Identify associated TE and gene pairs](#module-5-identify-associated-te-and-gene-pairs)
 
 
 ## System Requirements
