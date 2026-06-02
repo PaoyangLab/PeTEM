@@ -220,7 +220,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 0. Preprocessing
-> Generate promoter regions (`promoter.bed`) and integrate methylation and expression data
+> To prepare the inputs required for all downstream modules, module 0 generates promoter regions (`promoter.bed`) and integrate methylation and expression data.
+
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
 * __Outputs:__
@@ -258,7 +259,9 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 1. Profile TE genomic distribution
-> Analyze TE distribution across genomic features
+> Analyze TE distribution across genomic features. <br>
+> This reveals whether TEs preferentially accumulate within specific genomic regions.
+
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
     * `promoter.bed` (from Module 0)
@@ -289,7 +292,9 @@ Users must run module 0 at the first time to preprocess the input files before r
 
   
 ### Module 2. Identify enriched promoter-embedded TE families
-> Identify enriched TE families overlapping with promoters
+> Identify enriched TE families overlapping with promoters. <br>
+> This points out specific TE families likely to be embedded in promoters, highlighting key TE candidates that may impact host gene expression.
+
 * __Inputs:__
     * `TE.txt`
     * `promoter.bed` (from Module 0)
@@ -319,7 +324,9 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 3. Visualize TE methylation near gene
-> Visualize distance impact of TE methylation on gene expression
+> Visualize distance impact of TE methylation on gene expression <br>
+> This provides a genome-wide overview of how the spatial proximity of methylated TEs shapes the transcriptional landscape of neighboring genes.
+
 * __Inputs:__
     * `TE.txt`, `gene_expression.txt`, `TE_expression.txt`
     * `gene.bed`(from Module 0)
@@ -373,7 +380,9 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 4. Calculate correlation coefficients
-> Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
+> Correlate gene expression with TE/promoter methylation, and TE expression with TE methylation. <br>
+> This module quantifies the contribution of TE methylation to the genome-wide regulatory mechanism.
+
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
 * __Outputs:__
@@ -403,7 +412,9 @@ Users must run module 0 at the first time to preprocess the input files before r
   | `--smooth` | Adjust the degree of curve smoothing. Values range from `1` to `5`; `1` preserves the original curve shape (no smoothing), while `5` produces the smoothest curve. Default: `3`.|
 
 ### Module 5. Identify associated TE and gene pairs
-> Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
+> Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions. <br>
+> This identifies specific TE-gene pairs whose condition-specific dynamics are modulated by TE methylation changes.
+
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
 * __Outputs:__
