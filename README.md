@@ -78,19 +78,19 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
 ## Installation
 
-  - **Clone repository** 
+  1. **Clone repository** 
     ```bash
     git clone https://github.com/PaoyangLab/PeTEM.git
     cd PeTEM
     ```
   
-  - **Download example data**
+  2. **Download example data**
     ```bash
     wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
     tar -xzvf PeTEM_data.tar.gz
     ```
 
-  - **Set up environment**
+  3. **Set up environment**
     > Choose **one** of the following installation methods to set up the PeTEM environment.
 
     - **Docker image**
