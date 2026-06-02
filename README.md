@@ -264,7 +264,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 1. Profile TE genomic distribution
-> Analyze TE distribution across genomic features. <br>
+> Analyze TE distribution across genomic features.
+
 > This reveals whether TEs preferentially accumulate within specific genomic regions.
 
 * __Inputs:__
@@ -297,7 +298,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 
   
 ### Module 2. Identify enriched promoter-embedded TE families
-> Identify enriched TE families overlapping with promoters. <br>
+> Identify enriched TE families overlapping with promoters.
+
 > This points out specific TE families likely to be embedded in promoters, highlighting key TE candidates that may impact host gene expression.
 
 * __Inputs:__
@@ -329,7 +331,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 3. Visualize TE methylation near gene
-> Visualize distance impact of TE methylation on gene expression <br>
+> Visualize distance impact of TE methylation on gene expression.
+ 
 > This provides a genome-wide overview of how the spatial proximity of methylated TEs shapes the transcriptional landscape of neighboring genes.
 
 * __Inputs:__
@@ -385,7 +388,8 @@ Users must run module 0 at the first time to preprocess the input files before r
 
 
 ### Module 4. Calculate correlation coefficients
-> Correlate gene expression with TE/promoter methylation, and TE expression with TE methylation. <br>
+> Correlate gene expression with TE/promoter methylation, and TE expression with TE methylation.
+
 > This module quantifies the contribution of TE methylation to the genome-wide regulatory mechanism.
 
 * __Inputs:__
