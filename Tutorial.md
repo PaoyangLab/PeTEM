@@ -186,7 +186,7 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
 
-  <img width="1127" height="1631" alt="image" src="https://github.com/user-attachments/assets/4e2a3a28-17bf-42da-9488-0e34e6ec848a" />
+  <img width="1127" height="1650" alt="image" src="https://github.com/user-attachments/assets/b770d81d-e07b-462b-9030-6e2532f1078b" />
 
 
 ## Module 5. Associated TE and gene pairs
