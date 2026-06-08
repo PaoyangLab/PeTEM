@@ -126,7 +126,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   - **General features annotations file (GFF format)** 
     > The genome annotation file contains genomic feature coordinates and hierarchical annotations.
   
-    Table Format (`genomic.gff`)
+    Format (`genomic.gff`)
     
     | Column | Description |
     |----------|----------|
@@ -186,7 +186,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   
     > The genome FASTA index file provides the names and lengths of each chromosome.
   
-    Table Format (`genome.fa.fai`)
+    Format (`genome.fa.fai`)
   
     | Column | Description |
     |----------|----------|
@@ -226,7 +226,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   
     > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
     
-    Table Format (`TE.txt`)
+    Format (`TE.txt`)
   
     | Column | Description |
     |----------|----------|
@@ -288,7 +288,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   > CGmap is a file format for storing single-base resolution DNA methylation data.
 
 
-  Table Format (`*.CGmap.gz files`)
+  Format (`*.CGmap.gz files`)
 
   | Column | Description |
   |----------|----------|
@@ -336,7 +336,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   | PValue_condition1_condition2 | Statistical significance of differential expression | `PValue_root_leaf` |
   | FDR_condition1_condition2 | Multiple-testing adjusted p-value | `FDR_root_leaf` |
 
-  Table Format 
+  Format 
 
   | Column | Description |
   |----------|----------|
