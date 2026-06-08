@@ -119,7 +119,8 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
   
-  <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/640d4216-d9a0-481b-bb36-f90440d6759f" />
+  <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/0dc997ca-8baa-4961-b7c5-5a146c10a8ec" />
+
 
 
 ## Module 2: Enriched promoter-embedded TE Families
@@ -141,7 +142,7 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figure:__
 
-  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/1ac50d9c-8c72-4abd-9d1a-3f1ccf73b4b3" />
+  <img width="1127" height="525" alt="image" src="https://github.com/user-attachments/assets/e876d0fd-93c4-4715-9d09-88f441f5f433" />
 
 
 ## Module 3: TE methylation near gene
@@ -163,7 +164,7 @@ chmod +x ./bigWigAverageOverBed
    
 * __Figures:__
 
-  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/fb4a54fe-f946-4a44-92eb-ae33dd9a487e" />
+  <img width="1127" height="1115" alt="image" src="https://github.com/user-attachments/assets/9116f7eb-9244-4ab7-a390-4db4ed154b57" />
 
 
 ## Module 4. Correlation between methylation and expression
@@ -185,8 +186,7 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
 
-  <img width="1127" height="1627" alt="image" src="https://github.com/user-attachments/assets/73ae6856-f737-44ac-8862-75c519fbbde0" />
-
+  <img width="1127" height="1631" alt="image" src="https://github.com/user-attachments/assets/4e2a3a28-17bf-42da-9488-0e34e6ec848a" />
 
 
 ## Module 5. Associated TE and gene pairs
@@ -211,7 +211,7 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
 
-  <img width="1127" height="1407" alt="image" src="https://github.com/user-attachments/assets/1c00454c-f797-487e-9c68-422af24dc952" />
+  <img width="1127" height="1407" alt="image" src="https://github.com/user-attachments/assets/60694bdd-73cc-4e0e-9e8a-23a29ad2acbf" />
 
 
 * __Tables:__
