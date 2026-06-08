@@ -181,11 +181,11 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     
     </details>
 
-  - **Genome index file (FASTA index):** `genome.fa.fai`
+  - **Genome index file (FASTA index)** 
   
     > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
   
-    Table Format:
+    Table Format (`genome.fa.fai`)
   
     | Column | Description |
     |----------|----------|
@@ -207,13 +207,13 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     ChrM  367808    120811562  70  71
     ```
   
-  - **Transposable element coordinates:**  `TE.txt`
+  - **Transposable element coordinates**  
   
     > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
   
     > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
   
-    Table Format:
+    Table Format (`TE.txt`)
   
     | Column | Description |
     |----------|----------|
@@ -234,11 +234,11 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     AT1TE00030  Chr1  18331  18642  0  -  DNA/HAT
     ```
 
-- **Methylation Data:**  `*.CGmap.gz files`
+- **Methylation Data**  
   > CGmap is a file format designed to store and share single-base resolution DNA methylation data.
 
 
-  Table Format:
+  Table Format (`*.CGmap.gz files`)
 
   | Column | Description |
   |----------|----------|
@@ -277,9 +277,9 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
   <br>
 
-  `gene_expression.txt`
+  
 
-  Table Format:
+  Table Format (`gene_expression.txt`)
 
   | Column | Description |
   |----------|----------|
@@ -299,9 +299,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
   <br>
   
-  `TE_expression.txt`
-
-  Table Format:
+  Table Format (`TE_expression.txt`)
 
   | Column | Description |
   |----------|----------|
