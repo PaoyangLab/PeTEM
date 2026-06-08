@@ -181,7 +181,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | ChrM | 367808 | 120811562 | 70 | 71 |
 
   - **Transposable element coordinates** 
-    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation. <br>
     > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
     
     `TE.txt`
