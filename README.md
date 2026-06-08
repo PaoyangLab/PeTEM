@@ -119,7 +119,7 @@ See the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) fo
 
 ## Input Files
 PeTEM integrates **genome annotations**, **DNA methylation data**, and **expression data** as input files. 
-In PeTEM, modules 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
+In PeTEM, modules 1 and 2 rely solely on annotation data, whereas the remaining modules additionally require methylation and expression data.
 
 - **Genome Annotation**
 
@@ -389,19 +389,19 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   </details>
 
 ## Pipeline Modules
-Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
+Users must run module 0 first to preprocess the input files before running modules 1–5. Modules 1–5 are independent and not sequential. 
 
 <img width="1197" height="837" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
 
 
 ### Module 0. Preprocessing
-> To prepare the inputs required for all downstream modules, module 0 generates promoter regions (`promoter.bed`) and integrate methylation and expression data.
+> To prepare the inputs required for all downstream modules, module 0 generates promoter regions (`promoter.bed`) and integrates methylation and expression data.
 
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
 * __Outputs:__
     * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
-    * `PETEM_MODULE0_MANIFEST.json`: Module 0 generates a json file for following module to simplify the command line of input path. 
+    * `PETEM_MODULE0_MANIFEST.json`: Module 0 generates a JSON file for subsequent modules to simplify input paths.
 
 * __Usage:__
   ```bash
