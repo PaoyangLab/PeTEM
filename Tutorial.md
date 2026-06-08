@@ -44,14 +44,14 @@ tar -xzvf PeTEM_data.tar.gz
 
 > This command will download and set up a directory `PeTEM_data` including 9 files.
 
-| File                                                                           | Description                     |
-| ------------------------------------------------------------------------------ | ------------------------------- |
-| `genome.fa.fai`                                                                | Genome index file               |
-| `genomic.gff`                                                                  | Genome annotation file          |
-| `TE.txt`                                                                       | TE annotation file              |
-| `gene_expression.txt`                                                          | Gene expression file            |
-| `TE_expression.txt`                                                            | TE expression file              |
-| `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap files         |
+| File                                                                           | Description                 |
+| ------------------------------------------------------------------------------ | --------------------------- |
+| `genome.fa.fai`                                                                | Genome index                |
+| `genomic.gff`                                                                  | Genome annotation           |
+| `TE.txt`                                                                       | TE annotation               |
+| `gene_expression.txt`                                                          | Gene expression             |
+| `TE_expression.txt`                                                            | TE expression               |
+| `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap           |
 
 ## Set up environment 
 > Here we use Conda setup as example. **Docker image** and **Local setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
