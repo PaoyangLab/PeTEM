@@ -122,18 +122,33 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 - **Genome Annotation**
 
-  - **General features annotations file (GFF3 format)** 
-    > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
+  - **General features annotations file (GFF format):** `genomic.gff`
+    > The genome annotation file contains genomic feature coordinates and hierarchical annotations.
   
-    `genomic.gff`
-    | seqid | source | type | start | end | score | strand | phase | attributes |
-    |---|---|---|---|---|---|---|---|---|
-    | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
-    | Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
-    | Chr1 | Araport11 | CDS | 3760 | 3913 | . | + | 0 | ID=AT1G01010:CDS:1;Parent=AT1G01010.1 |
-    | Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
-    | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
-    | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
+    Table Format:
+    
+    | Column | Description |
+    |----------|----------|
+    | seqid | Sequence ID, chromosome, or scaffold name |
+    | source | Annotation source |
+    | type | Genomic feature type |
+    | start | Start coordinate |
+    | end | End coordinate |
+    | score | Annotation score |
+    | strand | Strand information (`+`, `-`, or `.`) |
+    | phase | CDS phase information |
+    | attributes | Feature attributes and hierarchical annotation information |
+  
+    Example:
+  
+    ```text
+    Chr1  Araport11  gene             3631  5899  .  +  .  ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1
+    Chr1  Araport11  mRNA             3631  5899  .  +  .  ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010
+    Chr1  Araport11  CDS              3760  3913  .  +  0  ID=AT1G01010:CDS:1;Parent=AT1G01010.1
+    Chr1  Araport11  exon             3631  3913  .  +  .  ID=AT1G01010:exon:1;Parent=AT1G01010.1
+    Chr1  Araport11  five_prime_UTR   3631  3759  .  +  .  ID=AT1G01010:five_prime_UTR:1
+    Chr1  Araport11  three_prime_UTR  5631  5899  .  +  .  ID=AT1G01010:three_prime_UTR:1
+    ```
   
     <details>
     <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
