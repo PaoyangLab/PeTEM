@@ -1,7 +1,7 @@
 # Promoter-embedded TE Methylation (PeTEM) analyzer
 PeTEM is designed to analyze the association between **promoter-embedded TE methylation** and **neighboring gene expression**. It integrates genome annotation, methylome, and transcriptome data to evaluate genome-wide correlations between TE methylation and gene expression, and identify TE–gene pairs showing coordinated methylation and expression changes across conditions.
 
-<img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
+<img width="2721" height="1432" alt="image" src="https://github.com/user-attachments/assets/2d04c28a-cbb3-4a86-8954-16c76e3ff995" />
 
 
 ## Tutorial
