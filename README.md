@@ -1,11 +1,11 @@
 # Promoter-embedded TE Methylation (PeTEM) analyzer
-PeTEM is designed to analyse the association between **promoter-embedded TE methylation** and **neighbouring gene expression**. It integrates genome annotations with methylome and transcriptome data, enabling users to evaluate the genome-wide correlations between TE methylation and gene expression, and identify specific TE and gene pairs with associated methylation and expression changes across different conditions (such as stages, treatments, or phenotypes).
+PeTEM is designed to analyze the association between **promoter-embedded TE methylation** and **neighboring gene expression**. It integrates genome annotation, methylome, and transcriptome data to evaluate genome-wide correlations between TE methylation and gene expression, and identify TE–gene pairs showing coordinated methylation and expression changes across conditions.
 
 <img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
 
 ## Tutorial
-Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
+See the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
 
 ## Table of Contents
@@ -32,7 +32,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
 
   - **Environment setup**
   
-    > Following sections shows the required environments and packages. <br>
+    > The following sections show the required environments and packages. <br>
     > In [installation](#installation) section, we provide three alternative methods for setting up the environment.
   
     <details>
@@ -96,7 +96,7 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
     > Choose **one** of the following installation methods to set up the PeTEM environment.
   
     - **Conda setup (👍recommended)**
-      > Use the checked-in environment definition:
+      > Use the provided environment definition:
       ```bash
       conda env create -f environment.yml
       conda activate petem
@@ -110,15 +110,16 @@ Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial
       ```
   
     - **Local setup**
-      > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
+      > The script installs dependencies using `apt-get`, `pip3 --user`, and `Rscript`, then runs `bash env_check.sh`. <br>
+      > If `apt-get` is not available the script prints the package list to install manually.
       ```bash
       bash setup.sh
       bash env_check.sh ##optional
       ```
 
 ## Input Files
-PeTEM integrates inputs data including **genome annotations**, **DNA methylation data**, and **expression data**. 
-In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
+PeTEM integrates **genome annotations**, **DNA methylation data**, and **expression data** as input files. 
+In PeTEM, modules 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
 - **Genome Annotation**
 
@@ -183,7 +184,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
   - **Genome index file (FASTA index)** 
   
-    > The genome FASTA index file provide the names and lengths of each chromosome.
+    > The genome FASTA index file provides the names and lengths of each chromosome.
   
     Table Format (`genome.fa.fai`)
   
@@ -284,7 +285,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     </details>
 
 - **Methylation Data**  
-  > CGmap is a file format designed to store and share single-base resolution DNA methylation data.
+  > CGmap is a file format for storing single-base resolution DNA methylation data.
 
 
   Table Format (`*.CGmap.gz files`)
@@ -322,7 +323,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 - **Expression Data**
 
-  > The expression data consists of gene expression (`gene_expression.txt`) and transposable element expression (`TE_expression.txt`) tables.
+  > Expression data consists of gene expression (`gene_expression.txt`) and transposable element expression (`TE_expression.txt`) tables.
 
   > Each row represents a gene or TE. The first columns contain the average expression level (RPKM) for each condition, followed by differential expression statistics, including log2 fold change (logFC), p-value, and false discovery rate (FDR) for pairwise condition comparisons.
 
@@ -389,7 +390,7 @@ Users must run module 0 at the first time to preprocess the input files before r
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
 * __Outputs:__
     * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
-    * `PETEM_MODULE0_MANIFEST.json`: Module 0 generate a json file for following module to simplify the command line of input path. 
+    * `PETEM_MODULE0_MANIFEST.json`: Module 0 generates a json file for following module to simplify the command line of input path. 
 
 * __Usage:__
   ```bash
@@ -424,7 +425,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 1. Profile TE genomic distribution
 > Analyze TE distribution across genomic features.
 
-> This reveals whether TEs preferentially accumulate within specific genomic regions.
+> This reveals whether TEs preferentially accumulate in specific genomic regions.
 
 * __Inputs:__
     * `genomic.gff`, `TE.txt`, `genome.fa.fai`
@@ -458,7 +459,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 2. Identify enriched promoter-embedded TE families
 > Identify enriched TE families overlapping with promoters.
 
-> This points out specific TE families likely to be embedded in promoters, highlighting key TE candidates that may impact host gene expression.
+> This identifies TE families enriched in promoters and highlights candidates that may influence host gene expression.
 
 * __Inputs:__
     * `TE.txt`
@@ -491,7 +492,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 3. Visualize TE methylation near gene
 > Visualize distance impact of TE methylation on gene expression.
  
-> This provides a genome-wide overview of how the spatial proximity of methylated TEs shapes the transcriptional landscape of neighboring genes.
+> This provides a genome-wide view of how nearby methylated TEs influence neighboring gene expression.
 
 * __Inputs:__
     * `TE.txt`, `gene_expression.txt`, `TE_expression.txt`
@@ -542,7 +543,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 4. Calculate correlation coefficients
 > Correlate gene expression with TE/promoter methylation, and TE expression with TE methylation.
 
-> This module quantifies the contribution of TE methylation to the genome-wide regulatory mechanism.
+> This module quantifies the genome-wide regulatory effects of TE methylation.
 
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
@@ -576,7 +577,7 @@ Users must run module 0 at the first time to preprocess the input files before r
 ### Module 5. Identify associated TE and gene pairs
 > Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
 
-> This identifies specific TE-gene pairs whose condition-specific dynamics are modulated by TE methylation changes.
+> This identifies TE–gene pairs whose condition-specific expression changes are associated with TE methylation dynamics.
 
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
