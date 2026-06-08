@@ -2,7 +2,7 @@
 > This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/PaoyangLab/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
 > Overall runtime (⏳:10 minutes)
 
-## Tested Environment
+**Tested Environment**
 | Component | Specification |
 |------------|------------|
 | Operating System | Ubuntu 20.04.2 LTS (Focal Fossa) |
