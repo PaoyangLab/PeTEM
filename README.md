@@ -122,18 +122,33 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
 - **Genome Annotation**
 
-  - **General features annotations file (GFF3 format)** 
-    > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
+  - **General features annotations file (GFF format):** `genomic.gff`
+    > The genome annotation file contains genomic feature coordinates and hierarchical annotations.
   
-    `genomic.gff`
-    | seqid | source | type | start | end | score | strand | phase | attributes |
-    |---|---|---|---|---|---|---|---|---|
-    | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
-    | Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
-    | Chr1 | Araport11 | CDS | 3760 | 3913 | . | + | 0 | ID=AT1G01010:CDS:1;Parent=AT1G01010.1 |
-    | Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
-    | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
-    | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
+    Table Format:
+    
+    | Column | Description |
+    |----------|----------|
+    | seqid | Sequence ID, chromosome, or scaffold name |
+    | source | Annotation source |
+    | type | Genomic feature type |
+    | start | Start coordinate |
+    | end | End coordinate |
+    | score | Annotation score |
+    | strand | Strand information (`+`, `-`, or `.`) |
+    | phase | CDS phase information |
+    | attributes | Feature attributes and hierarchical annotation information |
+  
+    Example:
+  
+    ```text
+    Chr1  Araport11  gene             3631  5899  .  +  .  ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1
+    Chr1  Araport11  mRNA             3631  5899  .  +  .  ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010
+    Chr1  Araport11  CDS              3760  3913  .  +  0  ID=AT1G01010:CDS:1;Parent=AT1G01010.1
+    Chr1  Araport11  exon             3631  3913  .  +  .  ID=AT1G01010:exon:1;Parent=AT1G01010.1
+    Chr1  Araport11  five_prime_UTR   3631  3759  .  +  .  ID=AT1G01010:five_prime_UTR:1
+    Chr1  Araport11  three_prime_UTR  5631  5899  .  +  .  ID=AT1G01010:three_prime_UTR:1
+    ```
   
     <details>
     <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
@@ -149,8 +164,20 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
        * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
        * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
        * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
-    * Fungi
-       * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    * Fungi: [10 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    
+        | File ID | Species |
+        |--------------|---------|
+        | BCINB05_10_18Chr / Bcin0510 / BcinT4 | *Botrytis cinerea* |
+        | Bgra | *Blumeria graminis* |
+        | Colletotrichum_higginsianum | *Colletotrichum higginsianum* |
+        | Lmac | *Leptosphaeria maculans* |
+        | Mlar | *Melampsora larici-populina* |
+        | Mory | *Magnaporthe oryzae* |
+        | Mvio | *Microbotryum violaceum* |
+        | Pgra | *Puccinia graminis sp. Triticeae* |
+        | Sscl | *Sclerotinia sclerotiorum* |
+        | Tmel | *Tuber melanosporum* |
     
     </details>
 
@@ -170,6 +197,8 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
   - **Transposable element coordinates** 
     > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+
+    > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
     
     `TE.txt`
     | TE name | chromosome | start | end | score | strand | TE family |
