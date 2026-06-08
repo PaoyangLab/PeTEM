@@ -1,133 +1,242 @@
 # Tutorial
-This tutorial explains how to run the PeTEM pipeline using the example files provided in the PeTEM_data folder.
+> This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/PaoyangLab/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
 
-## Installation
-#### Download from github
+**Setup**
+1. [Clone repository](#clone-repository) ⏳: 20s
+2. [Download example data](#download-example-data) ⏳: 40s
+3. [Set up environment](#set-up-environment) ⏳: 2min
+4. [Create example output directories](#create-example-output-directories) ⏳: <10s
+5. [Set up execution permission](#set-up-execution-permission) ⏳: <10s
+
+**Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
+- [Module 0: Preprocessing](#module-0-preprocessing) ⏳: 2min
+- [Module 1: TE Distribution](#module-1-te-distribution) ⏳: <10s
+- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families) ⏳: <10s
+- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene) ⏳: 4min
+- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression) ⏳: 10s
+- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs) ⏳: 20s
+
+## Clone repository
 ```bash
-git clone https://github.com/yc811/PeTEM.git
+git clone https://github.com/PaoyangLab/PeTEM.git
 cd PeTEM
 ```
-This will download all scripts and the `run_PeTEM.sh` interactive pipeline.
 
-#### Download the required tools: wigToBigWig, bigWigAverageOverBed
-```
-wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/wigToBigWig
-chmod +x wigToBigWig
-
-wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/bigWigAverageOverBed
-chmod +x bigWigAverageOverBed
+## Download example data
+```bash
+wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
+tar -xzvf PeTEM_data.tar.gz
 ```
 
-##  Example Data
-We provide example input files under [`PeTEM_data/`](PeTEM_data) to test the pipeline.
-| File                                                                       | Description                     |
-| -------------------------------------------------------------------------- | ------------------------------- |
-| `gene.bed`                                                                 | Gene annotation file            |
-| `TE.bed`                                                                   | Transposable element annotation |
-| `CDS.bed`                                                                  | Coding sequences                |
-| `exon.bed`                                                                 | Exon coordinates                |
-| `UTR5.bed`                                                                 | 5′ UTR coordinates              |
-| `UTR3.bed`                                                                 | 3′ UTR coordinates              |
-| `TAIR10.fa.fai`                                                            | Genome index file               |
-| `DEG.txt`                                                                  | Differentially expressed genes  |
-| `DETE.txt`                                                                 | Differentially expressed TEs    |
-| `TE_family.txt`                                                            | TE family annotation            |
-| `WT_01.CGmap.gz`, `WT_02.CGmap.gz`, `drdd_01.CGmap.gz`, `drdd_02.CGmap.gz` | Methylation CGmap files         |
+> This command will download and set up a directory `PeTEM_data` including 9 files.
 
+| File                                                                           | Description                     |
+| ------------------------------------------------------------------------------ | ------------------------------- |
+| `genome.fa.fai`                                                                | Genome index file               |
+| `genomic.gff`                                                                  | Genome annotation file          |
+| `TE.txt`                                                                       | TE annotation file              |
+| `gene_expression.txt`                                                          | Gene expression file            |
+| `TE_expression.txt`                                                            | TE expression file              |
+| `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap files         |
 
-## Running the pipeline
-PeTEM provides an interactive bash script `run_PeTEM.sh` to select steps and input files.
-
-### Step 0: Link the example data to the current path
-```
-ln -sf PeTEM_data/* .
+## Set up environment 
+> Here we use Conda setup as example. **Docker image** and **Local setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
+```bash
+conda env create -f environment.yml
+conda activate petem
+bash env_check.sh ##optional
 ```
 
-### Step 1: Launch the interactive pipeline
-```
-bash run_PeTEM.sh
-```
-You will be prompted to select which steps to run (enter `y` or `n`):
-```
-0. Preprocessing? (y/n):
-1. TE distribution? (y/n):
-2. Promoter-embedded TE families? (y/n):
-3-1. TE impact distance: preprocessing? (y/n):
-3-2. TE impact distance: plot? (y/n):
-4. Correlation single condition? (y/n):
-5. Correlation across conditions? (y/n):
+## Create example output directories
+
+> Create the example output directory structure used throughout the tutorial:
+
+```bash
+mkdir -p ./example/module{0..5}
 ```
 
-## Step 2: Input files and parameters
-After selecting steps, you will be prompted to provide paths to necessary files.
-Use the example files in PeTEM_data:
-```
-Genomic features annotations GFF file: genomic_features.gff
-TE BED file: TE.bed
-Genome fasta index: TAIR10.fa.fai
-Gene expression file: gene_exp.txt
-TE expression file: TE_exp.txt
-Methylation CGmap.gz files: WT_01.CGmap.gz WT_02.CGmap.gz drdd_01.CGmap.gz drdd_02.CGmap.gz
-```
-For parameters like including unexpressed TEs, setting promoter regions, or plotting options, you can press `Enter` to use default values.
-```
-Include unexpressed TEs? (y/n, default n): y
-Promoter upstream length from TSS (default 1500): 1500
-Promoter downstream length from TSS (default 500): 500
-Limit up-/down-stream range (bp)(e.g. 15000): 15000
-Tick size (bp)(e.g. 5000): 5000
-Window size (bp)(e.g. 200): 400
-Window number (default 156):  100
-y-axis limit for gene expression vs TE/promoter mC plot (CG, default 50):  80
-y-axis limit for gene expression vs TE/promoter mC plot (CHG, default 10):  40
-y-axis limit for gene expression vs TE/promoter mC plot (CHH, default 10):  10
-y-axis limit for TE expression vs TE mC plot (CH, default 15):  40
-y-axis limit for TE expression vs TE mC plot (CG, default 30):  60
+> Each directory is used to store the output files generated by the corresponding PeTEM module.
+
+./example/ <br>
+├── module0/ <br>
+├── module1/ <br>
+├── module2/ <br>
+├── module3/ <br>
+├── module4/ <br>
+└── module5/ <br>
+
+## Set up execution permission
+> Before running PeTEM, ensure the executable file has the proper execution permission:
+```bash
+chmod +x ./petem
+chmod +x ./wigToBigWig
+chmod +x ./bigWigAverageOverBed
 ```
 
-## Step 3: Pipeline steps description
-| Step | Description                                            |
-| ---- | ------------------------------------------------------ |
-| 0    | Preprocessing of genome, genes, TEs, methylation files |
-| 1    | TE distribution across genomic features                |
-| 2    | Promoter-embedded TE families analysis                 |
-| 3-1  | TE impact distance preprocessing                       |
-| 3-2  | TE impact distance plotting                            |
-| 4    | Correlation between TEs and genes (single condition)   |
-| 5    | Correlation between TEs and genes across conditions    |
 
-## Step 4: Output files
-After successful completion, outputs will include:
-* Step 0:
-    * `OUTPUT_0_embedded_TE_gene_number.txt`: Table showing numbers of promoter-embedded TEs and genes with TE embedded in promoters
-    * `promoter.bed`
-    * `TE_overlap_promoter.bed`: Names and location of promoter-embedded TEs and their neighbouring genes
-    * `Tab_*.txt`: Tables showing CG/CHG/CHH methylation level of each TE, gene, promoter region under every condition
-* Step 1:
-    * `OUTPUT_1_TE_distribution_enrichment.png`
-    * `OUTPUT_1_TE_distribution_percentage.png`
-    
-      <img width="602" height="261" alt="image" src="https://github.com/user-attachments/assets/261594e5-2f99-4ce6-a73a-f6b0dd55c24d" />
+## Module 0: Preprocessing
+* __Command:__
 
-* Step 2:
-    * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`
-    * `OUTPUT_2_Promoter_embedded_TE_family.txt`
-<img width="1557" height="420" alt="image" src="https://github.com/user-attachments/assets/0b1f2ee7-6b26-41c8-86fe-ab359850d527" />
+  ```
+  ## Run module 0
+  ./petem --0 \
+    -g ./PeTEM_data/genomic.gff \
+    -t ./PeTEM_data/TE.txt \
+    -eg ./PeTEM_data/gene_expression.txt \
+    -et ./PeTEM_data/TE_expression.txt \
+    -f ./PeTEM_data/genome.fa.fai \
+    -m ./PeTEM_data/leaf_01.CGmap.gz \
+       ./PeTEM_data/leaf_02.CGmap.gz \
+       ./PeTEM_data/root_01.CGmap.gz \
+       ./PeTEM_data/root_02.CGmap.gz \
+    -up 1500 \
+    -dn 500 \
+    -o ./example/module0 
+  ```
 
-* Step 3:
-    * `OUTPUT_3_TE_impact_distance_*.png`: Figures of TE CG/CHG/CHH methylation around highly/lowly expressed genes under every condition
-    * `OUTPUT_3_TE_impact_distance_gene_TE_number.txt`: In every figure, it shows the upstream and downstream border (bp) of TE methylation impact, and the number of  highly/lowly expressed genes
-     <img width="1253" height="405" alt="image" src="https://github.com/user-attachments/assets/c538537a-283b-4055-8b20-7c64bbaf6384" />
+* __Outputs:__
 
-* Step 4:
-    * `OUTPUT_4_geneexp/TEexp_*.png`: Line plots showing correlations between (1) TE methylation vs TE expression, (2) TE methylation, methylation of promoters with TEs/with no TEs vs gene expression, (3) TE expression vs gene expression under each stage. The TE-gene pairs number and the smoothing window size also showed in each figure.
-    * `OUTPUT_4_correlation_*.png`: Bar plots showing pearson's or spearman's correlation coefficient between (1) TE CG/CHG/CHH methylation vs TE expression, (2) TE CG/CHG/CHH methylation vs gene expression, (3) TE expression vs gene expression under each stage
-  <img width="1022" height="934" alt="image" src="https://github.com/user-attachments/assets/44ce1c5e-7d89-48b0-bc22-cfef639a2fef" />
+  | File | Description |
+  |---|---|
+  | `OUTPUT_0_embedded_TE_gene_number.txt` | Summary table showing the numbers of promoter-embedded TEs and genes containing promoter-embedded TEs. |
+  | `promoter.bed` | BED file containing promoter coordinates generated from the genome annotation. |
+  | `TE_overlap_promoter.bed` | Genomic locations of promoter-embedded TEs and their associated neighbouring genes. |
+  | `Tab_*.txt` | Tables containing CG, CHG, and CHH methylation levels for each TE, gene, and promoter region across all conditions. |
+
+## Module 1: TE Distribution
+* __Command:__
+
+  ```
+  ## Run module 1
+  ./petem --1 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module1
+  ```
+
+* __Outputs:__
+
+  | File | Description |
+  |---|---|
+  | `OUTPUT_1_TE_distribution_enrichment.png` | Bar plot showing the enrichment of transposable elements across different genomic features. |
+  | `OUTPUT_1_TE_distribution_percentage.png` | Bar plot showing the percentage distribution of transposable elements across different genomic features. |
+
+* __Figures:__
+  
+  <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/640d4216-d9a0-481b-bb36-f90440d6759f" />
 
 
-* Step 5:
-    * `OUTPUT_5_*_scatter.png`: Scatter plots showing correlations between changes of (1) TE CG/CHG/CHH methylation vs TE expression, (2) TE CG/CHG/CHH methylation vs gene expression, (3) TE expression vs gene expression comparing each two stages. The TE-gene pairs number and the regression line also showed in each figure.
-    * `OUTPUT_5_Q2/4_boxplot_*.png`: Box plots showing the expression and methylation level changes of those negatively correlated gene-TE pairs under each two stages.
-    * `OUTPUT_5_Q2/4_*.txt`: The name lists of those negatively correlated gene-TE pairs are also in the output.
-  <img width="1138" height="722" alt="image" src="https://github.com/user-attachments/assets/68b8bce7-a32d-415e-b066-81f75e03aa21" />
+## Module 2: Enriched promoter-embedded TE Families
+* __Command:__
 
+  ```
+  ## Run module 2
+  ./petem --2 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module2
+  ```
+
+* __Outputs:__
+
+  | File | Description |
+  |---|---|
+  | `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png` | Bar plot showing the enrichment of TE families among promoter-embedded transposable elements. |
+  | `OUTPUT_2_Promoter_embedded_TE_family.txt` | Table containing enrichment statistics and proportions of promoter-embedded TE families. |
+
+* __Figure:__
+
+  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/1ac50d9c-8c72-4abd-9d1a-3f1ccf73b4b3" />
+
+
+## Module 3: TE methylation near gene
+* __Command:__
+
+  ```
+  ## Run module 3
+  ./petem --3 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module3 
+  ```
+
+* __Outputs:__
+
+  | File | Description |
+  |---|---|
+  | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, together with the numbers of highly and lowly expressed genes included in each analysis. |
+  | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
+   
+* __Figures:__
+
+  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/fb4a54fe-f946-4a44-92eb-ae33dd9a487e" />
+
+
+## Module 4. Correlation between methylation and expression
+* __Command:__
+
+  ```
+  ## Run module 4
+  ./petem --4 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -o ./example/module4
+  ```
+
+* __Outputs:__
+
+  | File | Description |
+  |---|---|
+  | `OUTPUT_4_geneexp/TEexp_*.png` | Line plots showing the relationships between (1) TE methylation and TE expression, (2) TE methylation, promoter methylation (with or without embedded TEs), and gene expression, and (3) TE expression and gene expression across conditions. Each figure also reports the number of TE–gene pairs analyzed and the smoothing window size used. |
+  | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson's or Spearman's correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
+
+* __Figures:__
+
+  <img width="1127" height="1627" alt="image" src="https://github.com/user-attachments/assets/73ae6856-f737-44ac-8862-75c519fbbde0" />
+
+
+
+## Module 5. Associated TE and gene pairs
+* __Command:__
+
+  ```
+  ## Run module 5
+  ./petem --5 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -stage root leaf \
+    -o ./example/module5
+  
+  ```
+
+* __Outputs:__
+
+  | File | Description |
+  |---|---|
+  | `OUTPUT_5_*_scatter.png` | Scatter plots showing the relationships between changes in (1) TE CG/CHG/CHH methylation and TE expression, (2) TE CG/CHG/CHH methylation and gene expression, and (3) TE expression and gene expression between two conditions. Each figure includes the number of TE–gene pairs analyzed and the fitted regression line. |
+  | `OUTPUT_5_Q2/4_boxplot_*.png` | Box plots showing expression and methylation changes of negatively correlated TE–gene pairs identified between two conditions. |
+  | `OUTPUT_5_Q2/4_*.txt` | Tables containing the lists of negatively correlated TE–gene pairs identified in the analysis. |
+
+* __Figures:__
+
+  <img width="1127" height="1407" alt="image" src="https://github.com/user-attachments/assets/1c00454c-f797-487e-9c68-422af24dc952" />
+
+
+* __Tables:__
+
+  `OUTPUT_5_Q2_gene_TE_pairs_CG_root_leaf.txt`
+  | gene_id | TE_id |
+  |----------|----------|
+  | AT1G63055 | AT1TE77010 |
+  | AT1G63057 | AT1TE77010 |
+  | AT3G47965 | AT3TE71740 |
+  | AT5G28660 | AT5TE38885 |
+  
+  `OUTPUT_5_Q4_gene_TE_pairs_CG_root_leaf.txt`
+  | gene_id | TE_id |
+  |----------|----------|
+  | AT1G07135 | AT1TE07165 |
+  | AT1G32880 | AT1TE38580 |
+  | AT1G61340 | AT1TE74615 |
+  | AT3G25820 | AT3TE39395 |
+  | AT3G27710 | AT3TE42655 |
+  | AT3G44260 | AT3TE64560 |
+  | AT3G50800 | AT3TE76570 |
+  | AT3G58860 | AT3TE88640 |
+  | AT4G04840 | AT4TE11400 |
+  | AT5G47440 | AT5TE69240 |

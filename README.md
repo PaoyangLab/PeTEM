@@ -1,26 +1,44 @@
 # Promoter-embedded TE Methylation (PeTEM) analyzer
-PeTEM is designed to analyse the impact of TE methylation on neighbouring genes. It integrates genome annotations with methylome and transcriptome data, enabling users to study TE distribution and measure the correlation of promoter-embedded TE methylation with gene expression in different conditions.   
+PeTEM is designed to analyse the association between **promoter-embedded TE methylation** and **neighbouring gene expression**. It integrates genome annotations with methylome and transcriptome data, enabling users to evaluate the genome-wide correlations between TE methylation and gene expression, and identify specific TE and gene pairs with associated methylation and expression changes across different conditions (such as stages, treatments, or phenotypes).
+
+<img width="2759" height="1432" alt="image" src="https://github.com/user-attachments/assets/30d94baf-d631-4789-9318-ae78b7744540" />
 
 
-## Pipeline
-<img width="962" height="751" alt="image" src="https://github.com/user-attachments/assets/445236f0-74e0-43f2-b58d-4004144b601a" />
+## Tutorial
+Please see the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) for an example workflow.
 
-### Tutorial
-Please follow the [tutorial](https://github.com/yc811/PeTEM/blob/main/Tutorial.md) of example use case.
 
-## Installation
+## Table of Contents
 
-Clone the repository:
+- [System Requirements](#system-requirements)
+- [Installation](#installation)
+- [Input Files](#input-files)
+- [Pipeline Modules](#pipeline-modules)
+  - [Module 0. Preprocessing](#module-0-preprocessing)
+  - [Module 1. Profile TE genomic distribution](#module-1-profile-te-genomic-distribution)
+  - [Module 2. Identify enriched promoter-embedded TE families](#module-2-identify-enriched-promoter-embedded-te-families)
+  - [Module 3. Visualize TE methylation near gene](#module-3-visualize-te-methylation-near-gene)
+  - [Module 4. Calculate correlation coefficients](#module-4-calculate-correlation-coefficients)
+  - [Module 5. Identify associated TE and gene pairs](#module-5-identify-associated-te-and-gene-pairs)
 
-```bash
-git clone https://github.com/yc811/PeTEM.git
-cd PeTEM
-```
 
-## System requirements
-### R environment:
-*	R version ≥ 4.2 (tested on 4.3.2)
-*	Required R packages:
+## System Requirements
+
+  - **Runtime dependencies** 
+    - Bash
+    - Perl (v5.22.0+)
+    - gzip / gunzip
+    - awk / sort / uniq
+
+  - **Environment setup**
+  
+    > Following sections shows the required environments and packages. <br>
+    > In [installation](#installation) section, we provide three alternative methods for setting up the environment.
+  
+    <details>
+    <summary> 👉 <b>R version ≥ 4.2 (tested on 4.3.2)</b></summary>
+    <br> 
+      
     * optparse
     * dplyr
     * tidyr
@@ -31,181 +49,400 @@ cd PeTEM
     * gplots
     * ggalluvial
     * ggpointdensity
+    * ggbreak
     * RColorBrewer
     * viridis
+    * rlang
 
-### Python environment:
-*	Python ≥ 3.8 (tested on 3.8.10)
-*	Required Python packages:
+    </details>
+  
+    <details>
+    <summary> 👉 <b>Python version ≥ 3.8 (tested on 3.8.10)</b></summary>
+    <br> 
+      
     * pandas (≥ 1.2.4)
-    * (uses built-in: glob, os, time)
+  
+    </details>
+  
+    <details>
+    <summary> 👉 <b>Bioinformatics tools</b></summary>
+    <br> 
+      
+    *	samtools (tested on 1.10)
+    *	bedtools (tested on v2.27.1)
+    *	wigToBigWig (bundled in this repository)
+    *	bigWigAverageOverBed (bundled in this repository)
+  
+    </details>
 
-### Bioinformatics tools:
-*	samtools (tested on 1.10)
-*	bedtools (tested on v2.27.1)
-*	wigToBigWig
-*	bigWigAverageOverBed
+
+## Installation
+
+  - **Clone repository**
+     
+    ```bash
+    git clone https://github.com/PaoyangLab/PeTEM.git
+    cd PeTEM
+    ```
+  
+  - **Download example data**
+     
+    ```bash
+    wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
+    tar -xzvf PeTEM_data.tar.gz
+    ```
+
+  - **Set up environment**
+    > Choose **one** of the following installation methods to set up the PeTEM environment.
+  
+    - **Conda setup (👍recommended)**
+      > Use the checked-in environment definition:
+      ```bash
+      conda env create -f environment.yml
+      conda activate petem
+      bash env_check.sh ##optional
+      ```
+
+    - **Docker image**
+      ```bash
+      docker build -t petem:local .
+      docker run --rm petem:local --help
+      ```
+  
+    - **Local setup**
+      > The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually
+      ```bash
+      bash setup.sh
+      bash env_check.sh ##optional
+      ```
 
 ## Input Files
-Depending on which steps you choose to run, you need some or all of the following files:
+PeTEM integrates inputs data including **genome annotations**, **DNA methylation data**, and **expression data**. 
+In PeTEM, running the module 1 and 2 rely solely on annotation data, while running the remaining modules additionally require methylation and expression data.
 
-### Genome / Annotation
-* gene.bed – Gene coordinates (BED)
-* TE.bed – Transposable element coordinates (BED)
-* CDS.bed – Coding sequence coordinates (Step 1 only)
-* UTR5.bed – 5′ UTR coordinates (Step 1 only)
-* exon.bed – Exon coordinates (Step 1 only)
-* UTR3.bed – 3′ UTR coordinates (Step 1 only)
-> BED file format includes 6 columns: chromosome, start, end, name, score, strand
-```
-Chr1    3631    5899    AT1G01010       0       +
-Chr1    6788    9130    AT1G01020       0       -
-Chr1    11649   13714   AT1G01030       0       -
-Chr1    23121   31227   AT1G01040       0       +
-```
+- **Genome Annotation**
 
-* genome.fa.fai – FASTA index
-> The fai index file is generated from genome.fasta file, including 5 columns: name, length, offset, linebases, linewidth
-```
-Chr1    30427671    74              79      80
-Chr2    19698289    30812981        79      80
-Chr3    23459830    50760691        79      80
-Chr4    18585056    74517556        79      80
-Chr5    26975502    93337941        79      80
-ChrC    154478      120654981       79      80
-ChrM    367808      120811562       70      71
-```
+  - **General features annotations file (GFF3 format)** 
+    > The genome annotation file contains genomic feature coordinates and hierarchical annotations, including genes, transcripts, CDS regions, exons, and untranslated regions (5′UTR and 3′UTR).
+  
+    `genomic.gff`
+    | seqid | source | type | start | end | score | strand | phase | attributes |
+    |---|---|---|---|---|---|---|---|---|
+    | Chr1 | Araport11 | gene | 3631 | 5899 | . | + | . | ID=AT1G01010;Name=AT1G01010;full_name=NAC domain containing protein 1 |
+    | Chr1 | Araport11 | mRNA | 3631 | 5899 | . | + | . | ID=AT1G01010.1;Name=AT1G01010.1;Parent=AT1G01010 |
+    | Chr1 | Araport11 | CDS | 3760 | 3913 | . | + | 0 | ID=AT1G01010:CDS:1;Parent=AT1G01010.1 |
+    | Chr1 | Araport11 | exon | 3631 | 3913 | . | + | . | ID=AT1G01010:exon:1;Parent=AT1G01010.1 |
+    | Chr1 | Araport11 | five_prime_UTR | 3631 | 3759 | . | + | . | ID=AT1G01010:five_prime_UTR:1 |
+    | Chr1 | Araport11 | three_prime_UTR | 5631 | 5899 | . | + | . | ID=AT1G01010:three_prime_UTR:1 |
+  
+    <details>
+    <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
+    <br>
+      
+    * Animals:
+       * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
+       * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
+       * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
+       * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
+    * Plants:
+       * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
+       * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
+       * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
+       * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
+    * Fungi
+       * [12 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    
+    </details>
 
-* TE_family.txt – TE family annotation (Step 2 only)
-> TE family annotation includes 2 columns: names of each TE and their family
-```
-AT1TE52125      LTR/Gypsy
-AT1TE42735      LTR/Copia
-AT1TE36140      LTR/Copia
-AT1TE21850      RC/Helitron
-AT1TE95105      RC/Helitron
-```
-* Some genome annotations are commonly used and can be downloaded via the [provided links](https://paoyang.ipmb.sinica.edu.tw/Termitomyces/reference_genome/). The available species are:
-    * Animals: Human, mouse, zebrafish, fly
-    * Plants: Arabidopsis, rice, maize, soybean
-    * Fungi: Truffle, Botrytis cinerea, Magnaporthe oryzae; Basidiomycetes: Pleurotus ostreatus, Puccinia graminis f. sp. Tritici
+  - **Genome index file (FASTA index)** 
+    > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
+    
+    `genome.fa.fai`
+    | name | length | offset | linebases | linewidth |
+    |---|---|---|---|---|
+    | Chr1 | 30427671 | 74 | 79 | 80 |
+    | Chr2 | 19698289 | 30812981 | 79 | 80 |
+    | Chr3 | 23459830 | 50760691 | 79 | 80 |
+    | Chr4 | 18585056 | 74517556 | 79 | 80 |
+    | Chr5 | 26975502 | 93337941 | 79 | 80 |
+    | ChrC | 154478 | 120654981 | 79 | 80 |
+    | ChrM | 367808 | 120811562 | 70 | 71 |
 
-### Expression Data
-* DEG.txt – Differentially expressed genes (Step 0, 3-2, 4, 5)
-* DETE.txt – Differentially expressed TEs (Step 0, 3-2, 4, 5)
-> In the DEG/DETE files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
-> The column names should be: conditions names, "logFC_condition1_condition2", "PValue_condition1_condition2", "FDR_condition1_condition2", "logFC_condition2_condition3", ... etc.
-```
-             WT      drdd    logFC_drdd_WT   PValue_drdd_WT  FDR_drdd_WT
-AT1G01010    1.58    2.39    0.61            0.21            1
-AT1G01020    5.60    5.43    -0.04           0.87            1
-AT1G01030    1.49    3.39    1.17            0.01            0.12
-```  
-These files will automatically be converted into expression matrices (gene_expression.txt, TE_expression.txt) for steps 0, 3-2, and 4.
+  - **Transposable element coordinates** 
+    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+    
+    `TE.txt`
+    | TE name | chromosome | start | end | score | strand | TE family |
+    |---|---|---|---|---|---|---|
+    | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
+    | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
+    | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
+    | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
 
-### Methylation Data
-* *.CGmap.gz files – Per-sample methylation CGmap files
-> CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth
-```
-Chr3    C    556    CG     CG    0.877551    43    49
-Chr3    G    557    CG     CG    0.787879    26    33
-Chr3    G    558    CHG    CC    0.405405    15    37
-Chr3    G    560    CHH    CA    0.102564    4     39
-```  
+- **Methylation Data**
+  > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth.
+  
+  `*.CGmap.gz files`
+  | #chromosome | #nucleotide | #site | #context | #dinucleotide | #methylation level | #C site | #C+T site |
+  |---|---|---|---|---|---|---|---|
+  | Chr3 | C | 556 | CG | CG | 0.877551 | 43 | 49 |
+  | Chr3 | G | 557 | CG | CG | 0.787879 | 26 | 33 |
+  | Chr3 | G | 558 | CHG | CC | 0.405405 | 15 | 37 |
+  | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
+
+- **Expression Data**
+  > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
+  
+  > In these files, the row names are the gene and TE names, followed by columns showing average expression level (RPKM) of each conditions. The rest of columns shows log2 fold change, p value, and FDR comparing each two conditions.
+  
+  > The column names should be arranged by: <br>
+  > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**conditions names** ("root", "leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**logFC_condition1_condition2** ("logFC_root_leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**PValue_condition1_condition2** ("PValue_root_leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;**FDR_condition1_condition2** ("FDR_root_leaf"), <br>
+  > &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;logFC_condition2_condition3, ... etc.
+  
+  `gene_expression.txt`
+  |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
+  |---|---|---|---|---|---|
+  | AT1G01010 | 11.64 | 10.93 | 0.09 | 0.60 | 1 |
+  | AT1G01020 | 6.39 | 5.95 | 0.10 | 0.62 | 1 |
+  | AT1G01030 | 0.65 | 1.01 | -0.63 | 0.19 | 0.84 |
+  
+  `TE_expression.txt`
+  |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
+  |---|---|---|---|---|---|
+  | AT1G01010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
+  | AT1G01020 | 0 | 0 | 0 | 1 | 1 |
+  | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
 
 
-## Pipeline Steps
-Upon running run_pipeline.sh, you will be asked which steps to execute (y/n). You will also provide all required files and parameters upfront. Steps are modular:
+## Pipeline Modules
+Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
 
-### Parameter: Optionally include unexpressed TEs
-* Default: `n` (do not include unexpressed TEs)
-* This parameter determines whether to include TEs with zero expression across all samples in the analysis (all plots of Step 3; correlation between gene expression and TE methylation in Step 4 and Step 5).
-* Setting this to `y` includes all TEs regardless of expression level, which may increase the number of analyzed TEs but also add background noise.
-* Recommended to keep `n` unless specifically investigating silent or lowly expressed TEs.
+<img width="1197" height="837" alt="image" src="https://github.com/user-attachments/assets/ab60c2e9-87fe-44c6-a000-1b3cbe0a410d" />
 
-### Step 0. Preprocessing
-* Generate promoter regions (promoter.bed)
-* Integrate methylation and expression data
+
+### Module 0. Preprocessing
+> To prepare the inputs required for all downstream modules, module 0 generates promoter regions (`promoter.bed`) and integrate methylation and expression data.
+
 * __Inputs:__
-    * `gene.bed`, `TE.bed`, `genome.fa.fai`, `DEG.txt`, `DETE.txt`, `*.CGmap.gz`
-* __Parameters:__ 
-    * __Promoter region:__ The default promoter is defined as `1500` bp upstream to `500` bp downstream from the transcription start site (TSS). Users can customize this range by entering other upstream/downstream length from TSS. 
+    * `genomic.gff`, `TE.txt`, `genome.fa.fai`, `gene_expression.txt`, `TE_expression.txt`, `*.CGmap.gz`
+* __Outputs:__
+    * `OUTPUT_0_embedded_TE_gene_number.txt`, `promoter.bed`, `TE_overlap_promoter.bed`, `Tab_*.txt`
+    * `PETEM_MODULE0_MANIFEST.json`: Module 0 generate a json file for following module to simplify the command line of input path. 
 
-### Step 1. TE Distribution
-* Analyze TE distribution across genomic features
+* __Usage:__
+  ```bash
+  ./petem --0 \
+    -g <ANNOTATION_GFF3> \
+    -t <TE_BED> \
+    -eg <GENE_EXPRESSION> \
+    -et <TE_EXPRESSION> \
+    -f <GENOME_FAI> \
+    -m <CGMAP_FILES> \
+    -o <OUTPUT_DIR>
+  ```
+* __Parameters:__
+  
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--0` | Run module 0. |
+  | `-g` | Path to the genome annotation file in GFF3 format. |
+  | `-t` | Path to the transposable element annotation file in BED format. |
+  | `-eg` | Path to the gene expression table. |
+  | `-et` | Path to the transposable element expression table. |
+  | `-f` | Path to the genome FASTA index file (`.fai`). This is used to automatically generate gene, promoter, intergenic region, and other BED files. |
+  | `-m` | One or more CGmap files, separated by spaces. Compressed files such as `.CGmap.gz` are supported. |
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `-up` | Promoter region at the upstream of TSS. (Default: `1500`) |
+  | `-dn` | Promoter region at the downstream of TSS. (Default: `500`) |
+  | `-o` | Output directory for module 0 results. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+
+
+### Module 1. Profile TE genomic distribution
+> Analyze TE distribution across genomic features.
+
+> This reveals whether TEs preferentially accumulate within specific genomic regions.
+
 * __Inputs:__
-    * `gene.bed`, `CDS.bed`, `UTR5.bed`, `exon.bed`, `UTR3.bed`, `TE.bed`, `genome.fa.fai`
-    * `promoter.bed`: generated automatically in Step 0
+    * `genomic.gff`, `TE.txt`, `genome.fa.fai`
+    * `promoter.bed` (from Module 0)
+* __Outputs:__
+    * `OUTPUT_1_TE_distribution_enrichment.png`, `OUTPUT_1_TE_distribution_enrichment.png`
+* __Usage:__
+  ```bash
+  ./petem --1 \
+    -g <MODULE0_ANNOTATION_DIR> \
+    -t <TE_BED> \
+    -f <GENOME_FAI> \
+    -o <OUTPUT_DIR>
+  ```
+* __Parameters:__
 
-### Step 2. Promoter-embedded TE Families
-* Identify enriched TE families overlapping with promoters
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--1` | Run module 1. Equivalent to `petem 0_preprocessing`. |
+  | `-g` | Path to the annotation directory generated by module 0 (`module_0_annotation`). |
+  | `-t` | Path to the transposable element annotation file in BED format. |
+  | `-f` | Path to the genome FASTA index file (`.fai`). &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--manifest`  | Use manifest from module 0 to simplify input path |
+  | `-o` | Output directory for module 1 results. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+
+
+  
+### Module 2. Identify enriched promoter-embedded TE families
+> Identify enriched TE families overlapping with promoters.
+
+> This points out specific TE families likely to be embedded in promoters, highlighting key TE candidates that may impact host gene expression.
+
 * __Inputs:__
-    * `TE.bed`, `promoter.bed` (from Step 0), `TE_family.txt`
+    * `TE.txt`
+    * `promoter.bed` (from Module 0)
+* __Outputs:__
+    * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
+* __Usage:__
+  ```bash
+  ./petem --2 \
+    -t <TE_BED> \
+    -T <TE_FAMILY_TABLE> \
+    -i <TE_OVERLAP_PROMOTER_BED> \
+    -o <OUTPUT_DIR>
+  ```
+* __Parameters:__
 
-### Step 3. TE Impact Distance
-* 3-1 Preprocessing: Prepare methylation files required in Step 3-2
-* 3-2 Plotting: Visualize distance impact of TE methylation on gene expression
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--2` | Run module 2. |
+  | `-t` | Path to the transposable element annotation file in BED format. |
+  | `-T` | Path to the transposable element family annotation table. |
+  | `-i` | Path to the `TE_overlap_promoter.bed` file generated by module 0. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--manifest`  | Use manifest from module 0 to simplify input path |
+  | `-o` | Output directory for module 2 results. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+
+
+### Module 3. Visualize TE methylation near gene
+> Visualize distance impact of TE methylation on gene expression.
+ 
+> This provides a genome-wide overview of how the spatial proximity of methylated TEs shapes the transcriptional landscape of neighboring genes.
+
 * __Inputs:__
-    * `gene.bed`, `TE.bed`, `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
-* __Parameters:__ 
-    * __Limit range:__ The total up- and downstream distance (in bp) to consider for TE–gene impact analysis. (Default `15000` means ±15 kb around genes will be analyzed)
-    * __Window size:__ Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `200` )
-    * __Tick size:__ The spacing (bp) between x-axis ticks in the resulting plot. Recommended: approximately 1/3 to 1/4 of the limit range. (Default: `5000` )
+    * `TE.txt`, `gene_expression.txt`, `TE_expression.txt`
+    * `gene.bed`(from Module 0)
+* __Outputs:__
+    * `OUTPUT_3_gene_TE_number.txt`, `OUTPUT_3_gene_proximal_TE_*.png`
+    
+* __Usage:__
+  ```bash
+  ./petem --3 \
+    -g <MODULE0_ANNOTATION_DIR> \
+    -t <TE_BED> \
+    -eg <GENE_EXPRESSION> \
+    -et <TE_EXPRESSION> \
+    -m <CGMAP_FILES> \
+    -o <OUTPUT_DIR> \
+    -d <PROMOTER_DISTANCE> \
+    -p <MIN_COVERAGE> \
+    -w <WINDOW_SIZE> \
+    -c <CONTROL_MODE> \
+    -l <CONTROL_TE_CLASS>
+  ```
 
-### Step 4. Correlation (Single Condition)
-* Correlate gene expression with TE/promoter methylation and TE expression with TE methylation
+* __Parameters:__
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--3` | Run module 3. |
+  | `-g` | Path to the annotation directory generated by module 0 (`module_0_annotation`). |
+  | `-t` | Path to the transposable element annotation file in BED format. |
+  | `-eg` | Path to the gene expression table. |
+  | `-et` | Path to the transposable element expression table. |
+  | `-m` | One or more CGmap files, separated by spaces. Compressed files such as `.CGmap.gz` are supported. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--manifest`  | Use manifest from module 0 to simplify input path |
+  | `-o` | Output directory for module 3 results. |
+  | `-d` | The total up- and downstream distance (in bp) to consider gene-proximal TEs. (Default `4000` means ±4 kb around genes will be analyzed) |
+  | `-p` | The top/bottom X% of genes will be considered as the highly/lowly expressed genes. (Default: `10`, means top/bottom 10% of genes will be the highly/lowly expressed genes) |
+  | `-w` | For choosing `average`. Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `100`) |
+  | `-l` | There are several options to show the pattern of gene-proximal TE methylation, including (1) average TE methylation within each window, (2) linear regression line, (3) second-degree polynomial regression line, and (4) local regression line (`average`, `linear`, `poly2`, and `poly`). Default: `average` |
+  | `-CI` | To show the 95% CI on the plot or not. Default: `no` |
+  | `-border` | To show the border that TE methylation near lowly expressed genes is significantly higher than that near highly expressed genes on the plot or not. Default: `no` |
+  | `-unexp` | To include TEs with zero expression across all samples in the analysis. Default: `no` |
+  | `-nTE` | To show the methylation level of non transposon sites around genes. Default: `no` |
+
+### Module 4. Calculate correlation coefficients
+> Correlate gene expression with TE/promoter methylation, and TE expression with TE methylation.
+
+> This module quantifies the contribution of TE methylation to the genome-wide regulatory mechanism.
+
 * __Inputs:__
-    * `DEG.txt` and `DETE.txt` (will be converted to `gene_expression.txt` and `TE_expression.txt`)
-* __Parameters:__ 
-    * __Window number:__ Number of sliding windows used to smooth the correlation curves. (Default: `156`).
-    * __Y-axis limits:__ Controls the maximum value shown in the y-axis of each correlation plot:
-        * ylim_CG: gene expression vs TE/promoter CG methylation (Default: `50`)
-        * ylim_CHG: gene expression vs TE/promoter CHG methylation (Default: `10`)
-        * ylim_CHH: gene expression vs TE/promoter CHH methylation (Default: `10`)
-        * ylim_TEexpTEmC_CH: TE expression vs TE CHG/CHH methylation (Default: `15`)
-        * ylim_TEexpTEmC_CG: TE expression vs TE CG methylation (Default: `30`)
+    * `gene_expression.txt`, `TE_expression.txt`
+* __Outputs:__
+    * `OUTPUT_4_geneexp/TEexp_*.png`, `OUTPUT_4_*_correlation_*.png`
+* __Usage:__
+  ```bash
+  ./petem --4 \
+    -eg <GENE_EXPRESSION> \
+    -et <TE_EXPRESSION> \
+    --module0-dir <MODULE0_OUTPUT_DIR> \
+    -o <OUTPUT_DIR>
+  ```
 
-### Step 5. Correlation (Across Conditions)
-* Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions
+* __Parameters:__
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--4` | Run module 4. |
+  | `-eg` | Path to the gene expression table. |
+  | `-et` | Path to the transposable element expression table. |
+  | `--module0-dir` | Path to the module 0 output directory. Required for loading methylation and annotation results generated in module 0. |
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--manifest`  | Use manifest from module 0 to simplify input path |
+  | `-o` | Output directory for module 4 results. |
+  | `--smooth` | Adjust the degree of curve smoothing. Values range from `1` to `5`; `1` preserves the original curve shape (no smoothing), while `5` produces the smoothest curve. Default: `3`.|
+
+### Module 5. Identify associated TE and gene pairs
+> Examine the correlations between changes in TE methylation, TE expression, and gene expression across different conditions.
+
+> This identifies specific TE-gene pairs whose condition-specific dynamics are modulated by TE methylation changes.
+
 * __Inputs:__
-    * `DEG.txt`, `DETE.txt`
+    * `gene_expression.txt`, `TE_expression.txt`
+* __Outputs:__
+    * `OUTPUT_5_*_scatter.png & .txt`, `OUTPUT_5_Q2/4_boxplot_*.png`, `OUTPUT_5_Q2/4_*.txt`
+* __Usage:__
+  ```bash
+  ./petem --5 \
+    --DEG <DEG_TABLE> \
+    --DETE <DETE_TABLE> \
+    --module0-dir <MODULE0_OUTPUT_DIR> \
+    -o <OUTPUT_DIR>
+  ```
 
-## Usage
-Run the interactive pipeline:
-```
-bash run_PeTEM.sh
-```
+* __Parameters:__
 
-```
-Select steps to run (y/n):
-0. Preprocessing? (y/n): y
-1. TE distribution? (y/n): y
-2. Promoter-embedded TE families? (y/n): y
-3-1. TE impact distance: preprocessing? (y/n): y
-3-2. TE impact distance: plot? (y/n): y
-4. Correlation single condition? (y/n): y
-5. Correlation across conditions? (y/n): y
-```
-> According to the selected steps, users need to give the input names or parameters.
-```
-Gene BED file: gene.bed
-TE BED file: TE.bed
-Genome fasta index: genome.fa.fai
-DEG file: DEG.txt
-DETE file: DETE.txt
-Methylation CGmap.gz files (space separated): WT_01.CGmap.gz WT_02.CGmap.gz...
-Include unexpressed TEs? (y/n, default n): n
-Promoter upstream length from TSS (default 1500): 1500
-Promoter downstream length from TSS (default 500): 500
-TE family file: TE_family.txt
-Limit up-/down-stream range (bp)(e.g. 15000): 15000
-Tick size (bp)(e.g. 5000): 5000
-Window size (bp)(e.g. 200): 200
-Window number (default 156):  156
-y-axis limit for gene expression vs TE/promoter mC plot (CG, default 50):  50
-y-axis limit for gene expression vs TE/promoter mC plot (CHG, default 10):  10
-y-axis limit for gene expression vs TE/promoter mC plot (CHH, default 10):  10
-y-axis limit for TE expression vs TE mC plot (CH, default 15):  15
-y-axis limit for TE expression vs TE mC plot (CG, default 30):  30
-```
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--5` | Run module 5. |
+  | `--DEG` | Path to the differentially expressed gene (DEG) table. |
+  | `--DETE` | Path to the differentially expressed transposable element (DETE) table. |
+  | `--module0-dir` | Path to the module 0 output directory. Required for loading methylation and annotation results generated in module 0. |
+
+  | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
+  |---|---|
+  | `--manifest`  | Use manifest from module 0 to simplify input path |
+  | `-o` | Output directory for module 5 results. |
+  | `--positive` | Specify the correlation direction to analyze. Set to `yes` for positive correlation analysis or `no` for negative correlation analysis. Default: `yes`.|
 
