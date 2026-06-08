@@ -266,7 +266,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
   > Each row represents a gene or TE. The first columns contain the average expression level (RPKM) for each condition, followed by differential expression statistics, including log2 fold change (logFC), p-value, and false discovery rate (FDR) for pairwise condition comparisons.
 
-  #### Column naming convention
+  Column naming convention
 
   | Column pattern | Description | Example |
   |----------|----------|----------|
@@ -275,21 +275,17 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   | PValue_condition1_condition2 | Statistical significance of differential expression | `PValue_root_leaf` |
   | FDR_condition1_condition2 | Multiple-testing adjusted p-value | `FDR_root_leaf` |
 
-  <br>
-
-  
-
-  Table Format (`gene_expression.txt`)
+  Table Format 
 
   | Column | Description |
   |----------|----------|
-  | Row name | Gene identifier |
+  | Row name | Gene/Transposon identifier |
   | condition_name | Average expression level (RPKM) of each condition |
   | logFC_condition1_condition2 | Log2 fold change between two conditions |
   | PValue_condition1_condition2 | Differential expression p-value |
   | FDR_condition1_condition2 | Adjusted p-value (FDR) |
 
-  Example:
+  Example (`gene_expression.txt`)
 
   ```text
   AT1G01010  11.64  10.93   0.09   0.60  1
@@ -297,19 +293,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   AT1G01030   0.65   1.01  -0.63   0.19  0.84
   ```
 
-  <br>
-  
-  Table Format (`TE_expression.txt`)
-
-  | Column | Description |
-  |----------|----------|
-  | Row name | Transposable element identifier |
-  | condition_name | Average expression level (RPKM) of each condition |
-  | logFC_condition1_condition2 | Log2 fold change between two conditions |
-  | PValue_condition1_condition2 | Differential expression p-value |
-  | FDR_condition1_condition2 | Adjusted p-value (FDR) |
-
-  Example:
+  Example (`TE_expression.txt`)
 
   ```text
   AT1TE00010  386.06  240.27  0.63  0.73  1
