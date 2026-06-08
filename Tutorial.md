@@ -14,6 +14,7 @@
 | Python | 3.12.3 |
 | Conda | 24.11.3 |
 
+## Table of Contents
 
 **Setup**
 1. [Clone repository](#clone-repository) 
