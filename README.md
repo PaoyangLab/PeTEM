@@ -207,7 +207,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   ChrM  367808    120811562  70  71
   ```
 
-  - **Transposable element coordinates:**  `TE.txt`
+- **Transposable element coordinates:**  `TE.txt`
 
   > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
 
@@ -282,9 +282,9 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   `TE_expression.txt`
   |  | root | leaf | logFC_root_leaf | PValue_root_leaf | FDR_root_leaf |
   |---|---|---|---|---|---|
-  | AT1G01010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
-  | AT1G01020 | 0 | 0 | 0 | 1 | 1 |
-  | AT1G01030 | 0 | 0 | 0 | 1 | 1 |
+  | AT1TE00010 | 386.06 | 240.27 | 0.63 | 0.73 | 1 |
+  | AT1TE00020 | 0 | 0 | 0 | 1 | 1 |
+  | AT1TE00025 | 0 | 0 | 0 | 1 | 1 |
 
 
 ## Pipeline Modules
