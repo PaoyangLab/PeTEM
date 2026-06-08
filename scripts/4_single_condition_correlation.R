@@ -746,7 +746,7 @@ for(mtype in c("CG","CHG","CHH")){
                 size = PETEM_AXIS_TEXT_SIZE + 1.5,
                 lineheight = 1.1
             ),
-            plot.title = element_text(size = PETEM_AXIS_TEXT_SIZE + 3,face = "bold",hjust = 0.5),
+            plot.title = element_text(size = PETEM_AXIS_TEXT_SIZE + 4,face = "bold",hjust = 0.5),
             plot.caption.position = "plot",
             axis.text.x = element_blank(),
             axis.ticks.x = element_blank(),
