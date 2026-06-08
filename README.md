@@ -294,6 +294,8 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, whereas the remaining 
 - **Methylation Data**  
   > CGmap is a file format for storing single-base resolution DNA methylation data.
 
+  > **Important:** The condition name is inferred from the CGmap file name. The prefix of each CGmap file must match the condition names used in the expression tables. <br>
+  > For example, the files `root_01.CGmap.gz` and `root_02.CGmap.gz` will be assigned to the condition `root`, which must correspond to a column named `root` in the expression tables.
 
   Format: (`*.CGmap.gz files`)
 
@@ -616,6 +618,7 @@ Users must run module 0 first to preprocess the input files before running modul
   | `--DEG` | Path to the differentially expressed gene (DEG) table. |
   | `--DETE` | Path to the differentially expressed transposable element (DETE) table. |
   | `--module0-dir` | Path to the module 0 output directory. Required for loading methylation and annotation results generated in module 0. |
+  | `-stage` | Two condition names for pairwise comparison. The specified conditions must match the condition names in the expression tables. |
   | `-o` | Output directory for module 5 results. |
   | `--positive` | Specify the correlation direction to analyze. Set to `yes` for positive correlation analysis or `no` for negative correlation analysis. Default: `yes`.|
 
