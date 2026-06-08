@@ -96,7 +96,6 @@ See the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) fo
     > Choose **one** of the following installation methods to set up the PeTEM environment.
   
     - **Conda setup (👍recommended)**
-      > Use the provided environment definition:
       ```bash
       conda env create -f environment.yml
       conda activate petem
