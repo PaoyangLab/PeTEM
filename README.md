@@ -275,7 +275,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   | PValue_condition1_condition2 | Statistical significance of differential expression | `PValue_root_leaf` |
   | FDR_condition1_condition2 | Multiple-testing adjusted p-value | `FDR_root_leaf` |
 
-  Additional pairwise comparisons can be included using the same naming convention (e.g. `logFC_leaf_flower`, `PValue_leaf_flower`, `FDR_leaf_flower`).
+  <br>
 
   `gene_expression.txt`
 
@@ -297,6 +297,8 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   AT1G01030   0.65   1.01  -0.63   0.19  0.84
   ```
 
+  <br>
+  
   `TE_expression.txt`
 
   Table Format:
