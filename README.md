@@ -252,6 +252,34 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     <br>
     
     > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
+ 
+    **Download files**
+    ```bash
+    wget https://github.com/PaoyangLab/PeTEM/releases/download/TE_annotation/TE_files.tar.gz
+    tar -xzvf TE_files.tar.gz
+    ```
+    
+    **Included species**
+    | Kingdom | Species | File |
+    |----------|----------|----------|
+    | Animal | *Homo sapiens* | `human_TE.txt` |
+    | Animal | *Mus musculus* | `mouse_TE.txt` |
+    | Animal | *Danio rerio* | `zebrafish_TE.txt` |
+    | Animal | *Drosophila melanogaster* | `fruit_fly_TE.txt` |
+    | Plant | *Arabidopsis thaliana* | `Arabidopsis_TE.txt` |
+    | Plant | *Oryza sativa* | `rice_TE.txt` |
+    | Plant | *Zea mays* | `maize_TE.txt` |
+    | Plant | *Glycine max* | `soybean_TE.txt` |
+    | Fungi | *Botrytis cinerea* | `Botrytis_cinerea_TE.txt` |
+    | Fungi | *Blumeria graminis* | `Blumeria_graminis_TE.txt` |
+    | Fungi | *Colletotrichum higginsianum* | `Colletotrichum_higginsianum_TE.txt` |
+    | Fungi | *Leptosphaeria maculans* | `Leptosphaeria_maculans_TE.txt` |
+    | Fungi | *Melampsora larici-populina* | `Melampsora_larici-populina_TE.txt` |
+    | Fungi | *Magnaporthe oryzae* | `Magnaporthe_oryzae_TE.txt` |
+    | Fungi | *Microbotryum violaceum* | `Microbotryum_violaceum_TE.txt` |
+    | Fungi | *Puccinia graminis* f. sp. *tritici* | `Puccinia_graminis_TE.txt` |
+    | Fungi | *Sclerotinia sclerotiorum* | `Sclerotinia_sclerotiorum_TE.txt` |
+    | Fungi | *Tuber melanosporum* | `Tuber_melanosporum_TE.txt` |
 
     </details>
 
