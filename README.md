@@ -151,6 +151,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
        * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
     * Fungi
        * [10 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    
         | Abbreviation | Species |
         |--------------|---------|
         | BCINB05_10_18Chr / Bcin0510 / BcinT4 | *Botrytis cinerea* |
