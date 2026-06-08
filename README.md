@@ -123,10 +123,10 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
 
 - **Genome Annotation**
 
-  - **General features annotations file (GFF format):** `genomic.gff`
+  - **General features annotations file (GFF format)** 
     > The genome annotation file contains genomic feature coordinates and hierarchical annotations.
   
-    Table Format:
+    Table Format (`genomic.gff`)
     
     | Column | Description |
     |----------|----------|
