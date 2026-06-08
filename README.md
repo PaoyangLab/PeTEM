@@ -149,7 +149,9 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     Chr1  Araport11  five_prime_UTR   3631  3759  .  +  .  ID=AT1G01010:five_prime_UTR:1
     Chr1  Araport11  three_prime_UTR  5631  5899  .  +  .  ID=AT1G01010:three_prime_UTR:1
     ```
-  
+
+    ℹ️ How to get the files:
+    
     <details>
     <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
     <br>
@@ -183,7 +185,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
   - **Genome index file (FASTA index)** 
   
-    > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
+    > The genome FASTA index file provide the names and lengths of each chromosome.
   
     Table Format (`genome.fa.fai`)
   
@@ -206,13 +208,18 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     ChrC  154478    120654981  79  80
     ChrM  367808    120811562  70  71
     ```
+
+    ℹ️ How to get the files
+    > FASTA index file is generated from genome fasta file using samtools:
+    ```
+    samtools faidx genome.fa
+    ```
+    
   
   - **Transposable element coordinates**  
   
     > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
-  
-    > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
-  
+    
     Table Format (`TE.txt`)
   
     | Column | Description |
@@ -233,6 +240,10 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     AT1TE00025  Chr1  17024  18924  0  +  RC/Helitron
     AT1TE00030  Chr1  18331  18642  0  -  DNA/HAT
     ```
+
+    ℹ️ How to get the files
+    > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
+  
 
 - **Methylation Data**  
   > CGmap is a file format designed to store and share single-base resolution DNA methylation data.
@@ -259,6 +270,12 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   Chr3  G  558  CHG  CC  0.405405  15  37
   Chr3  G  560  CHH  CA  0.102564   4  39
   ```
+
+  ℹ️ How to get the files
+  > CGmap files can be generated from WGBS data using:
+  > * [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
+  > * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) + [CGmapTools](https://cgmaptools.github.io/)
+  
 
 - **Expression Data**
 
@@ -301,7 +318,14 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   AT1TE00025    0.00    0.00  0.00  1.00  1
   ```
 
-
+  ℹ️ How to get the files
+  > Expression files can be generated from expression/count matrices using `edgeR_for_expression.R` bundled in this repository
+  ```
+  Rscript differential_expression.R \
+    --eg gene_expression.txt \
+    --et TE_expression.txt \
+    -o results
+  ```
 
 ## Pipeline Modules
 Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
