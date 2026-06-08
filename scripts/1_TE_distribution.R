@@ -1,6 +1,10 @@
 # Rscript 1_TE_distribution.R
 start_time <- Sys.time()
 
+script_args <- commandArgs(trailingOnly = FALSE)
+script_path <- sub("^--file=", "", script_args[grep("^--file=", script_args)][1])
+source(file.path(dirname(normalizePath(script_path)), "plot_defaults.R"))
+
 args <- commandArgs(trailingOnly = TRUE)
 
 # Bed files
@@ -42,8 +46,8 @@ TE_ins <- function(df) {
   return(sum(df2$V3 - df2$V2) )
 }
 
-TE_insertion <- c(TE_ins(ins_gene), TE_ins(ins_CDS), TE_ins(ins_5UTR), TE_ins(ins_exon), 
-                  TE_ins(ins_intron), TE_ins(ins_3UTR), TE_ins(ins_promoter), TE_ins(ins_IGR))
+TE_insertion <- c(TE_ins(ins_promoter), TE_ins(ins_gene), TE_ins(ins_5UTR), TE_ins(ins_CDS),
+                  TE_ins(ins_exon), TE_ins(ins_intron), TE_ins(ins_3UTR), TE_ins(ins_IGR))
 TE_insertion2 <- TE_insertion*100/sum(as.numeric(TEnew$V7))
 
 # Load genomic regions
@@ -62,47 +66,54 @@ genome_percent <- function(df){
   sum(df$V7)*100/sum(genome$V3)
 }
 
-whole_genome <- c(genome_percent(gene), genome_percent(CDS), genome_percent(UTR5),
-                  genome_percent(exon), genome_percent(intron), genome_percent(UTR3),
-                  genome_percent(promoter), genome_percent(IGR))
+whole_genome <- c(genome_percent(promoter), genome_percent(gene), genome_percent(UTR5),
+                  genome_percent(CDS), genome_percent(exon), genome_percent(intron),
+                  genome_percent(UTR3), genome_percent(IGR))
 TEinsert_enrich <- log2(TE_insertion2 / whole_genome)
 
-regions <- c("Gene","CDS","5'UTR","Exon","Intron","3'UTR","Promoter","IGR")
-colors <- c("Gene"="#000000","CDS"="#333333","5'UTR"="#666666","Exon"="#999999",
-            "Intron"="#BBBBBB","3'UTR"="#DDDDDD","Promoter"="#BD7634","IGR"="#D8C5AF")
+regions <- c("Promoter","Gene","5'UTR","CDS","Exon","Intron","3'UTR","IGR")
+colors <- c("Promoter"="#BD7634","Gene"="#000000","5'UTR"="#666666","CDS"="#333333",
+            "Exon"="#999999","Intron"="#BBBBBB","3'UTR"="#DDDDDD","IGR"="#D8C5AF")
 
 library(ggplot2)
-library(ggbreak)
+suppressPackageStartupMessages(library(ggbreak))
 
-plot_bar <- function(values, ylab, title, yuplim){
+plot_bar <- function(values, ylab, title, yuplim, y_limit = NA){
   df <- data.frame(Region=factor(regions, levels=regions), Value=values)
-  df$label_y <- ifelse(df$Value < 0, 0, df$Value)  # text y position
-  df$vjust <- ifelse(df$Value < 0, -0.5, -0.5)     # adjust text position
+  df$label_y <- ifelse(df$Value < 0, 0, df$Value)
+  df$vjust <- ifelse(df$Value < 0, -0.5, -0.5)
 
   p <- ggplot(df, aes(x=Region, y=Value, fill=Region)) +
     geom_bar(stat="identity", color="black") +
     geom_text(aes(x=Region, y=label_y, label=sprintf("%.2f", Value), vjust=vjust),
-              size=6.4, color="firebrick4", fontface="bold") +
-    expand_limits(y = max(df$Value) * yuplim) +
+              size=PETEM_ANNOTATION_TEXT_SIZE + 1.8, color="firebrick4", fontface="bold") +
     scale_fill_manual(values=colors) +
-    theme_classic(base_size=30) +
-    theme(axis.text.x = element_text(angle=40, hjust=1),
+    petem_theme_classic() +
+    theme(axis.text.x = element_text(angle=40, hjust=1, size = PETEM_AXIS_TEXT_SIZE + 3.5),
+          axis.text.y = element_text(size = PETEM_AXIS_TEXT_SIZE + 3.5),
+          axis.title.x = element_text(size = PETEM_AXIS_TITLE_SIZE + 3.5),
+          axis.title.y = element_text(size = PETEM_AXIS_TITLE_SIZE + 3.5),
+          plot.title = element_text(size = PETEM_PLOT_TITLE_SIZE + 3.5),
           axis.ticks.x = element_blank(),
           legend.position="none") +
     labs(x="", y=ylab, title=title)
+  if (is.na(y_limit)) {
+    p <- p + expand_limits(y = max(df$Value) * yuplim)
+  } else {
+    low <- min(0, min(df$Value))
+    p <- p + scale_y_continuous(limits = c(low, y_limit))
+  }
   return(p)
 }
 
 #------------------
 png("OUTPUT_1_TE_distribution_enrichment.png", width=2000, height=1800, res=300)
-plot_bar(TEinsert_enrich, "Log2 enrichment", "TE distribution", 1.8)
+print(plot_bar(TEinsert_enrich, expression(bold("Enrichment (Log2)")), "Enrichment of TE distribution", 1.8))
 dev.off()
 
 png("OUTPUT_1_TE_distribution_percentage.png", width=2000, height=1800, res=300)
-plot_bar(TE_insertion2, "Percentage (%)", "TE distribution", 1.2)
+print(plot_bar(TE_insertion2, "Percentage of TEs (%)", "Distribution of TEs across genomic features", 1.2, y_limit = 100))
 dev.off()
 
 end_time <- Sys.time()
 print(end_time-start_time)
-
-

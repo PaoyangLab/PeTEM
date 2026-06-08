@@ -1,0 +1,17 @@
+.git
+.github
+
+# Large example / development outputs
+data
+genomes
+test
+PeTEM_data
+
+# Local artifacts
+Rplots.pdf
+*.log
+
+# Python / R cache
+__pycache__
+.Rhistory
+.RData
