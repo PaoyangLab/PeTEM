@@ -181,58 +181,58 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     
     </details>
 
-- **Genome index file (FASTA index):** `genome.fa.fai`
-
-  > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
-
-  Table Format:
-
-  | Column | Description |
-  |----------|----------|
-  | name | Chromosome or sequence name |
-  | length | Sequence length (bp) |
-  | offset | Byte offset of the sequence in the FASTA file |
-  | linebases | Number of bases per sequence line |
-  | linewidth | Number of bytes per sequence line, including newline characters |
-
-  Example:
-
-  ```text
-  Chr1  30427671  74         79  80
-  Chr2  19698289  30812981   79  80
-  Chr3  23459830  50760691   79  80
-  Chr4  18585056  74517556   79  80
-  Chr5  26975502  93337941   79  80
-  ChrC  154478    120654981  79  80
-  ChrM  367808    120811562  70  71
-  ```
-
-- **Transposable element coordinates:**  `TE.txt`
-
-  > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
-
-  > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
-
-  Table Format:
-
-  | Column | Description |
-  |----------|----------|
-  | TE name | Transposable element identifier |
-  | chromosome | Chromosome or scaffold name |
-  | start | Start coordinate |
-  | end | End coordinate |
-  | score | Annotation score |
-  | strand | Strand information (`+`, `-`, or `.`) |
-  | TE family | Transposable element family classification |
-
-  Example:
-
-  ```text
-  AT1TE00010  Chr1  11897  11976  0  +  LTR/Copia
-  AT1TE00020  Chr1  16883  17009  0  -  RC/Helitron
-  AT1TE00025  Chr1  17024  18924  0  +  RC/Helitron
-  AT1TE00030  Chr1  18331  18642  0  -  DNA/HAT
-  ```
+  - **Genome index file (FASTA index):** `genome.fa.fai`
+  
+    > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
+  
+    Table Format:
+  
+    | Column | Description |
+    |----------|----------|
+    | name | Chromosome or sequence name |
+    | length | Sequence length (bp) |
+    | offset | Byte offset of the sequence in the FASTA file |
+    | linebases | Number of bases per sequence line |
+    | linewidth | Number of bytes per sequence line, including newline characters |
+  
+    Example:
+  
+    ```text
+    Chr1  30427671  74         79  80
+    Chr2  19698289  30812981   79  80
+    Chr3  23459830  50760691   79  80
+    Chr4  18585056  74517556   79  80
+    Chr5  26975502  93337941   79  80
+    ChrC  154478    120654981  79  80
+    ChrM  367808    120811562  70  71
+    ```
+  
+  - **Transposable element coordinates:**  `TE.txt`
+  
+    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+  
+    > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
+  
+    Table Format:
+  
+    | Column | Description |
+    |----------|----------|
+    | TE name | Transposable element identifier |
+    | chromosome | Chromosome or scaffold name |
+    | start | Start coordinate |
+    | end | End coordinate |
+    | score | Annotation score |
+    | strand | Strand information (`+`, `-`, or `.`) |
+    | TE family | Transposable element family classification |
+  
+    Example:
+  
+    ```text
+    AT1TE00010  Chr1  11897  11976  0  +  LTR/Copia
+    AT1TE00020  Chr1  16883  17009  0  -  RC/Helitron
+    AT1TE00025  Chr1  17024  18924  0  +  RC/Helitron
+    AT1TE00030  Chr1  18331  18642  0  -  DNA/HAT
+    ```
 
 - **Methylation Data:**  `*.CGmap.gz files`
   > CGmap is a file format designed to store and share single-base resolution DNA methylation data.
