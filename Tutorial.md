@@ -42,7 +42,7 @@ wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar
 tar -xzvf PeTEM_data.tar.gz
 ```
 
-> This command will download and set up a directory `PeTEM_data` including 9 files.
+> This command downloads and extracts the `PeTEM_data` directory, which contains 9 files.
 
 | File                                                                           | Description                 |
 | ------------------------------------------------------------------------------ | --------------------------- |
@@ -54,7 +54,8 @@ tar -xzvf PeTEM_data.tar.gz
 | `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap           |
 
 ## Set up environment 
-> Here we use Conda setup as example. **Docker image** and **Local setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
+> This tutorial uses the Conda setup as an example. Alternative setup methods, including **Docker** and **Local setup**, are described in the [README](https://github.com/PaoyangLab/PeTEM#set-up-environment).
+
 ```bash
 conda env create -f environment.yml
 conda activate petem
@@ -157,7 +158,7 @@ chmod +x ./bigWigAverageOverBed
 
   | File | Description |
   |---|---|
-  | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, together with the numbers of highly and lowly expressed genes included in each analysis. |
+  | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, along with the numbers of highly and lowly expressed genes included in each analysis. |
   | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
    
 * __Figures:__
@@ -179,8 +180,8 @@ chmod +x ./bigWigAverageOverBed
 
   | File | Description |
   |---|---|
-  | `OUTPUT_4_geneexp/TEexp_*.png` | Line plots showing the relationships between (1) TE methylation and TE expression, (2) TE methylation, promoter methylation (with or without embedded TEs), and gene expression, and (3) TE expression and gene expression across conditions. Each figure also reports the number of TE–gene pairs analyzed and the smoothing window size used. |
-  | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson's or Spearman's correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
+  | `OUTPUT_4_geneexp/TEexp_*.png` | Line plots showing the relationships between (1) TE methylation and TE expression, (2) TE methylation, promoter methylation (with or without embedded TEs), and gene expression, and (3) TE expression and gene expression across conditions. Each figure reports the number of TE–gene pairs analyzed and the smoothing window size used. |
+  | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson or Spearman correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
 
 * __Figures:__
 
