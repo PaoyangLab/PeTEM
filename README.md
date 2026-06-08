@@ -100,7 +100,7 @@ See the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) fo
       ```bash
       conda env create -f environment.yml
       conda activate petem
-      bash env_check.sh ##optional
+      bash ./script/env_check.sh ##optional
       ```
 
     - **Docker image**
@@ -113,8 +113,8 @@ See the [tutorial](https://github.com/PaoyangLab/PeTEM/blob/main/Tutorial.md) fo
       > The script installs dependencies using `apt-get`, `pip3 --user`, and `Rscript`, then runs `bash env_check.sh`. <br>
       > If `apt-get` is not available the script prints the package list to install manually.
       ```bash
-      bash setup.sh
-      bash env_check.sh ##optional
+      bash ./script/setup.sh
+      bash ./script/env_check.sh ##optional
       ```
 
 ## Input Files
