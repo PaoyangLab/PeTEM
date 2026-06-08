@@ -150,10 +150,8 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     Chr1  Araport11  three_prime_UTR  5631  5899  .  +  .  ID=AT1G01010:three_prime_UTR:1
     ```
 
-    ℹ️ How to get the files:
-    
     <details>
-    <summary> 👉 <b>Sources of commonly used genome annotations</b></summary>
+    <summary> ℹ️ How to get the files </summary>
     <br>
       
     * Animals:
@@ -209,11 +207,15 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     ChrM  367808    120811562  70  71
     ```
 
-    ℹ️ How to get the files
+    
+    <details>
+    <summary> ℹ️ How to get the files </summary>
+    <br>
     > FASTA index file is generated from genome fasta file using samtools:
     ```
     samtools faidx genome.fa
     ```
+    </details>
     
   
   - **Transposable element coordinates**  
@@ -241,9 +243,11 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     AT1TE00030  Chr1  18331  18642  0  -  DNA/HAT
     ```
 
-    ℹ️ How to get the files
+    <details>
+    <summary> ℹ️ How to get the files </summary>
+    <br>
     > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
-  
+    </details>
 
 - **Methylation Data**  
   > CGmap is a file format designed to store and share single-base resolution DNA methylation data.
@@ -271,11 +275,13 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   Chr3  G  560  CHH  CA  0.102564   4  39
   ```
 
-  ℹ️ How to get the files
-  > CGmap files can be generated from WGBS data using:
-  > * [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
-  > * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) + [CGmapTools](https://cgmaptools.github.io/)
-  
+  <details>
+    <summary> ℹ️ How to get the files </summary>
+    <br>
+    > CGmap files can be generated from WGBS data using:
+    * [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
+    * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) + [CGmapTools](https://cgmaptools.github.io/)
+  </details>
 
 - **Expression Data**
 
@@ -318,14 +324,17 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   AT1TE00025    0.00    0.00  0.00  1.00  1
   ```
 
-  ℹ️ How to get the files
-  > Expression files can be generated from expression/count matrices using `edgeR_for_expression.R` bundled in this repository
-  ```
-  Rscript differential_expression.R \
-    --eg gene_expression.txt \
-    --et TE_expression.txt \
-    -o results
-  ```
+  <details>
+    <summary> ℹ️ How to get the files </summary>
+    <br>
+    > Expression files can be generated from expression/count matrices using `edgeR_for_expression.R` bundled in this repository
+    ```
+    Rscript differential_expression.R \
+      --eg gene_expression.txt \
+      --et TE_expression.txt \
+      -o results
+    ```
+  </details>
 
 ## Pipeline Modules
 Users must run module 0 at the first time to preprocess the input files before running module 1 to 5. Module 1 to 5 are independent and not sequential. 
