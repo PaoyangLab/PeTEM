@@ -1,20 +1,33 @@
 # Tutorial
 > This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/PaoyangLab/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
+> Overall runtime (⏳:10 minutes)
+
+## Tested Environment
+| Component | Specification |
+|------------|------------|
+| Operating System | Ubuntu 20.04.2 LTS (Focal Fossa) |
+| Linux Kernel | 5.15.0-138-generic |
+| CPU | Intel Xeon Gold 6238 @ 2.10 GHz |
+| Memory | 1.4 TB RAM |
+| R | 4.2.2 |
+| Python | 3.12.3 |
+| Conda | 24.11.3 |
+
 
 **Setup**
-1. [Clone repository](#clone-repository) ⏳: 20s
-2. [Download example data](#download-example-data) ⏳: 40s
-3. [Set up environment](#set-up-environment) ⏳: 2min
-4. [Create example output directories](#create-example-output-directories) ⏳: <10s
-5. [Set up execution permission](#set-up-execution-permission) ⏳: <10s
+1. [Clone repository](#clone-repository) 
+2. [Download example data](#download-example-data) 
+3. [Set up environment](#set-up-environment) 
+4. [Create example output directories](#create-example-output-directories) 
+5. [Set up execution permission](#set-up-execution-permission) 
 
 **Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
-- [Module 0: Preprocessing](#module-0-preprocessing) ⏳: 2min
-- [Module 1: TE Distribution](#module-1-te-distribution) ⏳: <10s
-- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families) ⏳: <10s
-- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene) ⏳: 4min
-- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression) ⏳: 10s
-- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs) ⏳: 20s
+- [Module 0: Preprocessing](#module-0-preprocessing) 
+- [Module 1: TE Distribution](#module-1-te-distribution) 
+- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families) 
+- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene) 
+- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression) 
+- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs) 
 
 ## Clone repository
 ```bash
