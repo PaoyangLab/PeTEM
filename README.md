@@ -294,8 +294,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, whereas the remaining 
 - **Methylation Data**  
   > CGmap is a file format for storing single-base resolution DNA methylation data.
 
-  > **Important:** The condition name is inferred from the CGmap file name. The prefix of each CGmap file must match the condition names used in the expression tables. <br>
-  > For example, the files `root_01.CGmap.gz` and `root_02.CGmap.gz` will be assigned to the condition `root`, which must correspond to a column named `root` in the expression tables.
+  > **Important:** CGmap file prefixes must match the condition names in the expression tables. For example, `root_01.CGmap.gz` and `root_02.CGmap.gz` correspond to the condition `root`.
 
   Format: (`*.CGmap.gz files`)
 
