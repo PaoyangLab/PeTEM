@@ -5,8 +5,9 @@ MODULE_NAME="Module 0"
 SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
 CURRENT_STEP="initialization"
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
-WIG_TO_BIGWIG="$SCRIPT_DIR/wigToBigWig"
-BIGWIG_AVERAGE="$SCRIPT_DIR/bigWigAverageOverBed"
+BIN_DIR="$SCRIPT_DIR/bin"
+WIG_TO_BIGWIG="$BIN_DIR/wigToBigWig"
+BIGWIG_AVERAGE="$BIN_DIR/bigWigAverageOverBed"
 CGMAP2WIGGLE="$SCRIPT_DIR/CGmap2Wiggle.pl"
 
 die() {

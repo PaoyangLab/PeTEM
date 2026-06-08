@@ -29,7 +29,7 @@ docker build -t petem -f tools/PeTEM/Dockerfile --build-arg PETEM_SRC=tools/PeTE
 docker build -t petem -f Dockerfile .
 
 # validate the image environment
-docker run --rm --entrypoint bash petem /opt/petem/env_check.sh
+docker run --rm --entrypoint bash petem /opt/petem/scripts/env_check.sh
 
 # launch the interactive runner
 docker run --rm -it -v /absolute/path/to/your/data:/data petem
@@ -45,7 +45,7 @@ Use the checked-in environment definition:
 cd /work4/home/peiyu/tools/PeTEM
 conda env create -f environment.yml
 conda activate petem
-bash env_check.sh
+bash scripts/env_check.sh
 ```
 
 ### Local setup
@@ -53,10 +53,10 @@ bash env_check.sh
 Run the helper script to install required system tools, Python packages, and R libraries (Ubuntu/Debian):
 
 ```bash
-bash setup.sh
+bash scripts/setup.sh
 ```
 
-> The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash env_check.sh`. If `apt-get` is not available the script prints the package list to install manually.
+> The script uses `apt-get`, `pip3 --user`, and `Rscript` to install dependencies, then runs `bash scripts/env_check.sh`. If `apt-get` is not available the script prints the package list to install manually.
 
 ## System requirements
 ### Runtime dependencies
@@ -100,7 +100,7 @@ Before starting the pipeline, validate the runtime:
 
 ```bash
 cd /work4/home/peiyu/tools/PeTEM
-bash env_check.sh
+bash scripts/env_check.sh
 ```
 
 `env_check.sh` verifies:
@@ -116,8 +116,8 @@ Depending on which steps you choose to run, you need some or all of the followin
 If your annotation source is still in GFF3/GTF-like format, generate the BED inputs first:
 
 ```bash
-Rscript gff_to_bed.R --gff annotation.gff3 --outdir annotation_bed
-Rscript te_to_bed_family.R --input te_annotation.gff3 --outdir annotation_bed
+Rscript scripts/gff_to_bed.R --gff annotation.gff3 --outdir annotation_bed
+Rscript scripts/te_to_bed_family.R --input te_annotation.gff3 --outdir annotation_bed
 ```
 
 `gff_to_bed.R` writes `gene.bed`, `CDS.bed`, `exon.bed`, `UTR5.bed`, and `UTR3.bed`. Gene rows are filtered from the feature name in column 3 and can optionally be restricted to `protein_coding` entries detected in column 9. Gene names are parsed from column 9 and support formats such as `ID=name;`, `gene_id=name;`, and `gene_id "name";`.
@@ -233,10 +233,10 @@ Upon running run_pipeline.sh, you will be asked which steps to execute (y/n). Yo
 ## Usage
 Run the interactive pipeline:
 ```
-bash run_PeTEM.sh
+bash scripts/run_PeTEM.sh
 ```
 
-`run_PeTEM.sh` now performs `env_check.sh` automatically before any pipeline step starts.
+`scripts/run_PeTEM.sh` now performs `scripts/env_check.sh` automatically before any pipeline step starts.
 
 ```
 Select steps to run (y/n):

@@ -16,6 +16,10 @@ library(RColorBrewer)
 library(ggplot2)
 library(ggalluvial)
 
+MODULE2_BAR_WIDTH <- 0.02
+MODULE2_LEFT_BAR_X <- 1
+MODULE2_RIGHT_BAR_X <- 1.05
+
 
 # Options -------------
 option_list <- list(
@@ -117,6 +121,7 @@ df_TE$text_y <- 100 - (cumsum(df_TE$pc_df2) - df_TE$pc_df2 / 2)
 df_long <- data.frame(
   TE = rep(df_TE$TE, times = 2),
   type = rep(c("All TEs", "Promoter-\nembedded TEs"), each = nrow(df_TE)),
+  x_pos = rep(c(MODULE2_LEFT_BAR_X, MODULE2_RIGHT_BAR_X), each = nrow(df_TE)),
   percentage = c(df_TE$pc_df1, df_TE$pc_df2),
   stringsAsFactors = FALSE
 )
@@ -134,28 +139,34 @@ df_label <- df_label[order(df_label$text_y), , drop = FALSE]
 df_label$y_start <- df_label$text_y
 df_label$text_y <- seq(25, 75, length.out = nrow(df_label))
 df_label$y_end <- df_label$text_y
+df_label$x_start <- MODULE2_RIGHT_BAR_X + MODULE2_BAR_WIDTH / 10 + 0.01
+df_label$x_end <- MODULE2_RIGHT_BAR_X + 0.035
+df_label$x_text <- MODULE2_RIGHT_BAR_X + 0.045
 
 # Plot
-png(file=file.path(args$outdir, "OUTPUT_2_Promoter_embedded_TE_family_enrichment.png"), width=4500, height=2200, res=400)
+png(file=file.path(args$outdir, "OUTPUT_2_Promoter_embedded_TE_family_enrichment.png"), width=3700, height=2200, res=400)
 
-ggplot(df_long, aes(x = type, y = percentage, alluvium = TE)) +
-  geom_alluvium(aes(fill = TE), width = 0.3, alpha = 0.6) +
-  geom_stratum(aes(stratum = TE, fill = TE), width = 0.3) +
+ggplot(df_long, aes(x = x_pos, y = percentage, alluvium = TE)) +
+  geom_alluvium(aes(fill = TE), width = MODULE2_BAR_WIDTH, alpha = 0.6) +
+  geom_stratum(aes(stratum = TE, fill = TE), width = MODULE2_BAR_WIDTH) +
   geom_segment(data = df_label,
-               aes(x = 2.12, xend = 2.5, y = y_start, yend = y_end),
-               color = "gray30", linewidth = 0.7, inherit.aes = FALSE) +
-  scale_x_discrete(limits = c("All TEs", "Promoter-\nembedded TEs", "", "", "")) +
+               aes(x = x_start, xend = x_end, y = y_start, yend = y_end),
+               color = "gray30", linewidth = 0.45, inherit.aes = FALSE) +
+  scale_x_continuous(breaks = c(MODULE2_LEFT_BAR_X, MODULE2_RIGHT_BAR_X),
+                     labels = c("All TEs", "Promoter-\nembedded TEs"),
+                     limits = c(0.96, MODULE2_RIGHT_BAR_X + 0.12),
+                     expand = c(0, 0)) +
   scale_y_continuous(limits = c(0,100), expand=c(0,0)) +
   scale_fill_manual(values = set3_colors) +
   petem_theme_classic() +
   labs(title = "Enriched families of promoter-embedded TEs", x="", y="Percentage (%)", fill="TE Types") +
   theme(
-    axis.text.x = element_text(size = PETEM_AXIS_TEXT_SIZE + 2),
-    axis.text.y = element_text(size = PETEM_AXIS_TEXT_SIZE + 2),
-    axis.title.y = element_text(size = PETEM_AXIS_TITLE_SIZE + 2),
-    plot.title = element_text(size = PETEM_PLOT_TITLE_SIZE + 2),
-    legend.title = element_text(size = PETEM_LEGEND_TITLE_SIZE + 2),
-    legend.text = element_text(size = PETEM_LEGEND_TEXT_SIZE + 2),
+    axis.text.x = element_text(size = PETEM_AXIS_TEXT_SIZE + 3),
+    axis.text.y = element_text(size = PETEM_AXIS_TEXT_SIZE + 3),
+    axis.title.y = element_text(size = PETEM_AXIS_TITLE_SIZE + 3),
+    plot.title = element_text(size = PETEM_PLOT_TITLE_SIZE + 3),
+    legend.title = element_text(size = PETEM_LEGEND_TITLE_SIZE + 3),
+    legend.text = element_text(size = PETEM_LEGEND_TEXT_SIZE + 3),
     axis.ticks.x = element_blank(),
     panel.border = element_blank(),
     axis.line.x.bottom = element_line(color='black'),
@@ -163,7 +174,7 @@ ggplot(df_long, aes(x = type, y = percentage, alluvium = TE)) +
     legend.key.size = unit(1.4, "lines")
   ) +
   geom_text(data = df_label,
-            aes(x = 2.6, y = y_end, label = text),
+            aes(x = x_text, y = y_end, label = text),
             hjust = 0, size = PETEM_ANNOTATION_TEXT_SIZE + 1, inherit.aes = FALSE)
 
 dev.off()

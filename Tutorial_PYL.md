@@ -7,15 +7,15 @@ This tutorial explains how to run the PeTEM pipeline using the example files pro
 git clone https://github.com/yc811/PeTEM.git
 cd PeTEM
 ```
-This will download all scripts and the `run_PeTEM.sh` interactive pipeline.
+This will download the `petem` CLI and helper scripts under `scripts/`.
 
 #### Download the required tools: wigToBigWig, bigWigAverageOverBed
 ```
-wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/wigToBigWig
-chmod +x wigToBigWig
+wget -O scripts/bin/wigToBigWig http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/wigToBigWig
+chmod +x scripts/bin/wigToBigWig
 
-wget http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/bigWigAverageOverBed
-chmod +x bigWigAverageOverBed
+wget -O scripts/bin/bigWigAverageOverBed http://hgdownload.soe.ucsc.edu/admin/exe/linux.x86_64.v369/bigWigAverageOverBed
+chmod +x scripts/bin/bigWigAverageOverBed
 ```
 
 ##  Example Data
@@ -36,7 +36,7 @@ We provide example input files under [`PeTEM_data/`](PeTEM_data) to test the pip
 
 
 ## Running the pipeline
-PeTEM provides an interactive bash script `run_PeTEM.sh` to select steps and input files.
+PeTEM provides an interactive bash script `scripts/run_PeTEM.sh` to select steps and input files.
 
 ### Step 0: Link the example data to the current path
 ```
@@ -45,7 +45,7 @@ ln -sf PeTEM_data/* .
 
 ### Step 1: Launch the interactive pipeline
 ```
-bash run_PeTEM.sh
+bash scripts/run_PeTEM.sh
 ```
 You will be prompted to select which steps to run (enter `y` or `n`):
 ```

@@ -346,7 +346,6 @@ fi
 
 # Module 4 parameters
 if [[ "$run4" == "y" ]]; then
-  ask_with_default wd_num "Window step number (default 100): " 100
   ask_with_default smooth "Sliding window smooth multiplier (1-5, default 3): " 3
   ask_with_default ylim_cg "y-axis limit gene exp vs TE/promoter mC (CG, default 50): " 50
   ask_with_default ylim_chg "y-axis limit gene exp vs TE/promoter mC (CHG, default 10): " 10
@@ -397,9 +396,9 @@ if [[ "$run3" == "y" ]]; then
     mkdir -p "$module3_dir"
     cd "$module3_dir"
     if [[ ${#meth_files[@]} -gt 0 ]]; then
-      bash "$SCRIPT_DIR/3_TE_impact_distance.sh" -m "${meth_files[@]}" -g "$gene_bed" -t "$te_bed" -eg "$gene_exp" -et "$te_exp" -lim "$limit" -tick "$tick" -WD "$window" -unexp "$unexp"
+      bash "$SCRIPT_DIR/3_TE_impact_distance.sh" -m "${meth_files[@]}" -g "$gene_bed" -t "$te_bed" -i "$module0_dir/TE_overlap_promoter.bed" -eg "$gene_exp" -et "$te_exp" -lim "$limit" -tick "$tick" -WD "$window" -unexp "$unexp"
     else
-      bash "$SCRIPT_DIR/3_TE_impact_distance.sh" -g "$gene_bed" -t "$te_bed" -eg "$gene_exp" -et "$te_exp" -lim "$limit" -tick "$tick" -WD "$window" -unexp "$unexp"
+      bash "$SCRIPT_DIR/3_TE_impact_distance.sh" -g "$gene_bed" -t "$te_bed" -i "$module0_dir/TE_overlap_promoter.bed" -eg "$gene_exp" -et "$te_exp" -lim "$limit" -tick "$tick" -WD "$window" -unexp "$unexp"
     fi
   )
 fi
@@ -409,7 +408,7 @@ if [[ "$run4" == "y" ]]; then
   (
     mkdir -p "$module4_dir"
     cd "$module4_dir"
-    Rscript "$SCRIPT_DIR/4_single_condition_correlation.R" --eg "$gene_exp" --et "$te_exp" --module0-dir "$module0_dir" --outdir "$module4_dir" --unexp "$unexp" --wd_num "$wd_num" --smooth "$smooth" --ylim_CG "$ylim_cg" --ylim_CHG "$ylim_chg" --ylim_CHH "$ylim_chh" --ylim_TEexpTEmC_CH "$ylim_te_ch" --ylim_TEexpTEmC_CG "$ylim_te_cg"
+    Rscript "$SCRIPT_DIR/4_single_condition_correlation.R" --eg "$gene_exp" --et "$te_exp" --module0-dir "$module0_dir" --outdir "$module4_dir" --unexp "$unexp" --smooth "$smooth" --ylim_CG "$ylim_cg" --ylim_CHG "$ylim_chg" --ylim_CHH "$ylim_chh" --ylim_TEexpTEmC_CH "$ylim_te_ch" --ylim_TEexpTEmC_CG "$ylim_te_cg"
   )
 fi
 

@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+BIN_DIR="$SCRIPT_DIR/bin"
 
 R_PACKAGES=(
   optparse
@@ -86,8 +87,8 @@ main() {
   check_command uniq
   check_command gunzip
 
-  check_executable "$SCRIPT_DIR/wigToBigWig"
-  check_executable "$SCRIPT_DIR/bigWigAverageOverBed"
+  check_executable "$BIN_DIR/wigToBigWig"
+  check_executable "$BIN_DIR/bigWigAverageOverBed"
   [[ -f "$SCRIPT_DIR/CGmap2Wiggle.pl" ]] || fail "Missing file: $SCRIPT_DIR/CGmap2Wiggle.pl"
   echo "[env-check] OK file: $SCRIPT_DIR/CGmap2Wiggle.pl"
 

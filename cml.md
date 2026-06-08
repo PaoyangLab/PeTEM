@@ -1,14 +1,14 @@
 # PeTEM 指令速查
 
 ## 互動式全流程
-- `bash run_PeTEM.sh`  
+- `bash scripts/run_PeTEM.sh`
   依提示選步驟 (0–5) 並輸入檔案路徑/參數。
 
 ## 安裝
-- `bash setup.sh`  
+- `bash scripts/setup.sh`
   安裝所需系統工具、Python 套件、R 套件。
 
-- `bash database.sh`  
+- `bash scripts/database.sh`
   安裝常見gemo,e
 
 ## 個別步驟
@@ -21,7 +21,7 @@ python3 ../annotation_to_bed.py \
 
 ### Step 0 — 前處理 (promoter + 甲基化表)
 ```bash
-bash ../0_preprocessing.sh \
+bash ../scripts/0_preprocessing.sh \
   -g annotation_bed/gene.bed -t ../data/TE.bed \
   -p annotation_bed/promoter.bed \
   -eg ../data/gene_expression.txt -et ../data/TE_expression.txt \
@@ -42,7 +42,7 @@ zcat WT_02.CGmap.gz | sed 's/^Chr//' | gzip > /work4/home/peiyu/tools/PeTEM/data
 
 ### Step 1 — TE 分布
 ```bash
-bash ../1_TE_distribution.sh \
+bash ../scripts/1_TE_distribution.sh \
   -g annotation_bed/gene.bed -c annotation_bed/CDS.bed \
   -5 annotation_bed/UTR5.bed -e annotation_bed/exon.bed -3 annotation_bed/UTR3.bed \
   -p annotation_bed/promoter.bed -t ../data/TE.bed -fai ../genomes/arabidopsis/Arabidopsis_thaliana.TAIR10.dna.toplevel.fa.fai
@@ -52,7 +52,7 @@ bash ../1_TE_distribution.sh \
 
 ### Step 2 — 啟動子內 TE family 富集
 ```bash
-Rscript ../2_TE_families.R \
+Rscript ../scripts/2_TE_families.R \
   -a ../data/TE.bed \
   -i TE_overlap_promoter.bed \
   -T ../data/TE_family.txt
@@ -61,21 +61,21 @@ Rscript ../2_TE_families.R \
 
 <!-- ### Step 3-1 — TE 影響距離前處理
 ```bash
-bash ../3_1_TE_impact_distance_preprocess.sh \
+bash ../scripts/3_1_TE_impact_distance_preprocess.sh \
   -m ../data/WT_01.CGmap.gz ../data/WT_02.CGmap.gz \
      ../data/drdd_01.CGmap.gz ../data/drdd_02.CGmap.gz
 ```
 
 ### Step 3-2 — TE 影響距離繪圖
 ```bash
-bash 3_2_TE_impact_distance_plot.sh \
+bash ../scripts/3_2_TE_impact_distance_plot.sh \
   -g PeTEM_data/gene.bed -t PeTEM_data/TE.bed \
   -eg PeTEM_data/gene_expression.txt -et PeTEM_data/TE_expression.txt \
   -lim 15000 -tick 5000 -WD 200 \
   -unexp n
 ``` -->
 
-bash ../3_TE_impact_distance.sh \
+bash ../scripts/3_TE_impact_distance.sh \
   -m ../data/WT_01.CGmap.gz ../data/WT_02.CGmap.gz \
      ../data/drdd_01.CGmap.gz ../data/drdd_02.CGmap.gz  -g annotation_bed/gene.bed -t ../data/TE.bed \
   -eg ../data/gene_expression.txt -et ../data/TE_expression.txt \
@@ -85,7 +85,7 @@ bash ../3_TE_impact_distance.sh \
 
 ### Step 4 — 單條件相關
 ```bash
-Rscript ../4_single_condition_correlation.R \
+Rscript ../scripts/4_single_condition_correlation.R \
   --eg ../data/gene_expression.txt --et ../data/TE_expression.txt 
 ```
 
@@ -93,6 +93,6 @@ Rscript ../4_single_condition_correlation.R \
 
 ### Step 5 — 跨條件相關
 ```bash
-Rscript ../5_cross_condition_correlation.R \
+Rscript ../scripts/5_cross_condition_correlation.R \
   --DEG ../data/DEG.txt --DETE ../data/DETE.txt 
 ```

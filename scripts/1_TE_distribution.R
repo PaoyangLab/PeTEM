@@ -112,7 +112,7 @@ print(plot_bar(TEinsert_enrich, expression(bold("Enrichment (Log2)")), "Enrichme
 dev.off()
 
 png("OUTPUT_1_TE_distribution_percentage.png", width=2000, height=1800, res=300)
-print(plot_bar(TE_insertion2, "Percentage of TEs (%)", "Percentage of TEs across genomic features", 1.2, y_limit = 100))
+print(plot_bar(TE_insertion2, "Percentage of TEs (%)", "Distribution of TEs across genomic features", 1.2, y_limit = 100))
 dev.off()
 
 end_time <- Sys.time()

@@ -1,0 +1,41 @@
+# Local run outputs
+test/
+tmp/
+wig/
+Rplots.pdf
+*.log
+PETEM_MODULE0_MANIFEST.json
+OUTPUT_*.txt
+OUTPUT_*.png
+
+# Module 0 generated files in repo root
+TE_norm.bed
+gene_norm.bed
+promoter_norm.bed
+overlapped_promoterselves_uniq_rename_norm.bed
+TE_overlap_promoter.bed
+Tab_*.txt
+chrom.size
+
+# Generated files inside bundled example data
+PeTEM_data/wig_bw_tab/
+PeTEM_data/pre_step3/
+PeTEM_data/output/
+PeTEM_data/LOG_*.log
+PeTEM_data/Rplots.pdf
+PeTEM_data/TE_overlap_promoter.bed
+PeTEM_data/TE_sort.bed
+PeTEM_data/gene_sort.bed
+PeTEM_data/chrom.size
+PeTEM_data/genome.bed
+PeTEM_data/intron.bed
+PeTEM_data/IGR.bed
+
+# Downloaded/local datasets
+data/
+genomes/
+
+# Python/R caches
+__pycache__/
+.Rhistory
+.RData

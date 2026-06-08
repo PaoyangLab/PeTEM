@@ -22,7 +22,7 @@ MODULE5_LINE_COL <- "black"
 MODULE5_EXPR_FILL <- "#BFBFBF"
 MODULE5_METH_FILL <- "#E5C1AF"
 MODULE5_FRAME_WIDTH <- 0.8
-MODULE5_SCATTER_WIDTH <- 3000
+MODULE5_SCATTER_WIDTH <- 2500
 MODULE5_SCATTER_HEIGHT <- 2500
 MODULE5_PLOT_RES <- 400
 MODULE5_AXIS_TEXT_SIZE <- PETEM_AXIS_TEXT_SIZE + 4
@@ -125,7 +125,7 @@ plot_delta_scatter <- function(df, x, y, fname, title, xlab, ylab){
   yvar <- y
 
   p <- ggplot(df, aes(x = .data[[xvar]], y = .data[[yvar]])) +
-    geom_point(color=MODULE5_POINT_COL, alpha=0.45, size=1.6) +
+    geom_point(color=MODULE5_POINT_COL, size=1.6) +
     geom_hline(yintercept=0, linetype="solid", color=MODULE5_GRID_COL, linewidth=0.45) +
     geom_vline(xintercept=0, linetype="solid", color=MODULE5_GRID_COL, linewidth=0.45) +
     geom_smooth(method="lm", se=FALSE, col=MODULE5_LINE_COL, formula = y ~ x, linewidth=0.8) +
@@ -393,10 +393,10 @@ plot_gene_TE_box <- function(df_subset, mC_type, si, sj, mode="Q2"){
       name=NULL
     ) +
     scale_y_continuous(
-      name="Expression (log2 RPKM)",
+      name="Gene expression (log2 RPKM)",
       sec.axis=sec_axis(
         ~ (. - expr_range[1] + meth_range[1] * scale_factor) / scale_factor,
-        name=paste0(mC_type, " methylation level (%)")
+        name=paste0("TE ",mC_type, " methylation level (%)")
       )
     ) +
     scale_x_discrete(name="Stage") +
@@ -405,20 +405,20 @@ plot_gene_TE_box <- function(df_subset, mC_type, si, sj, mode="Q2"){
       panel.grid.major=element_line(color=MODULE5_GRID_COL, linetype="solid", linewidth=0.35),
       panel.grid.minor=element_blank(),
       axis.title.y.right=element_text(angle=90, face="bold"),
-      plot.title=element_text(face="bold", hjust=0.5)
+      plot.title=element_text(face="bold", hjust=0.5,   size = MODULE5_TITLE_SIZE,)
     ) +
      labs(
       title = ifelse(
         mode %in% c("Q1", "Q4"),
-        paste0("Up-regulated genes in ", si),
-        paste0("Up-regulated genes in ", sj)
+        paste0("Expression of ",si," up-regulated DEGs\n and associated TE methylation" ),
+        paste0("Expression of ", sj," up-regulated DEGs\n and associated TE methylation")
       ))
 
   ggsave(
     filename=output_file(paste0("OUTPUT_5_", mode, "_boxplot_", mC_type, "_", si, "_", sj, ".png")),
     plot=p,
     width=6,
-    height=5,
+    height=6,
     dpi=400
   )
   print(p)
@@ -429,7 +429,7 @@ for(k in seq_along(fc_cols)){
   x_col <- fc_cols[k]
   si <- stage_pairs[k,1]
   sj <- stage_pairs[k,2]
-  pv_col <- paste0("FDR_g_", si, "_", sj)
+  pv_col <- paste0("PV_g_", si, "_", sj)
 
   # gene exp vs TE exp
   df_sub <- subset(ins4,
@@ -439,7 +439,7 @@ for(k in seq_along(fc_cols)){
     plot_delta_scatter(df_sub,
       x_col, paste0("dTEexp_", si, "_", sj),
       output_file(paste0("OUTPUT_5_geneexp_TEexp_change_", si, "_", sj, "_scatter.png")),
-      paste0("TE and gene expression changes\nbetween ", si, " and ", sj),
+      paste0("TE and DEG expression responses\nbetween ", si, " and ", sj),
       bquote(bold(Delta~"Gene expression level (log2 RPKM FC)")),
       bquote(bold(Delta~"TE expression level (log2 RPKM FC)"))
     )
@@ -456,9 +456,9 @@ for(k in seq_along(fc_cols)){
       plot_delta_scatter(df_sub,
         x_col, y_col,
         output_file(paste0("OUTPUT_5_geneexp_TEm", mC_type, "_change_", si, "_", sj, "_scatter.png")),
-        paste0("TE m", mC_type, " and gene expression changes\nbetween ", si, " and ", sj),
+        paste0("TE ", mC_type, " methylation and DEG expression responses\nbetween ", si, " and ", sj),
         bquote(bold(Delta~"Gene expression level (log2 RPKM FC)")),
-        bquote(bold(Delta~paste("TE methylation level (%)")))
+        bquote(bold(Delta ~ .(paste0("TE ", mC_type, " methylation level (%)"))))
       )
 
       df_Q2 <- subset(df_TE,
@@ -505,7 +505,7 @@ for(k in seq_along(fc_cols)){
     df_TE <- get(paste0("ins_", mC_type))
     x_TE_col <- paste0("dTEexp_", si, "_", sj)
     y_TE_col <- paste0("dTE", mC_type, "_", si, "_", sj)
-    pv_TE_col <- paste0("FDR_TE_", si, "_", sj)
+    pv_TE_col <- paste0("PV_TE_", si, "_", sj)
 
     df_sub <- subset(df_TE,
       abs(df_TE[[x_TE_col]]) > 1 & df_TE[[pv_TE_col]] < 0.05
@@ -514,10 +514,9 @@ for(k in seq_along(fc_cols)){
       plot_delta_scatter(df_sub,
         x_TE_col, y_TE_col,
         output_file(paste0("OUTPUT_5_TEexp_TEm", mC_type, "_change_", si, "_", sj, "_scatter.png")),
-        paste0("TE m", mC_type, " and TE expression changes\nbetween ", si, " and ", sj),
+        paste0("TE ", mC_type, " methylation and TE expression responses\nbetween ", si, " and ", sj),
         bquote(bold(Delta~"TE expression level (log2 RPKM FC)")),
-        bquote(bold(Delta~paste("TE methylation level (%)")))
-      )
+        bquote(bold(Delta ~ .(paste("TE", mC_type, "methylation level (%)"))))      )
     }
   }
 }

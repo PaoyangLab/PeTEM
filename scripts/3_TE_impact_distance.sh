@@ -37,12 +37,17 @@ require_file() {
 
 collect_shared_stages() {
   python3 - "$1" "$2" <<'PYTHON_HELPER'
+import re
 import sys
 import pandas as pd
 
 gene_exp = pd.read_csv(sys.argv[1], sep="\t", index_col=0)
 te_exp = pd.read_csv(sys.argv[2], sep="\t", index_col=0)
-stages = sorted(set(gene_exp.columns).intersection(te_exp.columns))
+de_prefix = re.compile(r"^(logFC_|PValue_|FDR_|dexp_|dTEexp_|PV_)")
+stages = sorted(
+    c for c in set(gene_exp.columns).intersection(te_exp.columns)
+    if not de_prefix.match(c)
+)
 for stage in stages:
     print(stage)
 PYTHON_HELPER
@@ -64,6 +69,102 @@ preprocess_complete_for_stages() {
       [[ -s "$path" ]] || return 1
     done
   done
+}
+
+plot_cache_complete_for_stages() {
+  local cache_dir=$1
+  local run_control_plot=$2
+  shift 2
+  local stages=("$@")
+
+  [[ -d "$cache_dir" ]] || return 1
+  (( ${#stages[@]} > 0 )) || return 1
+
+  local stage expr dir context prefix
+  for stage in "${stages[@]}"; do
+    for expr in low high; do
+      [[ -s "${cache_dir}/${expr}_${stage}.txt" ]] || return 1
+      [[ -s "${cache_dir}/ctrl_${expr}_${stage}.txt" ]] || return 1
+    done
+    for prefix in wTE woTE; do
+      [[ $prefix == "woTE" && $run_control_plot != "y" ]] && continue
+      for expr in low high; do
+        for dir in up down; do
+          for context in CG CHG CHH; do
+            [[ -s "${cache_dir}/${prefix}_${expr}_${stage}_${dir}_${context}.bed" ]] || return 1
+          done
+        done
+      done
+    done
+  done
+}
+
+clear_plot_temp() {
+  rm -f wTE_*.bed woTE_*.bed low_*.txt high_*.txt ctrl_low_*.txt ctrl_high_*.txt low_*_up.bed low_*_down.bed high_*_up.bed high_*_down.bed ctrl_low_*_up.bed ctrl_low_*_down.bed ctrl_high_*_up.bed ctrl_high_*_down.bed
+}
+
+restore_plot_cache() {
+  local cache_dir=$1
+  clear_plot_temp
+  cp -f "${cache_dir}"/*.txt "${cache_dir}"/*.bed .
+}
+
+save_plot_cache() {
+  local cache_dir=$1
+  rm -rf "$cache_dir"
+  mkdir -p "$cache_dir"
+  cp low_*.txt high_*.txt ctrl_low_*.txt ctrl_high_*.txt wTE_*.bed woTE_*.bed "$cache_dir"/ 2>/dev/null || true
+}
+
+make_plot_cache_key() {
+  local pre_dir=$1
+  shift
+  python3 - "$GENE_BED" "$TE_BED" "$PROMOTER_EMBEDDED_BED" "$GENE_EXP" "$TE_EXP" \
+    "$LIMIT" "$TOP_BOTTOM_PERCENT" "$INCLUDE_UNEXPRESSED_TE" "$RUN_CONTROL_PLOT" "$pre_dir" "$@" <<'PYTHON_HELPER'
+import hashlib
+import json
+import os
+import sys
+
+gene_bed, te_bed, promoter_bed, gene_exp, te_exp, limit, pct, unexp, nte, pre_dir, *stages = sys.argv[1:]
+
+def file_hash(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as handle:
+        for chunk in iter(lambda: handle.read(1024 * 1024), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+def meta(path, content_hash=False):
+    st = os.stat(path)
+    out = {
+        "path": os.path.abspath(path),
+        "size": st.st_size,
+        "mtime_ns": st.st_mtime_ns,
+    }
+    if content_hash:
+        out["sha256"] = file_hash(path)
+        out.pop("mtime_ns")
+    return out
+
+data = {
+    "inputs": [meta(p, content_hash=True) for p in [gene_bed, te_bed, promoter_bed, gene_exp, te_exp]],
+    "params": {
+        "limit": limit,
+        "top_bottom_percent": pct,
+        "include_unexpressed_te": unexp,
+        "run_control_plot": nte,
+    },
+    "stages": stages,
+    "pre3": [],
+}
+
+for stage in stages:
+    for context in ("CG", "CHG", "CHH"):
+        data["pre3"].append(meta(os.path.join(pre_dir, f"pre3_{stage}_{context}.bed")))
+
+print(hashlib.sha256(json.dumps(data, sort_keys=True).encode("utf-8")).hexdigest())
+PYTHON_HELPER
 }
 
 trap 'rc=$?; echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: command failed with exit code ${rc}" >&2; exit ${rc}' ERR
@@ -222,6 +323,21 @@ fi
 #####################################
 # Part B: plotting pipeline (from 3_2)
 #####################################
+PLOT_CACHE_DIR="pre_step3/module3_plot_cache"
+PLOT_CACHE_KEY_FILE="pre_step3/module3_plot_cache.key"
+PLOT_CACHE_KEY=$(make_plot_cache_key "pre_step3" "${stages[@]}")
+SKIP_PLOT_PRE=0
+if [[ -f "$PLOT_CACHE_KEY_FILE" ]] &&
+   [[ $(<"$PLOT_CACHE_KEY_FILE") == "$PLOT_CACHE_KEY" ]] &&
+   plot_cache_complete_for_stages "$PLOT_CACHE_DIR" "$RUN_CONTROL_PLOT" "${stages[@]}"; then
+  SKIP_PLOT_PRE=1
+  CURRENT_STEP="step B0 - restore plot cache"
+  echo "[`date`] [B] Reusing cached module 3 plot inputs for identical data-affecting parameters." | tee -a "$LOG"
+  restore_plot_cache "$PLOT_CACHE_DIR"
+fi
+
+if [[ $SKIP_PLOT_PRE -eq 0 ]]; then
+clear_plot_temp
 CURRENT_STEP="step B0 - prepare sorted BED files"
 echo "[`date`] [B] Input parsing" | tee -a "$LOG"
 sort -k1,1 -k2,2n "$GENE_BED" > gene_sort.bed
@@ -431,6 +547,9 @@ for stage in "${stages[@]}"; do
 )&
 done
 wait
+save_plot_cache "$PLOT_CACHE_DIR"
+printf '%s\n' "$PLOT_CACHE_KEY" > "$PLOT_CACHE_KEY_FILE"
+fi
 
 CURRENT_STEP="step B4 - generate plots"
 echo "[`date`] [B] Step 4. Plotting" | tee -a "$LOG"
@@ -549,7 +668,7 @@ for(type in types){
     }
   }
 
-  low_label <- paste0("Top ", format(top_bottom_percent, trim = TRUE), "% lowly expressed genes")
+  low_label <- paste0("Bottom ", format(top_bottom_percent, trim = TRUE), "% lowly expressed genes")
   high_label <- paste0("Top ", format(top_bottom_percent, trim = TRUE), "% highly expressed genes")
 
   df_up_low   <- linedf(get("low_up"))
@@ -574,9 +693,15 @@ for(type in types){
   border_up <- head(check_up[check_up[,2] < check_up[,5], ], 1)
   border_dn <- head(check_dn[check_dn[,2] < check_dn[,5], ], 1)
 
-  up_title <- if(nrow(border_up)>0) paste0("Upstream border: ", border_up$distance[1], " bp") else ""
-  dn_title <- if(nrow(border_dn)>0) paste0("Downstream border: ", border_dn$distance[1], " bp") else ""
-  plot_title <- if(show_border == "y") paste0(up_title, "; ", dn_title) else NULL
+  format_border <- function(x){
+    x <- as.numeric(x)
+    ifelse(abs(x) <= 50, 0, x)
+  }
+  border_up_value <- if(nrow(border_up)>0) format_border(border_up$distance[1]) else NA
+  border_dn_value <- if(nrow(border_dn)>0) format_border(border_dn$distance[1]) else NA
+  up_title <- if(!is.na(border_up_value)) paste0("Upstream border: ", border_up_value, " bp") else ""
+  dn_title <- if(!is.na(border_dn_value)) paste0("Downstream border: ", border_dn_value, " bp") else ""
+  border_subtitle <- if(show_border == "y") paste0(up_title, "; ", dn_title) else NULL
   border_lines <- data.frame(x = numeric(0))
 
   
@@ -602,10 +727,10 @@ for(type in types){
   if(show_border == "y"){
     border_x <- c()
     if(nrow(border_up) > 0){
-      border_x <- c(border_x, border_up$distance[1])
+      border_x <- c(border_x, border_up_value)
     }
     if(nrow(border_dn) > 0){
-      border_x <- c(border_x, border_dn$distance[1] + gap)
+      border_x <- c(border_x, border_dn_value + gap)
     }
     border_lines <- data.frame(x = border_x)
   }
@@ -621,7 +746,10 @@ for(type in types){
     paste0("TE ", type, " methylation level (%)")
   }
 
-  png(file=output_file, width=5000, height=2000, res=400)
+  plot_prefix_label <- if(prefix == "woTE") "nTE" else "TE"
+  plot_title <- paste0(plot_prefix_label, " ", type, " methylation around genes with different expression level")
+
+  png(file=output_file, width=3400, height=2000, res=400)
 
   p <- ggplot()
 
@@ -675,14 +803,17 @@ for(type in types){
 
   p <- p +
   petem_theme_bw() +
-  scale_color_manual(values=setNames(c("#509ABC","#B44A53"), c(low_label, high_label))) +
-  scale_fill_manual(values=setNames(c("#CFE6FA","#F8CDD5"), c(low_label, high_label)), guide = "none") +
+  scale_color_manual(values=setNames(c("#B44A53","#509ABC"), c(high_label, low_label)),
+                     breaks=c(high_label, low_label)) +
+  scale_fill_manual(values=setNames(c("#F8CDD5","#CFE6FA"), c(high_label, low_label)),
+                    breaks=c(high_label, low_label), guide = "none") +
   scale_x_continuous(breaks=breaks, labels=labels) +
   scale_y_continuous(limits=c(0, 100), breaks=c(0, 25, 50, 75, 100)) +
-  ggtitle(plot_title) +
   theme(legend.position="top",
-    panel.grid.minor = element_blank()) +
-  labs(x="Distance to gene (bp)", y=y_label, color=NULL)
+    legend.text = element_text(size = PETEM_LEGEND_TEXT_SIZE + 3),
+    panel.grid.minor = element_blank(),
+    plot.title=element_text(size=PETEM_LEGEND_TEXT_SIZE + 4,face="bold",hjust=0.5)) +
+  labs(title=plot_title, subtitle=border_subtitle, x="Distance to gene (bp)", y=y_label, color=NULL)
 
   if(nrow(border_lines) > 0){
     p <- p + geom_vline(data = border_lines, aes(xintercept = x),
@@ -705,7 +836,7 @@ done
 wait
 fi
 
-rm wTE_*.bed woTE_*.bed low_* high_* ctrl_low_* ctrl_high_* expgene_closest_expTE.bed expressed_gene.bed expressed_TE.bed
+rm -f wTE_*.bed woTE_*.bed low_* high_* ctrl_low_* ctrl_high_* expgene_closest_expTE.bed expressed_gene.bed expressed_TE.bed
 
 end_all=$(date +%s)
 echo "[`date`] Combined pipeline finished in $((end_all-start_all)) sec" | tee -a "$LOG"

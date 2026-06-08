@@ -27,6 +27,11 @@ MODULE4_CHG_COL <- "#71A061"
 MODULE4_CHH_COL <- "#3871A6"
 MODULE4_FRAME_WIDTH <- 1
 MODULE4_GRID_COL <- "gray92"
+plot.title = element_text(
+    size = 24,
+    face = "bold",
+    hjust = 0.5
+)
 
 module4_theme_bw <- function() {
   petem_theme_bw(base_size = MODULE4_THEME_BASE_SIZE) +
@@ -79,7 +84,11 @@ sliding <- function(vec){
   step <- max(1, step)
   window <- lth - (100 - 1) * step
   window <- max(1, window)
-  return(as.vector(rollapply(zoo(vec), width=window, by=step, FUN=mean, align="center")))
+  roll_mean <- function(x) {
+    if (all(is.na(x))) return(NA_real_)
+    mean(x, na.rm=TRUE)
+  }
+  return(as.vector(rollapply(zoo(vec), width=window, by=step, FUN=roll_mean, align="center")))
 }
 
 calc_window <- function(df){
@@ -87,6 +96,19 @@ calc_window <- function(df){
   window <- max(1, step*opt$smooth)
   window <- min(window, nrow(df))
   return(window)
+}
+
+collapse_methylation_rows <- function(df, id_col, value_cols) {
+  if (nrow(df) == 0) return(df)
+  mean_na <- function(x) {
+    if (all(is.na(x))) return(NA_real_)
+    mean(x, na.rm=TRUE)
+  }
+  out <- aggregate(df[, value_cols, drop=FALSE],
+                   by=list(df[[id_col]]),
+                   FUN=mean_na)
+  colnames(out)[1] <- id_col
+  out
 }
 
 expand_ylim <- function(requested, values, pad=1.08) {
@@ -192,10 +214,12 @@ plot_corr_bar <- function(stage, gdf, gdfexp, TEdf, method="pearson") {
       scale_color_identity() +
       scale_y_discrete(labels = group_axis_labels) +
       xlim(xmin, xmax) +
-      labs(x=paste0(tools::toTitleCase(method)," correlation coefficient"), y=NULL) +
+      labs(  title = "Correlation strengths between\n TEs and genes",
+      x=paste0(tools::toTitleCase(method)," correlation coefficient"), y=NULL) +
       module4_theme_bw() +
       theme(
-        axis.ticks.y = element_blank()
+        axis.ticks.y = element_blank(),
+        plot.title = element_text(size = PETEM_AXIS_TEXT_SIZE + 1.5,face = "bold",hjust = 0.5)
       )
   )
   dev.off()
@@ -291,6 +315,9 @@ for(stage in stages){
   colnames(CG_promoterselves_stage)[2]  <- paste0(stage, "_promoterselves_CG")
   colnames(CHG_promoterselves_stage)[2] <- paste0(stage, "_promoterselves_CHG")
   colnames(CHH_promoterselves_stage)[2] <- paste0(stage, "_promoterselves_CHH")
+  CG_promoterselves_stage <- collapse_methylation_rows(CG_promoterselves_stage, "ID", paste0(stage, "_promoterselves_CG"))
+  CHG_promoterselves_stage <- collapse_methylation_rows(CHG_promoterselves_stage, "ID", paste0(stage, "_promoterselves_CHG"))
+  CHH_promoterselves_stage <- collapse_methylation_rows(CHH_promoterselves_stage, "ID", paste0(stage, "_promoterselves_CHH"))
   
   insGenePromC <- Reduce(function(x,y) merge(x,y,by.x="V10",by.y="ID",all.x=TRUE),
                          list(insGeneTEmC, CG_promoterselves_stage, CHG_promoterselves_stage, CHH_promoterselves_stage))
@@ -316,9 +343,6 @@ for(stage in stages){
   gdf <- sort_exp(insGeneTEmC[,c("V4","V10",paste0(stage,"_exp"),paste0(stage,"_TEexp"),
                                  paste0(stage,"_TE_CG"),paste0(stage,"_TE_CHG"),paste0(stage,"_TE_CHH"))],
                   paste0(stage,"_exp"))
-  pmC <- sort_exp(insGenePromC[,c("V4","V10",paste0(stage,"_exp"),paste0(stage,"_TEexp"),
-                                  paste0(stage,"_promoterselves_CG"),paste0(stage,"_promoterselves_CHG"),paste0(stage,"_promoterselves_CHH"))],
-                  paste0(stage,"_exp"))
   wo <- sort_exp(woTEGenePromC[,c("gene_id",paste0(stage),
                                   paste0(stage,"_promoter_CG"),paste0(stage,"_promoter_CHG"),paste0(stage,"_promoter_CHH"))],
                   paste0(stage))
@@ -334,14 +358,19 @@ for(stage in stages){
 
   if(include_unexp){
     gdf  <- gdf[(gdf[[paste0(stage,"_exp")]] != 0), ]
-    pmC  <- pmC[(pmC[[paste0(stage,"_exp")]] != 0), ]
   } else {
     gdf  <- gdf[(gdf[[paste0(stage,"_exp")]] != 0) & (gdf[[paste0(stage,"_TEexp")]] != 0), ]
-    pmC  <- pmC[(pmC[[paste0(stage,"_exp")]] != 0) & (pmC[[paste0(stage,"_TEexp")]] != 0), ]
   }
 
-  pmC  <- pmC[, c(2,3,5,6,7)]
-  pmC <- unique(pmC)
+  pmC <- gdf[, c("V4", "V10", paste0(stage, "_exp")), drop=FALSE]
+  pmC$.pair_order <- seq_len(nrow(pmC))
+  pmC <- Reduce(function(x,y) merge(x,y,by.x="V10",by.y="ID",all.x=TRUE,sort=FALSE),
+                list(pmC, CG_promoterselves_stage, CHG_promoterselves_stage, CHH_promoterselves_stage))
+  pmC <- pmC[order(pmC$.pair_order), ]
+  pmC$.pair_order <- NULL
+  if (nrow(pmC) != nrow(gdf)) {
+    stop("Promoter containing TEs rows must match TE-gene pairs rows.")
+  }
 
   TE_CG <- sliding(TEdf[[paste0(stage,"_TE_CG")]]*100)
   TE_CHG <- sliding(TEdf[[paste0(stage,"_TE_CHG")]]*100)
@@ -401,8 +430,8 @@ mapped_right_ticks <- right_ticks / max(right_ticks) * max(left_ticks)
 
 png(
   file=output_file(paste0("OUTPUT_4_TEexp_TEmC_line_",stage,".png")),
-  width=2600,
-  height=2200,
+  width=2500,
+  height=2300,
   res=400
 )
 
@@ -527,6 +556,11 @@ legend(
 
 par(xpd=FALSE)
 
+title(
+  main = "Correlation between TE methylation \nand TE expression\n",
+  cex.main = MODULE4_CEX_LABEL ,
+  font.main = 2
+)
 box(lwd=MODULE4_FRAME_WIDTH)
 
 mtext(
@@ -554,6 +588,7 @@ dev.off()
   mtext("Lowly expressed genes      Highly expressed genes", side=1, line=1, cex=MODULE4_CEX_LABEL,font=2)
   box(lwd=MODULE4_FRAME_WIDTH)
   mtext(paste0("TE-gene pairs: ", nrow(gdfexp), ", window size: ", g_window), side=1, line=4, cex=MODULE4_CEX_NOTE+0.2)
+  title(main = paste0("Correlation between TE expression\n", "and gene expression"),cex.main = MODULE4_CEX_LABEL+0.2 ,font.main = 2)
 
   dev.off()
 
@@ -634,6 +669,7 @@ for(mtype in c("CG","CHG","CHH")){
     rho_df$label <- sprintf("\u03c1=%.2f", rho_df$rho)
 
     line_end_df <- df_long %>%
+        filter(is.finite(value)) %>%
         group_by(type) %>%
         filter(x == max(x)) %>%
         slice(1) %>%
@@ -641,29 +677,35 @@ for(mtype in c("CG","CHG","CHH")){
         select(type, end_x = x, end_y = value)
 
     rho_df <- rho_df %>%
-        left_join(line_end_df, by = "type")
+        left_join(line_end_df, by = "type") %>%
+        filter(is.finite(rho), is.finite(end_x), is.finite(end_y))
 
     x_axis_max <- max(df_long$x, na.rm = TRUE) * 1.18
-    rho_df$x <- rho_df$end_x + max(df_long$x, na.rm = TRUE) * 0.03
-    rho_df$y <- rho_df$end_y + ylim_val * 0.04
-    rho_df$y <- pmin(rho_df$y, ylim_val * 0.98)
+    if (nrow(rho_df) > 0) {
+        rho_df$x <- rho_df$end_x + max(df_long$x, na.rm = TRUE) * 0.03
+        rho_df$y <- rho_df$end_y + ylim_val * 0.04
+        rho_df$y <- pmin(rho_df$y, ylim_val * 0.98)
 
-    min_gap <- ylim_val * 0.07
-    rho_df <- rho_df[order(rho_df$y), , drop = FALSE]
+        min_gap <- ylim_val * 0.07
+        rho_df <- rho_df[order(rho_df$y), , drop = FALSE]
 
-    if (nrow(rho_df) > 1) {
-        for (i in 2:nrow(rho_df)) {
-            if ((rho_df$y[i] - rho_df$y[i - 1]) < min_gap) {
-                rho_df$y[i] <- rho_df$y[i - 1] + min_gap
+        if (nrow(rho_df) > 1) {
+            for (i in 2:nrow(rho_df)) {
+                if ((rho_df$y[i] - rho_df$y[i - 1]) < min_gap) {
+                    rho_df$y[i] <- rho_df$y[i - 1] + min_gap
+                }
             }
         }
-    }
 
-    if (max(rho_df$y, na.rm = TRUE) > ylim_val * 0.98) {
-        rho_df$y <- rho_df$y - (max(rho_df$y, na.rm = TRUE) - ylim_val * 0.98)
-    }
+        if (max(rho_df$y, na.rm = TRUE) > ylim_val * 0.98) {
+            rho_df$y <- rho_df$y - (max(rho_df$y, na.rm = TRUE) - ylim_val * 0.98)
+        }
 
-    rho_df$y <- pmax(rho_df$y, ylim_val * 0.08)
+        rho_df$y <- pmax(rho_df$y, ylim_val * 0.08)
+    } else {
+        rho_df$x <- numeric(0)
+        rho_df$y <- numeric(0)
+    }
 
     p <- ggplot(df_long, aes(x = x, y = value, color = type)) +
         geom_line(linewidth = 1.5) +
@@ -674,12 +716,12 @@ for(mtype in c("CG","CHG","CHH")){
             hjust = 0,
             vjust = 0.5,
             fontface = "bold",
-            size = MODULE4_LINE_LABEL_SIZE + 1.5,
+            size = MODULE4_LINE_LABEL_SIZE + 1,
             show.legend = FALSE
         ) +
         scale_color_manual(values = line_colors, labels = line_labels, breaks = c( "TE", "wTE","woTE")) +
         coord_cartesian(ylim = c(0, ylim_val), xlim = c(0, x_axis_max)) +
-        labs(
+        labs(    title = "Correlation between TE methylation\n and gene expression",
             y = paste0(mtype, " methylation level (%)"),
             x = "Lowly expressed genes             Highly expressed genes",
             caption = paste0(
@@ -701,9 +743,10 @@ for(mtype in c("CG","CHG","CHH")){
             plot.margin = margin(t = 10, r = 10, b = 24, l = 10),
             plot.caption = element_text(
                 hjust = 0.5,
-                size = PETEM_AXIS_TEXT_SIZE + 1.3,
+                size = PETEM_AXIS_TEXT_SIZE + 1.5,
                 lineheight = 1.1
             ),
+            plot.title = element_text(size = PETEM_AXIS_TEXT_SIZE + 3,face = "bold",hjust = 0.5),
             plot.caption.position = "plot",
             axis.text.x = element_blank(),
             axis.ticks.x = element_blank(),
@@ -714,8 +757,8 @@ for(mtype in c("CG","CHG","CHH")){
     ggsave(
         filename = output_file(paste0("OUTPUT_4_geneexp_TEm", mtype, "_line_", stage, ".png")),
         plot = p,
-        width = 2600 / 400,
-        height = 2200 / 400,
+        width = 2300 / 400,
+        height = 2500 / 400,
         dpi = 400,
         units = "in"
     )

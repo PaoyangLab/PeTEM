@@ -27,20 +27,20 @@ COPY . /opt/petem
 
 # Ensure helper binaries are executable
 RUN chmod +x /opt/petem/petem \
-    /opt/petem/run_PeTEM.sh \
-    /opt/petem/env_check.sh \
-    /opt/petem/setup.sh \
-    /opt/petem/0_preprocessing.sh \
-    /opt/petem/1_TE_distribution.sh \
-    /opt/petem/3_TE_impact_distance.sh \
-    /opt/petem/3_1_TE_impact_distance_preprocess.sh \
-    /opt/petem/3_2_TE_impact_distance_plot.sh \
-    /opt/petem/wigToBigWig \
-    /opt/petem/bigWigAverageOverBed
+    /opt/petem/scripts/run_PeTEM.sh \
+    /opt/petem/scripts/env_check.sh \
+    /opt/petem/scripts/setup.sh \
+    /opt/petem/scripts/0_preprocessing.sh \
+    /opt/petem/scripts/1_TE_distribution.sh \
+    /opt/petem/scripts/3_TE_impact_distance.sh \
+    /opt/petem/scripts/3_1_TE_impact_distance_preprocess.sh \
+    /opt/petem/scripts/3_2_TE_impact_distance_plot.sh \
+    /opt/petem/scripts/bin/wigToBigWig \
+    /opt/petem/scripts/bin/bigWigAverageOverBed
 
 ENV PETEM_HOME=/opt/petem
 WORKDIR /data
 VOLUME ["/data"]
 
-ENTRYPOINT ["bash", "-lc", "/opt/petem/env_check.sh >/tmp/petem_env_check.log && exec /opt/petem/petem \"$@\"", "--"]
+ENTRYPOINT ["bash", "-lc", "/opt/petem/scripts/env_check.sh >/tmp/petem_env_check.log && exec /opt/petem/petem \"$@\"", "--"]
 CMD ["--help"]
