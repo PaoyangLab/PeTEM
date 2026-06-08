@@ -149,10 +149,9 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
        * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
        * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
        * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
-    * Fungi
-       * [10 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+    * Fungi: [10 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
     
-        | Abbreviation | Species |
+        | File ID | Species |
         |--------------|---------|
         | BCINB05_10_18Chr / Bcin0510 / BcinT4 | *Botrytis cinerea* |
         | Bgra | *Blumeria graminis* |
