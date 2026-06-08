@@ -152,33 +152,37 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
     ```
 
     <details>
-    <summary> ℹ️ Click for file sources </summary>
+      <summary> ℹ️ Click for file sources </summary>
+        
+      <br>
       
-    * Animals:
-       * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
-       * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
-       * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
-       * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
-    * Plants:
-       * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
-       * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
-       * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
-       * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
-    * Fungi: [10 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
-    
-        | File ID | Species |
-        |--------------|---------|
-        | BCINB05_10_18Chr / Bcin0510 / BcinT4 | *Botrytis cinerea* |
-        | Bgra | *Blumeria graminis* |
-        | Colletotrichum_higginsianum | *Colletotrichum higginsianum* |
-        | Lmac | *Leptosphaeria maculans* |
-        | Mlar | *Melampsora larici-populina* |
-        | Mory | *Magnaporthe oryzae* |
-        | Mvio | *Microbotryum violaceum* |
-        | Pgra | *Puccinia graminis sp. Triticeae* |
-        | Sscl | *Sclerotinia sclerotiorum* |
-        | Tmel | *Tuber melanosporum* |
-    
+      * Animals:
+         * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
+         * [Mouse (GRCm39/mm39)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001635.27/)
+         * [Zebrafish (GRCz11/danRer11)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000002035.6/)
+         * [Fruit fly (dm6)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001215.4/)
+      * Plants:
+         * [Arabidopsis (Araport11)](https://www.arabidopsis.org/download/list?dir=Genes%2FAraport11_genome_release)
+         * [Rice (IRGSP-1.0)](https://rice.uga.edu/download_osa1r7.shtml)
+         * [Maize (Zea mays cv. B73, RefGen_v5)](https://www.maizegdb.org/download)
+         * [Soybean (Glycine max cv. Williams 82, Glycine_max_v4.0)](http://ncbi.nlm.nih.gov/datasets/genome/GCF_000004515.6/)
+      * Fungi: [10 species](https://urgi.versailles.inra.fr/download/fungi/TEs/)
+      
+          | File ID | Species |
+          |--------------|---------|
+          | BCINB05_10_18Chr / Bcin0510 / BcinT4 | *Botrytis cinerea* |
+          | Bgra | *Blumeria graminis* |
+          | Colletotrichum_higginsianum | *Colletotrichum higginsianum* |
+          | Lmac | *Leptosphaeria maculans* |
+          | Mlar | *Melampsora larici-populina* |
+          | Mory | *Magnaporthe oryzae* |
+          | Mvio | *Microbotryum violaceum* |
+          | Pgra | *Puccinia graminis sp. Triticeae* |
+          | Sscl | *Sclerotinia sclerotiorum* |
+          | Tmel | *Tuber melanosporum* |
+      
+      <br>
+      
     </details>
 
   - **Genome index file (FASTA index)** 
@@ -209,12 +213,16 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
 
     
     <details>
-    <summary> ℹ️ Click for file sources </summary>
-    
-    > FASTA index file is generated from genome fasta file using samtools:
-    ```
-    samtools faidx genome.fa
-    ```
+      <summary> ℹ️ Click for file sources </summary>
+      
+      <br>
+      
+      > FASTA index file is generated from genome fasta file using samtools:
+      ```
+      samtools faidx genome.fa
+      ```
+      
+      <br>
     
     </details>
     
@@ -245,38 +253,42 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
     ```
 
     <details>
-    <summary> ℹ️ Click for file sources </summary>
+      <summary> ℹ️ Click for file sources </summary>
+      
+      <br>
+      
+      > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
+   
+      **Download files**
+      ```bash
+      wget https://github.com/PaoyangLab/PeTEM/releases/download/TE_annotation/TE_files.tar.gz
+      tar -xzvf TE_files.tar.gz
+      ```
+      
+      **Included species**
+      | Kingdom | Species | File |
+      |----------|----------|----------|
+      | Animal | *Homo sapiens* | `human_TE.txt` |
+      | Animal | *Mus musculus* | `mouse_TE.txt` |
+      | Animal | *Danio rerio* | `zebrafish_TE.txt` |
+      | Animal | *Drosophila melanogaster* | `fruit_fly_TE.txt` |
+      | Plant | *Arabidopsis thaliana* | `Arabidopsis_TE.txt` |
+      | Plant | *Oryza sativa* | `rice_TE.txt` |
+      | Plant | *Zea mays* | `maize_TE.txt` |
+      | Plant | *Glycine max* | `soybean_TE.txt` |
+      | Fungi | *Botrytis cinerea* | `Botrytis_cinerea_TE.txt` |
+      | Fungi | *Blumeria graminis* | `Blumeria_graminis_TE.txt` |
+      | Fungi | *Colletotrichum higginsianum* | `Colletotrichum_higginsianum_TE.txt` |
+      | Fungi | *Leptosphaeria maculans* | `Leptosphaeria_maculans_TE.txt` |
+      | Fungi | *Melampsora larici-populina* | `Melampsora_larici-populina_TE.txt` |
+      | Fungi | *Magnaporthe oryzae* | `Magnaporthe_oryzae_TE.txt` |
+      | Fungi | *Microbotryum violaceum* | `Microbotryum_violaceum_TE.txt` |
+      | Fungi | *Puccinia graminis* f. sp. *tritici* | `Puccinia_graminis_TE.txt` |
+      | Fungi | *Sclerotinia sclerotiorum* | `Sclerotinia_sclerotiorum_TE.txt` |
+      | Fungi | *Tuber melanosporum* | `Tuber_melanosporum_TE.txt` |
+  
+      <br>
     
-    > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
- 
-    **Download files**
-    ```bash
-    wget https://github.com/PaoyangLab/PeTEM/releases/download/TE_annotation/TE_files.tar.gz
-    tar -xzvf TE_files.tar.gz
-    ```
-    
-    **Included species**
-    | Kingdom | Species | File |
-    |----------|----------|----------|
-    | Animal | *Homo sapiens* | `human_TE.txt` |
-    | Animal | *Mus musculus* | `mouse_TE.txt` |
-    | Animal | *Danio rerio* | `zebrafish_TE.txt` |
-    | Animal | *Drosophila melanogaster* | `fruit_fly_TE.txt` |
-    | Plant | *Arabidopsis thaliana* | `Arabidopsis_TE.txt` |
-    | Plant | *Oryza sativa* | `rice_TE.txt` |
-    | Plant | *Zea mays* | `maize_TE.txt` |
-    | Plant | *Glycine max* | `soybean_TE.txt` |
-    | Fungi | *Botrytis cinerea* | `Botrytis_cinerea_TE.txt` |
-    | Fungi | *Blumeria graminis* | `Blumeria_graminis_TE.txt` |
-    | Fungi | *Colletotrichum higginsianum* | `Colletotrichum_higginsianum_TE.txt` |
-    | Fungi | *Leptosphaeria maculans* | `Leptosphaeria_maculans_TE.txt` |
-    | Fungi | *Melampsora larici-populina* | `Melampsora_larici-populina_TE.txt` |
-    | Fungi | *Magnaporthe oryzae* | `Magnaporthe_oryzae_TE.txt` |
-    | Fungi | *Microbotryum violaceum* | `Microbotryum_violaceum_TE.txt` |
-    | Fungi | *Puccinia graminis* f. sp. *tritici* | `Puccinia_graminis_TE.txt` |
-    | Fungi | *Sclerotinia sclerotiorum* | `Sclerotinia_sclerotiorum_TE.txt` |
-    | Fungi | *Tuber melanosporum* | `Tuber_melanosporum_TE.txt` |
-
     </details>
 
 - **Methylation Data**  
@@ -306,13 +318,16 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   ```
 
   <details>
-    
     <summary> ℹ️ Click for file sources </summary>
+    
+    <br>
     
     > CGmap files can be generated from WGBS data using:
     * [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
     * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) + [CGmapTools](https://cgmaptools.github.io/)
 
+    <br>
+    
   </details>
 
 - **Expression Data**
@@ -359,6 +374,8 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   <details>
     <summary> ℹ️ Click for file sources </summary>
     
+    <br>
+    
     > Expression files can be generated from expression/count matrices using `edgeR_for_expression.R` bundled in this repository
     ```
     Rscript differential_expression.R \
@@ -367,6 +384,8 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
       -o results
     ```
 
+    <br>
+    
   </details>
 
 ## Pipeline Modules
