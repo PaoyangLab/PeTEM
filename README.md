@@ -132,7 +132,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     | seqid | Sequence ID, chromosome, or scaffold name |
     | source | Annotation source |
     | type | Genomic feature type |
-    | start | Start coordinate |
+    | start | Start coordinate (1-based) |
     | end | End coordinate |
     | score | Annotation score |
     | strand | Strand information (`+`, `-`, or `.`) |
@@ -231,7 +231,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     |----------|----------|
     | TE name | Transposable element identifier |
     | chromosome | Chromosome or scaffold name |
-    | start | Start coordinate |
+    | start | Start coordinate (0-based) |
     | end | End coordinate |
     | score | Annotation score |
     | strand | Strand information (`+`, `-`, or `.`) |
@@ -293,7 +293,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   |----------|----------|
   | chromosome | Chromosome or scaffold name |
   | nucleotide | Cytosine (`C`) or guanine (`G`) on the forward or reverse strand |
-  | position | Genomic position of the methylation site |
+  | position | Genomic position of the methylation site (1-based) |
   | context | Methylation context (`CG`, `CHG`, or `CHH`) |
   | dinucleotide | Dinucleotide sequence surrounding the methylation site |
   | methylation level | Methylation level ranging from 0 to 1 |
