@@ -126,7 +126,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   - **General features annotations file (GFF format)** 
     > The genome annotation file contains genomic feature coordinates and hierarchical annotations.
   
-    Format (`genomic.gff`)
+    Format: (`genomic.gff`)
     
     | Column | Description |
     |----------|----------|
@@ -186,7 +186,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   
     > The genome FASTA index file provides the names and lengths of each chromosome.
   
-    Format (`genome.fa.fai`)
+    Format: (`genome.fa.fai`)
   
     | Column | Description |
     |----------|----------|
@@ -226,7 +226,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   
     > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
     
-    Format (`TE.txt`)
+    Format: (`TE.txt`)
   
     | Column | Description |
     |----------|----------|
@@ -288,7 +288,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   > CGmap is a file format for storing single-base resolution DNA methylation data.
 
 
-  Format (`*.CGmap.gz files`)
+  Format: (`*.CGmap.gz files`)
 
   | Column | Description |
   |----------|----------|
@@ -336,7 +336,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   | PValue_condition1_condition2 | Statistical significance of differential expression | `PValue_root_leaf` |
   | FDR_condition1_condition2 | Multiple-testing adjusted p-value | `FDR_root_leaf` |
 
-  Format 
+  Format: 
 
   | Column | Description |
   |----------|----------|
@@ -346,7 +346,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   | PValue_condition1_condition2 | Differential expression p-value |
   | FDR_condition1_condition2 | Adjusted p-value (FDR) |
 
-  Example (`gene_expression.txt`)
+  Example: (`gene_expression.txt`)
 
   ```text
   AT1G01010  11.64  10.93   0.09   0.60  1
@@ -354,7 +354,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   AT1G01030   0.65   1.01  -0.63   0.19  0.84
   ```
 
-  Example (`TE_expression.txt`)
+  Example: (`TE_expression.txt`)
 
   ```text
   AT1TE00010  386.06  240.27  0.63  0.73  1
