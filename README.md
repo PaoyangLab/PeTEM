@@ -181,43 +181,84 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     
     </details>
 
-  - **Genome index file (FASTA index)** 
-    > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
-    
-    `genome.fa.fai`
-    | name | length | offset | linebases | linewidth |
-    |---|---|---|---|---|
-    | Chr1 | 30427671 | 74 | 79 | 80 |
-    | Chr2 | 19698289 | 30812981 | 79 | 80 |
-    | Chr3 | 23459830 | 50760691 | 79 | 80 |
-    | Chr4 | 18585056 | 74517556 | 79 | 80 |
-    | Chr5 | 26975502 | 93337941 | 79 | 80 |
-    | ChrC | 154478 | 120654981 | 79 | 80 |
-    | ChrM | 367808 | 120811562 | 70 | 71 |
+- **Genome index file (FASTA index):** `genome.fa.fai`
 
-  - **Transposable element coordinates** 
-    > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+  > The genome FASTA index file is generated from genome fasta file (usage: `samtools faidx genome.fa`), providing the names and lengths of each chromosome.
 
-    > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
-    
-    `TE.txt`
-    | TE name | chromosome | start | end | score | strand | TE family |
-    |---|---|---|---|---|---|---|
-    | AT1TE00010 | Chr1 | 11897 | 11976 | 0 | + | LTR/Copia |
-    | AT1TE00020 | Chr1 | 16883 | 17009 | 0 | - | RC/Helitron |
-    | AT1TE00025 | Chr1 | 17024 | 18924 | 0 | + | RC/Helitron |
-    | AT1TE00030 | Chr1 | 18331 | 18642 | 0 | - | DNA/HAT |
+  Table Format:
 
-- **Methylation Data**
-  > CGmap files includes 8 columns: chromosome, C or G (forward or reverse strand), position, context (CG/CHG/CHH), dinucleotide, methylation level (0-1), # of reads supporting methylation, depth.
-  
-  `*.CGmap.gz files`
-  | #chromosome | #nucleotide | #site | #context | #dinucleotide | #methylation level | #C site | #C+T site |
-  |---|---|---|---|---|---|---|---|
-  | Chr3 | C | 556 | CG | CG | 0.877551 | 43 | 49 |
-  | Chr3 | G | 557 | CG | CG | 0.787879 | 26 | 33 |
-  | Chr3 | G | 558 | CHG | CC | 0.405405 | 15 | 37 |
-  | Chr3 | G | 560 | CHH | CA | 0.102564 | 4 | 39 |
+  | Column | Description |
+  |----------|----------|
+  | name | Chromosome or sequence name |
+  | length | Sequence length (bp) |
+  | offset | Byte offset of the sequence in the FASTA file |
+  | linebases | Number of bases per sequence line |
+  | linewidth | Number of bytes per sequence line, including newline characters |
+
+  Example:
+
+  ```text
+  Chr1  30427671  74         79  80
+  Chr2  19698289  30812981   79  80
+  Chr3  23459830  50760691   79  80
+  Chr4  18585056  74517556   79  80
+  Chr5  26975502  93337941   79  80
+  ChrC  154478    120654981  79  80
+  ChrM  367808    120811562  70  71
+  ```
+
+  - **Transposable element coordinates:**  `TE.txt`
+
+  > The transposable element annotation file contains genomic coordinates and classification information for annotated transposable elements (TEs), including TE family and strand orientation.
+
+  > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
+
+  Table Format:
+
+  | Column | Description |
+  |----------|----------|
+  | TE name | Transposable element identifier |
+  | chromosome | Chromosome or scaffold name |
+  | start | Start coordinate |
+  | end | End coordinate |
+  | score | Annotation score |
+  | strand | Strand information (`+`, `-`, or `.`) |
+  | TE family | Transposable element family classification |
+
+  Example:
+
+  ```text
+  AT1TE00010  Chr1  11897  11976  0  +  LTR/Copia
+  AT1TE00020  Chr1  16883  17009  0  -  RC/Helitron
+  AT1TE00025  Chr1  17024  18924  0  +  RC/Helitron
+  AT1TE00030  Chr1  18331  18642  0  -  DNA/HAT
+  ```
+
+- **Methylation Data:**  `*.CGmap.gz files`
+  > CGmap is a file format designed to store and share single-base resolution DNA methylation data.
+
+
+  Table Format:
+
+  | Column | Description |
+  |----------|----------|
+  | chromosome | Chromosome or scaffold name |
+  | nucleotide | Cytosine (`C`) or guanine (`G`) on the forward or reverse strand |
+  | position | Genomic position of the methylation site |
+  | context | Methylation context (`CG`, `CHG`, or `CHH`) |
+  | dinucleotide | Dinucleotide sequence surrounding the methylation site |
+  | methylation level | Methylation level ranging from 0 to 1 |
+  | #C site | Number of reads supporting methylated cytosine |
+  | #C+T site | Total sequencing depth at the site |
+
+  Example:
+
+  ```text
+  Chr3  C  556  CG   CG  0.877551  43  49
+  Chr3  G  557  CG   CG  0.787879  26  33
+  Chr3  G  558  CHG  CC  0.405405  15  37
+  Chr3  G  560  CHH  CA  0.102564   4  39
+  ```
 
 - **Expression Data**
   > The expression data includes differentially expressed genes `gene_expression.txt` and differentially expressed TEs `TE_expression.txt`.
