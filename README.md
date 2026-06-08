@@ -359,17 +359,19 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, whereas the remaining 
   Example: (`gene_expression.txt`)
 
   ```text
-  AT1G01010  11.64  10.93   0.09   0.60  1
-  AT1G01020   6.39   5.95   0.10   0.62  1
-  AT1G01030   0.65   1.01  -0.63   0.19  0.84
+              root   leaf  logFC_root_leaf  PValue_root_leaf  FDR_root_leaf
+  AT1G01010  11.64  10.93             0.09              0.60              1
+  AT1G01020   6.39   5.95             0.10              0.62              1
+  AT1G01030   0.65   1.01            -0.63              0.19           0.84
   ```
 
   Example: (`TE_expression.txt`)
 
   ```text
-  AT1TE00010  386.06  240.27  0.63  0.73  1
-  AT1TE00020    0.00    0.00  0.00  1.00  1
-  AT1TE00025    0.00    0.00  0.00  1.00  1
+                root    leaf  logFC_root_leaf  PValue_root_leaf  FDR_root_leaf
+  AT1TE00010  386.06  240.27             0.63              0.73              1
+  AT1TE00020    0.00    0.00             0.00              1.00              1
+  AT1TE00025    0.00    0.00             0.00              1.00              1
   ```
 
   <details>
