@@ -456,7 +456,7 @@ for(k in seq_along(fc_cols)){
       plot_delta_scatter(df_sub,
         x_col, y_col,
         output_file(paste0("OUTPUT_5_geneexp_TEm", mC_type, "_change_", si, "_", sj, "_scatter.png")),
-        paste0("TE ", mC_type, " methylation and DEG expression responses\nbetween ", si, " and ", sj),
+        paste0("TE ", mC_type, " methylation and DEG expression\n responses between ", si, " and ", sj),
         bquote(bold(Delta~"Gene expression level (log2 RPKM FC)")),
         bquote(bold(Delta ~ .(paste0("TE ", mC_type, " methylation level (%)"))))
       )
@@ -514,7 +514,7 @@ for(k in seq_along(fc_cols)){
       plot_delta_scatter(df_sub,
         x_TE_col, y_TE_col,
         output_file(paste0("OUTPUT_5_TEexp_TEm", mC_type, "_change_", si, "_", sj, "_scatter.png")),
-        paste0("TE ", mC_type, " methylation and TE expression responses\nbetween ", si, " and ", sj),
+        paste0("TE ", mC_type, " methylation and TE expression\n responses between ", si, " and ", sj),
         bquote(bold(Delta~"TE expression level (log2 RPKM FC)")),
         bquote(bold(Delta ~ .(paste("TE", mC_type, "methylation level (%)"))))      )
     }

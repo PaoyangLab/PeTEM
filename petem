@@ -4,12 +4,8 @@ set -euo pipefail
 MODULE_NAME="PeTEM CLI"
 SCRIPT_NAME=$(basename "${BASH_SOURCE[0]}")
 CURRENT_STEP="initialization"
-<<<<<<< HEAD
 PETEM_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 SCRIPT_DIR="$PETEM_ROOT/scripts"
-=======
-SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
->>>>>>> paoyanglab/main
 
 die() {
   echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
@@ -776,11 +772,6 @@ run_module_3() {
   [[ -n $overlap_bed ]] || die "missing required argument: -i TE_overlap_promoter.bed or --manifest module0_manifest.json"
   [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt or --manifest module0_manifest.json"
   [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt or --manifest module0_manifest.json"
-<<<<<<< HEAD
-=======
-  (( ${#meth_files[@]} > 0 )) || die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...] or --manifest module0_manifest.json"
-
->>>>>>> paoyanglab/main
   gene_input=$(resolve_path "$gene_input")
   te_bed=$(resolve_path "$te_bed")
   overlap_bed=$(resolve_path "$overlap_bed")
@@ -808,13 +799,10 @@ run_module_3() {
 
   CURRENT_STEP="module 3 execution"
   mkdir -p "$outdir"
-<<<<<<< HEAD
   local -a module3_meth_args=()
   if (( ${#meth_files[@]} > 0 )); then
     module3_meth_args=(-m "${meth_files[@]}")
   fi
-=======
->>>>>>> paoyanglab/main
   te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_3_te_input")
   CURRENT_STEP="seqname normalization"
   local normalized_output
@@ -833,11 +821,7 @@ run_module_3() {
   (
     cd "$outdir"
     bash "$SCRIPT_DIR/3_TE_impact_distance.sh" \
-<<<<<<< HEAD
       "${module3_meth_args[@]}" \
-=======
-      -m "${meth_files[@]}" \
->>>>>>> paoyanglab/main
       -g "$gene_bed" \
       -t "$te_bed" \
       -i "$overlap_bed" \
