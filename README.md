@@ -151,7 +151,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     ```
 
     <details>
-    <summary> ℹ️ How to get the files </summary>
+    <summary> ℹ️ Click for file sources </summary>
     <br>
       
     * Animals:
@@ -209,12 +209,15 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
 
     
     <details>
-    <summary> ℹ️ How to get the files </summary>
+    <summary> ℹ️ Click for file sources </summary>
+      
     <br>
+    
     > FASTA index file is generated from genome fasta file using samtools:
     ```
     samtools faidx genome.fa
     ```
+    
     </details>
     
   
@@ -244,9 +247,12 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
     ```
 
     <details>
-    <summary> ℹ️ How to get the files </summary>
+    <summary> ℹ️ Click for file sources </summary>
+      
     <br>
+    
     > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
+
     </details>
 
 - **Methylation Data**  
@@ -276,11 +282,14 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   ```
 
   <details>
-    <summary> ℹ️ How to get the files </summary>
+    
+    <summary> ℹ️ Click for file sources </summary>
     <br>
+    
     > CGmap files can be generated from WGBS data using:
     * [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
     * [Bismark](https://www.bioinformatics.babraham.ac.uk/projects/bismark/) + [CGmapTools](https://cgmaptools.github.io/)
+
   </details>
 
 - **Expression Data**
@@ -325,8 +334,10 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
   ```
 
   <details>
-    <summary> ℹ️ How to get the files </summary>
+    <summary> ℹ️ Click for file sources </summary>
+    
     <br>
+    
     > Expression files can be generated from expression/count matrices using `edgeR_for_expression.R` bundled in this repository
     ```
     Rscript differential_expression.R \
@@ -334,6 +345,7 @@ In PeTEM, running the module 1 and 2 rely solely on annotation data, while runni
       --et TE_expression.txt \
       -o results
     ```
+
   </details>
 
 ## Pipeline Modules
