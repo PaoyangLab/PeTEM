@@ -153,7 +153,6 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
 
     <details>
     <summary> ℹ️ Click for file sources </summary>
-    <br>
       
     * Animals:
        * [Human (GRCh38/hg38)](https://www.ncbi.nlm.nih.gov/datasets/genome/GCF_000001405.40/)
@@ -211,8 +210,6 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
     
     <details>
     <summary> ℹ️ Click for file sources </summary>
-      
-    <br>
     
     > FASTA index file is generated from genome fasta file using samtools:
     ```
@@ -249,8 +246,6 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
 
     <details>
     <summary> ℹ️ Click for file sources </summary>
-      
-    <br>
     
     > Processed TE annotation files from 18 species are available [here](https://github.com/PaoyangLab/PeTEM/releases/tag/TE_annotation)
  
@@ -313,7 +308,6 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
   <details>
     
     <summary> ℹ️ Click for file sources </summary>
-    <br>
     
     > CGmap files can be generated from WGBS data using:
     * [BS-Seeker2](https://github.com/BSSeeker/BSseeker2)
@@ -364,8 +358,6 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, while running the rema
 
   <details>
     <summary> ℹ️ Click for file sources </summary>
-    
-    <br>
     
     > Expression files can be generated from expression/count matrices using `edgeR_for_expression.R` bundled in this repository
     ```
