@@ -20,7 +20,6 @@
 1. [Clone repository](#clone-repository) 
 2. [Download example data](#download-example-data) 
 3. [Set up environment](#set-up-environment) 
-4. [Set up execution permission](#set-up-execution-permission) 
 
 **Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
 - [Module 0: Preprocessing](#module-0-preprocessing) 
@@ -61,15 +60,6 @@ conda env create -f environment.yml
 conda activate petem
 bash env_check.sh ##optional
 ```
-
-## Set up execution permission
-> Before running PeTEM, ensure the executable file has the proper execution permission:
-```bash
-chmod +x ./petem
-chmod +x ./wigToBigWig
-chmod +x ./bigWigAverageOverBed
-```
-
 
 ## Module 0: Preprocessing
 * __Command:__
