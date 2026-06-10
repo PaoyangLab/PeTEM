@@ -1,20 +1,34 @@
 # Tutorial
-> This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. <br> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/PaoyangLab/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
+> This tutorial demonstrates how to run the PeTEM pipeline using the provided example dataset. (⏳Runtime: 10 minutes) <br>
+> For detailed information on installation, input formats, parameters, and outputs, please refer to the [README](https://github.com/PaoyangLab/PeTEM/tree/main#promoter-embedded-te-methylation-petem-analyzer).
+
+
+**Tested Environment**
+| Component | Specification |
+|------------|------------|
+| Operating System | Ubuntu 20.04.2 LTS (Focal Fossa) |
+| Linux Kernel | 5.15.0-138-generic |
+| CPU | Intel Xeon Gold 6238 @ 2.10 GHz |
+| Memory | 1.4 TB RAM |
+| R | 4.2.2 |
+| Python | 3.12.3 |
+| Conda | 24.11.3 |
+
+## Table of Contents
 
 **Setup**
-1. [Clone repository](#clone-repository) ⏳: 20s
-2. [Download example data](#download-example-data) ⏳: 40s
-3. [Set up environment](#set-up-environment) ⏳: 2min
-4. [Create example output directories](#create-example-output-directories) ⏳: <10s
-5. [Set up execution permission](#set-up-execution-permission) ⏳: <10s
+1. [Clone repository](#clone-repository) 
+2. [Download example data](#download-example-data) 
+3. [Set up environment](#set-up-environment) 
+4. [Set up execution permission](#set-up-execution-permission) 
 
 **Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
-- [Module 0: Preprocessing](#module-0-preprocessing) ⏳: 2min
-- [Module 1: TE Distribution](#module-1-te-distribution) ⏳: <10s
-- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families) ⏳: <10s
-- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene) ⏳: 4min
-- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression) ⏳: 10s
-- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs) ⏳: 20s
+- [Module 0: Preprocessing](#module-0-preprocessing) 
+- [Module 1: TE Distribution](#module-1-te-distribution) 
+- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families) 
+- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene) 
+- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression) 
+- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs) 
 
 ## Clone repository
 ```bash
@@ -24,46 +38,29 @@ cd PeTEM
 
 ## Download example data
 ```bash
-wget https://github.com/PaoyangLab/PeTEM/releases/download/v0.0.3/PeTEM_data.tar.gz
+wget https://github.com/PaoyangLab/PeTEM/releases/download/Example_data/PeTEM_data.tar.gz
 tar -xzvf PeTEM_data.tar.gz
 ```
 
-> This command will download and set up a directory `PeTEM_data` including 9 files.
+> This command downloads and extracts the `PeTEM_data` directory, which contains 9 files.
 
-| File                                                                           | Description                     |
-| ------------------------------------------------------------------------------ | ------------------------------- |
-| `genome.fa.fai`                                                                | Genome index file               |
-| `genomic.gff`                                                                  | Genome annotation file          |
-| `TE.txt`                                                                       | TE annotation file              |
-| `gene_expression.txt`                                                          | Gene expression file            |
-| `TE_expression.txt`                                                            | TE expression file              |
-| `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap files         |
+| File                                                                           | Description                 |
+| ------------------------------------------------------------------------------ | --------------------------- |
+| `genome.fa.fai`                                                                | Genome index                |
+| `genomic.gff`                                                                  | Genome annotation           |
+| `TE.txt`                                                                       | TE annotation               |
+| `gene_expression.txt`                                                          | Gene expression             |
+| `TE_expression.txt`                                                            | TE expression               |
+| `leaf_01.CGmap.gz`, `leaf_02.CGmap.gz`, `root_01.CGmap.gz`, `root_02.CGmap.gz` | Methylation CGmap           |
 
 ## Set up environment 
-> Here we use Conda setup as example. **Docker image** and **Local setup** as alternative methods are shown in [README](https://github.com/PaoyangLab/PeTEM#set-up-environment)
+> This tutorial uses the Conda setup as an example. Alternative setup methods, including **Docker** and **Local setup**, are described in the [README](https://github.com/PaoyangLab/PeTEM#set-up-environment).
+
 ```bash
 conda env create -f environment.yml
 conda activate petem
 bash env_check.sh ##optional
 ```
-
-## Create example output directories
-
-> Create the example output directory structure used throughout the tutorial:
-
-```bash
-mkdir -p ./example/module{0..5}
-```
-
-> Each directory is used to store the output files generated by the corresponding PeTEM module.
-
-./example/ <br>
-├── module0/ <br>
-├── module1/ <br>
-├── module2/ <br>
-├── module3/ <br>
-├── module4/ <br>
-└── module5/ <br>
 
 ## Set up execution permission
 > Before running PeTEM, ensure the executable file has the proper execution permission:
@@ -122,7 +119,8 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
   
-  <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/640d4216-d9a0-481b-bb36-f90440d6759f" />
+  <img width="1127" height="572" alt="image" src="https://github.com/user-attachments/assets/0dc997ca-8baa-4961-b7c5-5a146c10a8ec" />
+
 
 
 ## Module 2: Enriched promoter-embedded TE Families
@@ -144,7 +142,7 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figure:__
 
-  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/1ac50d9c-8c72-4abd-9d1a-3f1ccf73b4b3" />
+  <img width="1127" height="525" alt="image" src="https://github.com/user-attachments/assets/e876d0fd-93c4-4715-9d09-88f441f5f433" />
 
 
 ## Module 3: TE methylation near gene
@@ -161,12 +159,12 @@ chmod +x ./bigWigAverageOverBed
 
   | File | Description |
   |---|---|
-  | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, together with the numbers of highly and lowly expressed genes included in each analysis. |
+  | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, along with the numbers of highly and lowly expressed genes included in each analysis. |
   | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
    
 * __Figures:__
 
-  <img width="1127" height="542" alt="image" src="https://github.com/user-attachments/assets/fb4a54fe-f946-4a44-92eb-ae33dd9a487e" />
+  <img width="1127" height="1115" alt="image" src="https://github.com/user-attachments/assets/9116f7eb-9244-4ab7-a390-4db4ed154b57" />
 
 
 ## Module 4. Correlation between methylation and expression
@@ -183,13 +181,12 @@ chmod +x ./bigWigAverageOverBed
 
   | File | Description |
   |---|---|
-  | `OUTPUT_4_geneexp/TEexp_*.png` | Line plots showing the relationships between (1) TE methylation and TE expression, (2) TE methylation, promoter methylation (with or without embedded TEs), and gene expression, and (3) TE expression and gene expression across conditions. Each figure also reports the number of TE–gene pairs analyzed and the smoothing window size used. |
-  | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson's or Spearman's correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
+  | `OUTPUT_4_geneexp/TEexp_*.png` | Line plots showing the relationships between (1) TE methylation and TE expression, (2) TE methylation, promoter methylation (with or without embedded TEs), and gene expression, and (3) TE expression and gene expression across conditions. Each figure reports the number of TE–gene pairs analyzed and the smoothing window size used. |
+  | `OUTPUT_4_correlation_*.png` | Bar plots summarizing Pearson or Spearman correlation coefficients for (1) TE CG/CHG/CHH methylation vs. TE expression, (2) TE CG/CHG/CHH methylation vs. gene expression, and (3) TE expression vs. gene expression across conditions. |
 
 * __Figures:__
 
-  <img width="1127" height="1627" alt="image" src="https://github.com/user-attachments/assets/73ae6856-f737-44ac-8862-75c519fbbde0" />
-
+  <img width="1127" height="1650" alt="image" src="https://github.com/user-attachments/assets/b770d81d-e07b-462b-9030-6e2532f1078b" />
 
 
 ## Module 5. Associated TE and gene pairs
@@ -214,7 +211,7 @@ chmod +x ./bigWigAverageOverBed
 
 * __Figures:__
 
-  <img width="1127" height="1407" alt="image" src="https://github.com/user-attachments/assets/1c00454c-f797-487e-9c68-422af24dc952" />
+  <img width="1127" height="1407" alt="image" src="https://github.com/user-attachments/assets/60694bdd-73cc-4e0e-9e8a-23a29ad2acbf" />
 
 
 * __Tables:__

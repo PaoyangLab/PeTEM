@@ -757,7 +757,7 @@ for(type in types){
   }
 
   output_file <- if(prefix == "woTE"){
-    paste0("OUTPUT_3_TE_impact_distance_control_",stage,"_",type,".png")
+    paste0("OUTPUT_3_nonTE_impact_distance_",stage,"_",type,".png")
   } else {
     paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png")
   }
