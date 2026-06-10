@@ -21,8 +21,8 @@ Usage:
   petem 1_TE_distribution [-g genome_bed_dir] [-t TE.bed_or_TE.txt] [-f genome.fa.fai] [--manifest module0_manifest.json] [-o output_dir]
   petem --2 [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
   petem 2_TE_families [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
-  petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
-  petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+  petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+  petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
   petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
@@ -710,6 +710,7 @@ run_module_3() {
   local overlap_bed=""
   local gene_exp=""
   local te_exp=""
+  local fai=""
   local outdir=""
   local manifest=""
   local limit=15000
@@ -730,6 +731,7 @@ run_module_3() {
       -i) overlap_bed=$2; shift 2 ;;
       -eg) gene_exp=$2; shift 2 ;;
       -et) te_exp=$2; shift 2 ;;
+      -f) fai=$2; shift 2 ;;
       --manifest) manifest=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       -d|-lim) limit=$2; shift 2 ;;
@@ -758,10 +760,12 @@ run_module_3() {
     manifest=$(resolve_path "$manifest")
     require_file "module 0 manifest file" "$manifest"
     [[ -n $gene_input ]] || gene_input=$(manifest_get "$manifest" "outputs.annotation_dir" || true)
+    [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_bed_prepared" || true)
     [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_input_original" || true)
     [[ -n $overlap_bed ]] || overlap_bed=$(manifest_get "$manifest" "outputs.te_overlap_promoter_bed" || true)
     [[ -n $gene_exp ]] || gene_exp=$(manifest_get "$manifest" "inputs.gene_expression" || true)
     [[ -n $te_exp ]] || te_exp=$(manifest_get "$manifest" "inputs.te_expression" || true)
+    [[ -n $fai ]] || fai=$(manifest_get "$manifest" "inputs.fai" || true)
     if (( ${#meth_files[@]} == 0 )); then
       mapfile -t meth_files < <(manifest_get_array "$manifest" "inputs.methylation_files" || true)
     fi
@@ -777,6 +781,7 @@ run_module_3() {
   overlap_bed=$(resolve_path "$overlap_bed")
   gene_exp=$(resolve_path "$gene_exp")
   te_exp=$(resolve_path "$te_exp")
+  [[ -z $fai ]] || fai=$(resolve_path "$fai")
   outdir=$(resolve_path "${outdir:-$(pwd)}")
 
   if [[ -d $gene_input ]]; then
@@ -790,6 +795,7 @@ run_module_3() {
   require_file "TE overlap promoter BED file" "$overlap_bed"
   require_file "Gene expression file" "$gene_exp"
   require_file "TE expression file" "$te_exp"
+  [[ -z $fai ]] || require_file "FAI file" "$fai"
 
   local i
   for ((i = 0; i < ${#meth_files[@]}; i++)); do
@@ -805,9 +811,15 @@ run_module_3() {
   fi
   te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_3_te_input")
   CURRENT_STEP="seqname normalization"
+  local normalize_reference="$gene_bed"
+  local normalize_reference_kind="bed"
+  if [[ -n $fai ]]; then
+    normalize_reference="$fai"
+    normalize_reference_kind="fai"
+  fi
   local normalized_output
   normalized_output=$(
-    normalize_seqname_files "$gene_bed" "bed" "$outdir/tmp/module_3_normalized" \
+    normalize_seqname_files "$normalize_reference" "$normalize_reference_kind" "$outdir/tmp/module_3_normalized" \
       "${te_bed}::bed"
   )
   mapfile -t normalized_paths <<< "$normalized_output"

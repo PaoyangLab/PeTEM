@@ -148,6 +148,7 @@ def meta(path, content_hash=False):
     return out
 
 data = {
+    "cache_version": "module3_closest_gene_filter_v3",
     "inputs": [meta(p, content_hash=True) for p in [gene_bed, te_bed, promoter_bed, gene_exp, te_exp]],
     "params": {
         "limit": limit,
@@ -357,9 +358,17 @@ TE_bed   <- read.table("TE_sort.bed", header=F, stringsAsFactors=F)
 gene_exp    <- read.table(gene_exp, header=T, stringsAsFactors=F)
 TE_exp    <- read.table(TE_exp, header=T, stringsAsFactors=F)
 
-gene_exp <- gene_exp[rowSums(gene_exp) != 0, , drop=FALSE]
+de_prefix <- "^(logFC_|PValue_|FDR_|dexp_|dTEexp_|PV_)"
+gene_stage_cols <- setdiff(colnames(gene_exp), grep(de_prefix, colnames(gene_exp), value=TRUE))
+TE_stage_cols <- setdiff(colnames(TE_exp), grep(de_prefix, colnames(TE_exp), value=TRUE))
+shared_stage_cols <- intersect(gene_stage_cols, TE_stage_cols)
+if(length(shared_stage_cols) == 0){
+    stop("No shared expression stage columns found between gene and TE expression files.")
+}
+
 if(tolower(include_unexp) != "y"){
-    TE_exp <- TE_exp[rowSums(TE_exp) != 0, , drop=FALSE]
+    gene_exp <- gene_exp[rowSums(gene_exp[, shared_stage_cols, drop=FALSE], na.rm=TRUE) != 0, , drop=FALSE]
+    TE_exp <- TE_exp[rowSums(TE_exp[, shared_stage_cols, drop=FALSE], na.rm=TRUE) != 0, , drop=FALSE]
 }
 
 gene_bed2 <- gene_bed[gene_bed$V4 %in% row.names(gene_exp), ]
@@ -373,18 +382,17 @@ bedtools closest -a expressed_gene.bed -b expressed_TE.bed -id -d -D a > expgene
 
 CURRENT_STEP="step B2 - build expression strata and adjacent regions"
 echo "[`date`] [B] Step 2. Split high/low genes and build adjacent regions" | tee -a "$LOG"
-Rscript - "$GENE_EXP" "$LIMIT" "$TOP_BOTTOM_PERCENT" "$PROMOTER_EMBEDDED_BED" "${stages[@]}" <<'EOF' 
+Rscript - "$GENE_EXP" "$LIMIT" "$TOP_BOTTOM_PERCENT" "$INCLUDE_UNEXPRESSED_TE" "${stages[@]}" <<'EOF'
 args <- commandArgs(trailingOnly=TRUE)
 
 gene_exp <- args[1]
 limit <- as.numeric(args[2])
 top_bottom_percent <- as.numeric(args[3])
-promoter_embedded_bed <- args[4]
+include_unexp <- args[4]
 allowed_stages <- args[-c(1:4)]
 
 gene_bed <- read.table("gene_sort.bed", header=F, stringsAsFactors=F)
 gene_exp    <- read.table(gene_exp, header=T, stringsAsFactors=F)
-promoter_embedded <- read.table(promoter_embedded_bed, header=F, stringsAsFactors=F)
 
 # Function for adjacent regions
 adjacent <- function(df, up=TRUE, limit=limit){
@@ -400,18 +408,24 @@ adjacent <- function(df, up=TRUE, limit=limit){
     df2[df2$V6=="+",2] <- df2[df2$V6=="+",3] + 1
     df2[df2$V6=="+",3] <- df2[df2$V6=="+",2] + (limit)
   }
-  df2$V2[df2$V2 < 1] <- 1
+  df2$V2 <- pmax(0, as.numeric(df2$V2))
+  df2$V3 <- pmax(0, as.numeric(df2$V3))
+  df2 <- df2[df2$V3 > df2$V2, , drop=FALSE]
   df2[5] <- 0
   return(df2)
 }
 
-gene_col <- if(ncol(promoter_embedded) >= 10) 10 else if(ncol(promoter_embedded) >= 4) 4 else stop("TE_overlap_promoter.bed does not contain a recognizable gene ID column.")
-promoter_gene_ids <- unique(promoter_embedded[[gene_col]])
-promoter_gene_ids <- promoter_gene_ids[!is.na(promoter_gene_ids) & promoter_gene_ids != "."]
+clo_TE <- read.table("expgene_closest_expTE.bed", sep="\t", header=FALSE, stringsAsFactors=FALSE)
+if(ncol(clo_TE) < 13){
+  stop("expgene_closest_expTE.bed does not contain the expected closest TE distance column.")
+}
+clo_TE2 <- clo_TE[clo_TE$V10 != "." & clo_TE$V13 >= (-limit), , drop=FALSE]
+nearby_gene_ids <- unique(clo_TE2$V4)
+nearby_gene_ids <- nearby_gene_ids[!is.na(nearby_gene_ids) & nearby_gene_ids != "."]
 gene_ids <- gene_bed$V4
 
-plot_gene_ids <- intersect(gene_ids, intersect(row.names(gene_exp), promoter_gene_ids))
-control_gene_ids <- setdiff(intersect(gene_ids, row.names(gene_exp)), promoter_gene_ids)
+plot_gene_ids <- intersect(gene_ids, intersect(row.names(gene_exp), nearby_gene_ids))
+control_gene_ids <- setdiff(intersect(gene_ids, row.names(gene_exp)), nearby_gene_ids)
 
 gene_exp_plot <- gene_exp[row.names(gene_exp) %in% plot_gene_ids, , drop = FALSE]
 gene_exp_control <- gene_exp[row.names(gene_exp) %in% control_gene_ids, , drop = FALSE]
@@ -425,9 +439,11 @@ sink("OUTPUT_3_TE_impact_distance_gene_TE_number.txt")
 
 for(stage in stages){
   vals_plot <- gene_exp_plot[, stage, drop=FALSE]
-  vals_plot <- vals_plot[vals_plot[,1]>0, , drop=FALSE]
   vals_control <- gene_exp_control[, stage, drop=FALSE]
-  vals_control <- vals_control[vals_control[,1]>0, , drop=FALSE]
+  if(tolower(include_unexp) != "y"){
+    vals_plot <- vals_plot[vals_plot[,1]>0, , drop=FALSE]
+    vals_control <- vals_control[vals_control[,1]>0, , drop=FALSE]
+  }
   if(nrow(vals_plot) == 0){
     next
   }
@@ -481,9 +497,9 @@ for(stage in stages){
   }
 
   cat( stage, ":","\n")
-  cat("  Promoter-embedded highly expressed gene number:", nrow(high_plot_bed), "\n")
-  cat("  Promoter-embedded lowly expressed gene number:", nrow(low_plot_bed), "\n")
-  cat("  Non-promoter-embedded expressed gene number:", nrow(vals_control), "\n\n")
+  cat("  TE-nearby highly expressed gene number:", nrow(high_plot_bed), "\n")
+  cat("  TE-nearby lowly expressed gene number:", nrow(low_plot_bed), "\n")
+  cat("  No nearby TE expressed gene number:", nrow(vals_control), "\n\n")
 }
 sink()
 EOF
@@ -500,6 +516,7 @@ for file in "${stage_files[@]}"; do
   stage=${stage%.txt}
   [[ -n $stage ]] && stages+=("$stage")
 done
+pids=()
 for stage in "${stages[@]}"; do
 (
   start=$(date +%s)
@@ -545,8 +562,11 @@ for stage in "${stages[@]}"; do
   end=$(date +%s)
   echo "[INFO] Stage $stage done in $((end-start)) sec"   | tee -a "$LOG"
 )&
+pids+=("$!")
 done
-wait
+for pid in "${pids[@]}"; do
+  wait "$pid"
+done
 save_plot_cache "$PLOT_CACHE_DIR"
 printf '%s\n' "$PLOT_CACHE_KEY" > "$PLOT_CACHE_KEY_FILE"
 fi
@@ -631,9 +651,10 @@ linedf <- function(df){
   }
 
   # Use a centered moving average across adjacent 100 bp bins.
-  smoothed <- stats::filter(df_list, rep(1/3, 3), sides = 2)
-  smoothed[is.na(smoothed)] <- df_list[is.na(smoothed)]
-  as.numeric(smoothed)
+  # smoothed <- stats::filter(df_list, rep(1/3, 3), sides = 2)
+  # smoothed[is.na(smoothed)] <- df_list[is.na(smoothed)]
+  # as.numeric(smoothed)
+  as.numeric(df_list)
 }
 
 types <- c("CG","CHG","CHH")
