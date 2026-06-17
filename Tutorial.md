@@ -58,7 +58,7 @@ tar -xzvf PeTEM_data.tar.gz
 ```bash
 conda env create -f environment.yml
 conda activate petem
-bash env_check.sh ##optional
+bash ./scripts/env_check.sh ##optional
 ```
 
 ## Module 0: Preprocessing
