@@ -743,7 +743,7 @@ for(type in types){
   left_labels <- -rev(tick_values)
   right_labels <- tick_values
   breaks <- c(left_breaks, 0, gap, right_breaks)
-  labels <- c(left_labels, "TSS", "TTS", right_labels)
+  labels <- c(left_labels, "TSS", "TES", right_labels)
 
   if(show_border == "y"){
     border_x <- c()
@@ -762,13 +762,33 @@ for(type in types){
     paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png")
   }
   y_label <- if(prefix == "woTE"){
-    paste0("nTE ", type, " methylation level (%)")
+    paste0("non-TE ", type, " methylation level (%)")
   } else {
     paste0("TE ", type, " methylation level (%)")
   }
 
-  plot_prefix_label <- if(prefix == "woTE") "nTE" else "TE"
+  plot_prefix_label <- if(prefix == "woTE") "Non-TE" else "TE"
   plot_title <- paste0(plot_prefix_label, " ", type, " methylation around genes with different expression level")
+
+  if(prefix == "woTE"){
+    ymax <- max(line_all$mC, na.rm = TRUE)
+    if(ymax < 5){
+      y_limit <- 5
+      y_breaks <- c(0,1,2,3,4,5)
+    } else if(ymax < 20){
+      y_limit  <- 20
+      y_breaks <- c(0,5,10,15,20)
+    } else if(ymax < 50){
+      y_limit  <- 50
+      y_breaks <- c(0,10,20,30,40,50)
+    } else {
+      y_limit  <- 100
+      y_breaks <- c(0,20,40,60,80,100)
+    }  
+  } else {
+    y_limit  <- 100
+    y_breaks <- c(0,20,40,60,80,100)
+  }
 
   png(file=output_file, width=3400, height=2000, res=400)
 
@@ -829,7 +849,7 @@ for(type in types){
   scale_fill_manual(values=setNames(c("#F8CDD5","#CFE6FA"), c(high_label, low_label)),
                     breaks=c(high_label, low_label), guide = "none") +
   scale_x_continuous(breaks=breaks, labels=labels) +
-  scale_y_continuous(limits=c(0, 100), breaks=c(0, 25, 50, 75, 100)) +
+  scale_y_continuous(limits=c(0, y_limit), breaks=y_breaks) +
   theme(legend.position="top",
     legend.text = element_text(size = PETEM_LEGEND_TEXT_SIZE + 3),
     panel.grid.minor = element_blank(),
