@@ -70,7 +70,7 @@ option_list = list(
   make_option(c("--module0-dir"), type="character", default=".", help="Directory containing Module 0 outputs such as Tab_* and TE_overlap_promoter.bed"),
   make_option(c("--outdir"), type="character", default=".", help="Output directory"),
   make_option(c("--unexp"), type="character", default="n", help="Include unexpressed TEs? (y/n)"),
-  make_option(c("--positive"), type="character", default="y",
+  make_option(c("--positive"), type="character", default="n",
             help="Also output positive-correlation Q1/Q3 boxplots and gene-TE pair lists? (y/n)")
 )
 
