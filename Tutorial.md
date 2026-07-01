@@ -149,12 +149,18 @@ bash ./scripts/env_check.sh ##optional
 
   | File | Description |
   |---|---|
-  | `OUTPUT_3_gene_TE_number.txt` | Summary table reporting the upstream and downstream boundaries (bp) of TE methylation effects on gene expression, along with the numbers of highly and lowly expressed genes included in each analysis. |
-  | `OUTPUT_3_gene_proximal_TE_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
+  | `OUTPUT_3_genes_number.txt` | Summary table reporting the numbers of highly and lowly expressed genes included in each analysis. |
+  | `OUTPUT_3_TE_methylation_near_genes_*.png` | Plots showing CG, CHG, and CHH methylation patterns of gene-proximal TEs around highly and lowly expressed genes under each condition. Different visualization methods can be selected to display TE methylation trends across genomic regions. |
+  | `OUTPUT_3_nonTE_methylation_near_genes_*.png` | Plots showing CG, CHG, and CHH methylation patterns of non-TE regions around highly and lowly expressed genes under each condition. |
    
 * __Figures:__
 
-  <img width="1127" height="1115" alt="image" src="https://github.com/user-attachments/assets/9116f7eb-9244-4ab7-a390-4db4ed154b57" />
+  <img width="766" height="917" alt="image" src="https://github.com/user-attachments/assets/7184c2a6-4b07-4980-b55c-221fd9af020b" />
+
+
+
+
+
 
 
 ## Module 4. Correlation between methylation and expression
