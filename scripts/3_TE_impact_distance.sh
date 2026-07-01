@@ -775,9 +775,6 @@ for(type in types){
     if(ymax < 5){
       y_limit <- 5
       y_breaks <- c(0,1,2,3,4,5)
-    } else if(ymax < 20){
-      y_limit  <- 20
-      y_breaks <- c(0,5,10,15,20)
     } else if(ymax < 50){
       y_limit  <- 50
       y_breaks <- c(0,10,20,30,40,50)
