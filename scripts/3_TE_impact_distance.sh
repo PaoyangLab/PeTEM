@@ -435,7 +435,7 @@ stages <- intersect(colnames(gene_exp_plot), allowed_stages)
 if(length(stages) == 0){
   stop("No overlapping expression stages matched the methylation stage names.")
 }
-sink("OUTPUT_3_TE_impact_distance_gene_TE_number.txt")
+sink("OUTPUT_3_highly_lowly_expressed_genes_number.txt")
 
 for(stage in stages){
   vals_plot <- gene_exp_plot[, stage, drop=FALSE]
@@ -757,9 +757,9 @@ for(type in types){
   }
 
   output_file <- if(prefix == "woTE"){
-    paste0("OUTPUT_3_nonTE_impact_distance_",stage,"_",type,".png")
+    paste0("OUTPUT_3_nonTE_methylation_near_genes_",stage,"_",type,".png")
   } else {
-    paste0("OUTPUT_3_TE_impact_distance_",stage,"_",type,".png")
+    paste0("OUTPUT_3_TE_methylation_near_genes_",stage,"_",type,".png")
   }
   y_label <- if(prefix == "woTE"){
     paste0("non-TE ", type, " methylation level (%)")
