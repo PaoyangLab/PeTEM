@@ -545,13 +545,13 @@ Users must run module 0 first to preprocess the input files before running modul
   | `-et` | Path to the transposable element expression table. |
   | `-o` | Output directory for module 3 results. |
   | `-d` | The total up- and downstream distance (in bp) to consider gene-proximal TEs. (Default `4000` means ±4 kb around genes will be analyzed) |
-  | `-p` | The top/bottom X% of genes will be considered as the highly/lowly expressed genes. (Default: `10`, means top/bottom 10% of genes will be the highly/lowly expressed genes) |
+  | `-p` | The top/bottom X% of genes will be considered as the highly/lowly expressed genes. X must range from `1` to `50`. (Default: `10`, means top/bottom 10% of genes will be the highly/lowly expressed genes) |
   | `-w` | For choosing `average`. Sliding window size (bp) used to smooth the TE methylation level curve. (Default: `100`) |
   | `-l` | There are several options to show the pattern of gene-proximal TE methylation, including (1) average TE methylation within each window, (2) linear regression line, (3) second-degree polynomial regression line, and (4) local regression line (`average`, `linear`, `poly2`, and `poly`). Default: `average` |
   | `-CI` | To show the 95% CI on the plot or not. Default: `no` |
   | `-border` | To show the border that TE methylation near lowly expressed genes is significantly higher than that near highly expressed genes on the plot or not. Default: `no` |
-  | `-unexp` | To include TEs with zero expression across all samples in the analysis. Default: `no` |
-  | `-nTE` | To show the methylation level of non transposon sites around genes. Default: `no` |
+  | `-unexp` | To include TEs with zero expression across all samples in the analysis. Default: `yes` |
+  | `-nTE` | To show the methylation level of non transposon sites around genes. Default: `yes` |
 
 ### Module 4. Calculate correlation coefficients
 > Correlate gene expression with TE/promoter methylation, and TE expression with TE methylation.
