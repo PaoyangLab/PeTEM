@@ -435,7 +435,7 @@ stages <- intersect(colnames(gene_exp_plot), allowed_stages)
 if(length(stages) == 0){
   stop("No overlapping expression stages matched the methylation stage names.")
 }
-sink("OUTPUT_3_highly_lowly_expressed_genes_number.txt")
+sink("OUTPUT_3_genes_number.txt")
 
 for(stage in stages){
   vals_plot <- gene_exp_plot[, stage, drop=FALSE]
