@@ -12,7 +12,7 @@ SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 #     -m sample1.CGmap.gz sample2.CGmap.gz ... \
 #     -g gene.bed -t TE.bed -i TE_overlap_promoter.bed \
 #     -eg gene_expression.txt -et TE_expression.txt \
-#     [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+#     [-d 4000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
 
 die() {
   echo "[ERROR] ${MODULE_NAME} | ${SCRIPT_NAME} | ${CURRENT_STEP}: $*" >&2
@@ -20,7 +20,7 @@ die() {
 }
 
 usage() {
-  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -i TE_overlap_promoter.bed -eg expression_gene.txt -et expression_TE.txt [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]" >&2
+  echo "Usage: bash 3_TE_impact_distance.sh -m sample1.CGmap.gz [sample2.CGmap.gz ...] -g gene.bed -t TE.bed -i TE_overlap_promoter.bed -eg expression_gene.txt -et expression_TE.txt [-d 4000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]" >&2
   exit 1
 }
 
