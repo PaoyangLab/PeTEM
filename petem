@@ -21,8 +21,8 @@ Usage:
   petem 1_TE_distribution [-g genome_bed_dir] [-t TE.bed_or_TE.txt] [-f genome.fa.fai] [--manifest module0_manifest.json] [-o output_dir]
   petem --2 [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
   petem 2_TE_families [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
-  petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
-  petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+  petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 4000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
+  petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 4000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
   petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
@@ -713,15 +713,15 @@ run_module_3() {
   local fai=""
   local outdir=""
   local manifest=""
-  local limit=15000
+  local limit=4000
   local tick=0
   local percentile=10
   local window_size=100
   local line_mode="raw"
   local show_ci="n"
-  local show_border="y"
+  local show_border="n"
   local unexp="n"
-  local control="n"
+  local control="y"
   local -a meth_files=()
 
   while [[ $# -gt 0 ]]; do
