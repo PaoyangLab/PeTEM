@@ -186,8 +186,7 @@ In PeTEM, modules 1 and 2 rely solely on annotation data, whereas the remaining 
 
   - **Genome index file (FASTA index)** 
   
-    > The genome FASTA index file provides the names and lengths of each chromosome.
-  
+    > The genome FASTA index file provides the names and lengths of each chromosome. Users can create the file using: `samtools faidx genome.fa`  
     Format: (`genome.fa.fai`)
   
     | Column | Description |
