@@ -25,8 +25,8 @@ Usage:
   petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 15000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
   petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
-  petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
-  petem 5_cross_condition_correlation [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B]
+  petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B] [-expchange pvalue|fdr 0.05] [-mcchange 0]
+  petem 5_cross_condition_correlation [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B] [-expchange pvalue|fdr 0.05] [-mcchange 0]
 
 Required files inside genome_bed_dir:
   gene.bed
@@ -938,6 +938,9 @@ run_module_5() {
   local manifest=""
   local stage_a=""
   local stage_b=""
+  local expchange_stat="pvalue"
+  local expchange_cutoff="0.05"
+  local mcchange="0"
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -949,6 +952,8 @@ run_module_5() {
       --unexp) unexp=$2; shift 2 ;;
       --positive) positive=$2; shift 2 ;;
       -stage|--stage) [[ $# -ge 3 ]] || die "-stage requires two values"; stage_a=$2; stage_b=$3; shift 3 ;;
+      -expchange) [[ $# -ge 3 ]] || die "-expchange requires pvalue|fdr and a cutoff"; expchange_stat=$2; expchange_cutoff=$3; shift 3 ;;
+      -mcchange) [[ $# -ge 2 ]] || die "-mcchange requires a cutoff"; mcchange=$2; shift 2 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 5: $1" ;;
     esac
@@ -986,7 +991,10 @@ run_module_5() {
 	      --module0-dir "$module0_dir" \
 	      --outdir "$outdir" \
       --unexp "$unexp"\
-      --positive "$positive")
+      --positive "$positive" \
+      --expchange-stat "$expchange_stat" \
+      --expchange-cutoff "$expchange_cutoff" \
+      --mcchange "$mcchange")
     [[ -n $stage_a ]] && cmd+=(-stage "$stage_a" "$stage_b")
     "${cmd[@]}"
 	  )

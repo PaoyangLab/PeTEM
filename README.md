@@ -602,6 +602,8 @@ Users must run module 0 first to preprocess the input files before running modul
     --DEG <DEG_TABLE> \
     --DETE <DETE_TABLE> \
     --module0-dir <MODULE0_OUTPUT_DIR> \
+    -expchange pvalue 0.05 \
+    -mcchange 0 \
     -o <OUTPUT_DIR>
   ```
 
@@ -619,6 +621,8 @@ Users must run module 0 first to preprocess the input files before running modul
   | `--DETE` | Path to the differentially expressed transposable element (DETE) table. |
   | `--module0-dir` | Path to the module 0 output directory. Required for loading methylation and annotation results generated in module 0. |
   | `-stage` | Two condition names for pairwise comparison. The specified conditions must match the condition names in the expression tables. |
+  | `-expchange pvalue\|fdr <cutoff>` | Select raw p-value or FDR for gene/TE expression change filtering; `abs(logFC) > 1` also applies. Default: `pvalue 0.05`. |
+  | `-mcchange <cutoff>` | Require absolute TE methylation change greater than this many percentage points in methylation plots and Q1–Q4 pair lists. Default: `0`. |
   | `-o` | Output directory for module 5 results. |
   | `--positive` | Specify the correlation direction to analyze. Set to `yes` for positive correlation analysis or `no` for negative correlation analysis. Default: `yes`.|
 
