@@ -252,7 +252,7 @@ bash ./scripts/env_check.sh ##optional
 The optional Feature Analysis in Modules 2 and 5 requires the TAIR10 reference genome FASTA file and its index.
 
 ```bash
-wget https://github.com/PaoyangLab/PeTEM/releases/download/TAIR10_reference/TAIR10_reference.tar.gz
+wget https://github.com/PaoyangLab/PeTEM/releases/download/TAIR_reference/TAIR10_reference.tar.gz
 tar -xzvf TAIR10_reference.tar.gz
 ```
 
