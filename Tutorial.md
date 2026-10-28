@@ -318,5 +318,5 @@ Positive and negative TEs are classified based on the directions of gene express
 
  * __Figures:__
 
- <img width="1127" height="355" alt="module5_feature" src="https://github.com/user-attachments/assets/19133192-c0bd-4ddb-9de3-078977cd4013" />
+   <img width="1127" height="355" alt="module5_feature" src="https://github.com/user-attachments/assets/19133192-c0bd-4ddb-9de3-078977cd4013" />
 
