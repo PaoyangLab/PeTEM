@@ -278,6 +278,7 @@ Module 2 compares the genomic characteristics of all TEs and promoter-embedded T
   | `OUTPUT_2_TE_features_summary.txt` | Summary statistics of genomic features for each TE group. |
 
   Error bars in the feature comparison plots represent the standard error of the mean (SEM).
+  <img width="1127" height="355" alt="module2_feature" src="https://github.com/user-attachments/assets/5943deb3-2688-4e51-9e04-887253d59bae" />
 
 
 ### Module 5: Genomic Features of Associated TE–Gene Pairs
@@ -316,4 +317,5 @@ Positive and negative TEs are classified based on the directions of gene express
 
   Error bars in the feature comparison plots represent the standard error of the mean (SEM).
 
+<img width="1127" height="355" alt="module5_feature" src="https://github.com/user-attachments/assets/19133192-c0bd-4ddb-9de3-078977cd4013" />
 
