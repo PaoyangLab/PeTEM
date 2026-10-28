@@ -256,8 +256,8 @@ The optional Feature Analysis in Modules 2 and 5 requires the TAIR10 reference g
 
 ```bash
 wget https://github.com/PaoyangLab/PeTEM/releases/download/TAIR_reference/TAIR10_reference.tar.gz
-tar -xzvf TAIR10_reference.tar.gz
-mv TAIR10_reference* ./PeTEM_data/
+mv TAIR10_reference.tar.gz ./PeTEM_data/
+tar -xzvf ./PeTEM_data/TAIR10_reference.tar.gz -C ./PeTEM_data/
 ```
 
 The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
@@ -273,7 +273,7 @@ Module 2 compares the genomic characteristics of all TEs and promoter-embedded T
   ./petem --2 \
     --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
     --feature y \
-    --fasta ./PeTEM_data/genome.fa \
+    --fasta ./PeTEM_data/TAIR10.fa \
     -o ./example/module2_feature
   ```
 
@@ -311,7 +311,7 @@ Positive and negative TEs are classified based on the directions of gene express
     -expchange pvalue 0.05 \
     -mcchange 0 \
     --feature y \
-    --fasta ./PeTEM_data/genome.fa \
+    --fasta ./PeTEM_data/TAIR10.fa \
     -o ./example/module5_feature
   ```
 
