@@ -30,7 +30,7 @@
 - [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression)
 - [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs)
 
-**Feature Analysis (Optional)** (Requires Module 0 preprocessing)
+**(Optional) Feature Analysis** (Requires Module 0 preprocessing)
 - [Module 2: Genomic Features of Promoter-embedded TEs](#module-2-genomic-features-of-promoter-embedded-tes)
 - [Module 5: Genomic Features of Associated TE-Gene Pairs](#module-5-genomic-features-of-associated-te-gene-pairs)
 
