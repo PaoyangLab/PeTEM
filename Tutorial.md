@@ -325,7 +325,8 @@ The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
 
  * __Figures:__
 
-   <img width="1127" height="355" alt="module5_feature" src="https://github.com/user-attachments/assets/19133192-c0bd-4ddb-9de3-078977cd4013" />
-   <img width="1127" height="680" alt="OUTPUT_5_Promoter_embedded_TE_family_enrichment" src="https://github.com/user-attachments/assets/75c59ff8-a979-489e-95ee-933583bad342" />
+  <img width="1127" height="355" alt="module5_feature" src="https://github.com/user-attachments/assets/19133192-c0bd-4ddb-9de3-078977cd4013" />
+  <img width="1127" height="553" alt="module5_feature_2" src="https://github.com/user-attachments/assets/85e507f2-1261-41d1-85fe-75ab07a530d2" />
+
 
 
