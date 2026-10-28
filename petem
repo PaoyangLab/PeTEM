@@ -15,18 +15,18 @@ die() {
 usage() {
   cat >&2 <<'EOF'
 Usage:
-  petem --0 -g annotation.gff3 -t TE.bed_or_TE.txt -eg gene_expression.txt -et TE_expression.txt [-DEG DEG.txt -DETE DETE.txt] -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
-  petem 0_preprocessing -g annotation.gff3 -t TE.bed_or_TE.txt -eg gene_expression.txt -et TE_expression.txt [-DEG DEG.txt -DETE DETE.txt] -f genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...] [-o output_dir]
+  petem --0 -g annotation.gff3 -t TE.bed_or_TE.txt -eg gene_expression.txt -et TE_expression.txt [-DEG DEG.txt -DETE DETE.txt] -f genome.fa.fai {-m sample1.CGmap.gz [sample2.CGmap.gz ...] | -m1 stage1_rep.CGmap.gz [...] -m2 stage2_rep.CGmap.gz [...] [-m3 ... -m4 ... -m5 ...]} [-o output_dir]
+  petem 0_preprocessing -g annotation.gff3 -t TE.bed_or_TE.txt -eg gene_expression.txt -et TE_expression.txt [-DEG DEG.txt -DETE DETE.txt] -f genome.fa.fai {-m sample1.CGmap.gz [sample2.CGmap.gz ...] | -m1 stage1_rep.CGmap.gz [...] -m2 stage2_rep.CGmap.gz [...] [-m3 ... -m4 ... -m5 ...]} [-o output_dir]
   petem --1 [-g genome_bed_dir] [-t TE.bed_or_TE.txt] [-f genome.fa.fai] [--manifest module0_manifest.json] [-o output_dir]
   petem 1_TE_distribution [-g genome_bed_dir] [-t TE.bed_or_TE.txt] [-f genome.fa.fai] [--manifest module0_manifest.json] [-o output_dir]
-  petem --2 [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
-  petem 2_TE_families [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir]
+  petem --2 [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir] [--feature y|n] [--fasta genome.fa] [--gene-bed gene.bed]
+  petem 2_TE_families [-t TE.bed_or_TE.txt] [-T TE_family.txt] [-i TE_overlap_promoter.bed] [--manifest module0_manifest.json] [-o output_dir] [--feature y|n] [--fasta genome.fa] [--gene-bed gene.bed]
   petem --3 [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 4000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
   petem 3_TE_impact_distance [-g gene.bed_or_genome_bed_dir] [-t TE.bed_or_TE.txt] [-i TE_overlap_promoter.bed] [-eg gene_expression.txt] [-et TE_expression.txt] [-f genome.fa.fai] [-m sample1.CGmap.gz [sample2.CGmap.gz ...]] [--manifest module0_manifest.json] [-o output_dir] [-d 4000] [-tick auto] [-p 10] [-w 100] [-l raw|linear|poly|loess] [-CI y|n] [-border y|n] [-unexp y|n] [-nTE y|n]
   petem --4 [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
   petem 4_single_condition_correlation [-eg gene_expression.txt] [-et TE_expression.txt] [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n]  [--smooth 3]
-  petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B] [--positive y|n]
-  petem 5_cross_condition_correlation [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B] [--positive y|n]
+  petem --5 [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B] [--positive y|n] [-expchange pvalue|fdr 0.05] [-mcchange 0] [--feature y|n] [--fasta genome.fa] [--te-bed TE.bed] [--gene-bed gene.bed] [--te-family TE_family.txt]
+  petem 5_cross_condition_correlation [--module0-dir module0_output_dir] [--manifest module0_manifest.json] [-o output_dir] [--unexp y|n] [-stage A B] [--positive y|n] [-expchange pvalue|fdr 0.05] [-mcchange 0] [--feature y|n] [--fasta genome.fa] [--te-bed TE.bed] [--gene-bed gene.bed] [--te-family TE_family.txt]
 
 Required files inside genome_bed_dir:
   gene.bed
@@ -104,6 +104,47 @@ for item in value:
 PYTHON_HELPER
 }
 
+expression_stage_order() {
+  local gene_exp=$1
+  local te_exp=$2
+  python3 - "$gene_exp" "$te_exp" <<'PYTHON_HELPER'
+import re
+import sys
+
+gene_exp, te_exp = sys.argv[1:3]
+de_prefix = re.compile(r"^(logFC_|PValue_|FDR_|dexp_|dTEexp_|PV_|DEG_)")
+id_cols = {"", "id", "gene", "gene_id", "te", "te_id", "transcript_id"}
+
+def stages(path):
+    with open(path, "r", encoding="utf-8") as handle:
+        header = handle.readline().rstrip("\n").split("\t")
+    if header and header[0].strip().lower() in id_cols:
+        header = header[1:]
+    out = []
+    seen = set()
+    for col in header:
+        if not col or de_prefix.match(col):
+            continue
+        stage = col.split("_", 1)[0]
+        if stage not in seen:
+            out.append(stage)
+            seen.add(stage)
+    return out
+
+gene_stages = stages(gene_exp)
+te_stages = stages(te_exp)
+if not gene_stages:
+    raise SystemExit(f"no expression stage columns found in {gene_exp}")
+if gene_stages != te_stages:
+    raise SystemExit(
+        "gene and TE expression stage columns must have the same order: "
+        f"gene={gene_stages}; TE={te_stages}"
+    )
+for stage in gene_stages:
+    print(stage)
+PYTHON_HELPER
+}
+
 write_module0_manifest() {
   local manifest_path=$1
   local module0_outdir=$2
@@ -161,6 +202,7 @@ data = {
         "te_overlap_promoter_bed": os.path.join(module0_outdir, "TE_overlap_promoter.bed"),
         "deg_file": deg_file or os.path.join(module0_outdir, "DEG.txt"),
         "dete_file": dete_file or os.path.join(module0_outdir, "DETE.txt"),
+        "input_mapping_log": os.path.join(module0_outdir, "LOG_0_input_mapping.log"),
     },
 }
 
@@ -411,6 +453,12 @@ run_module_0() {
   local up_bp=1500
   local down_bp=500
   local -a meth_files=()
+  local -a meth_group1=()
+  local -a meth_group2=()
+  local -a meth_group3=()
+  local -a meth_group4=()
+  local -a meth_group5=()
+  local split_meth_used=0
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -431,6 +479,46 @@ run_module_0() {
           shift
         done
         ;;
+      -m1)
+        split_meth_used=1
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_group1+=("$1")
+          shift
+        done
+        ;;
+      -m2)
+        split_meth_used=1
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_group2+=("$1")
+          shift
+        done
+        ;;
+      -m3)
+        split_meth_used=1
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_group3+=("$1")
+          shift
+        done
+        ;;
+      -m4)
+        split_meth_used=1
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_group4+=("$1")
+          shift
+        done
+        ;;
+      -m5)
+        split_meth_used=1
+        shift
+        while [[ $# -gt 0 && ! $1 =~ ^- ]]; do
+          meth_group5+=("$1")
+          shift
+        done
+        ;;
       -h|--help) usage ;;
       *) die "unknown option for module 0: $1" ;;
     esac
@@ -442,7 +530,12 @@ run_module_0() {
   [[ -n $gene_exp ]] || die "missing required argument: -eg gene_expression.txt"
   [[ -n $te_exp ]] || die "missing required argument: -et TE_expression.txt"
   [[ -n $fai ]] || die "missing required argument: -f genome.fa.fai"
-  (( ${#meth_files[@]} > 0 )) || die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...]"
+  if [[ $split_meth_used -eq 1 && ${#meth_files[@]} -gt 0 ]]; then
+    die "use either -m or -m1/-m2/-m3/-m4/-m5, not both"
+  fi
+  if [[ $split_meth_used -eq 0 && ${#meth_files[@]} -eq 0 ]]; then
+    die "missing required argument: -m sample1.CGmap.gz [sample2.CGmap.gz ...] or -m1/-m2..."
+  fi
 
   gff_file=$(resolve_path "$gff_file")
   te_bed=$(resolve_path "$te_bed")
@@ -465,13 +558,89 @@ run_module_0() {
   [[ -n $dete_file ]] && require_file "DETE file" "$dete_file"
   require_file "FAI file" "$fai"
 
-  local i
-  for ((i = 0; i < ${#meth_files[@]}; i++)); do
-    meth_files[$i]=$(resolve_path "${meth_files[$i]}")
-    require_file "Methylation file" "${meth_files[$i]}"
-  done
+  local -a expr_stages=()
+  mapfile -t expr_stages < <(expression_stage_order "$gene_exp" "$te_exp")
+  (( ${#expr_stages[@]} > 0 )) || die "no shared expression stages found in -eg/-et"
 
+  local meth_input_mode="-m"
+  local -a meth_map_lines=()
   mkdir -p "$outdir"
+
+  local i
+  if [[ $split_meth_used -eq 1 ]]; then
+    meth_input_mode="-m1..-m5"
+    (( ${#expr_stages[@]} <= 5 )) || die "-m1..-m5 supports at most 5 expression stages; found ${#expr_stages[@]}"
+    local -a group_sizes=("${#meth_group1[@]}" "${#meth_group2[@]}" "${#meth_group3[@]}" "${#meth_group4[@]}" "${#meth_group5[@]}")
+    for ((i = 0; i < 5; i++)); do
+      if (( i < ${#expr_stages[@]} )); then
+        (( group_sizes[$i] > 0 )) || die "missing methylation files for expression stage '${expr_stages[$i]}' (expected -m$((i+1)))"
+      else
+        (( group_sizes[$i] == 0 )) || die "-m$((i+1)) was provided but expression table has only ${#expr_stages[@]} stages"
+      fi
+    done
+
+    local grouped_meth_dir="$outdir/tmp/module_0_methylation_inputs"
+    rm -rf "$grouped_meth_dir"
+    mkdir -p "$grouped_meth_dir"
+    meth_files=()
+    for ((i = 0; i < ${#expr_stages[@]}; i++)); do
+      local stage="${expr_stages[$i]}"
+      [[ $stage =~ ^[A-Za-z0-9.-]+$ ]] || die "stage name '$stage' is not supported for -m1..-m5; use letters/numbers/dot/hyphen only"
+      local -a current_group=()
+      case $((i+1)) in
+        1) current_group=("${meth_group1[@]}") ;;
+        2) current_group=("${meth_group2[@]}") ;;
+        3) current_group=("${meth_group3[@]}") ;;
+        4) current_group=("${meth_group4[@]}") ;;
+        5) current_group=("${meth_group5[@]}") ;;
+      esac
+      local rep=1
+      local original prepared
+      for original in "${current_group[@]}"; do
+        original=$(resolve_path "$original")
+        require_file "Methylation file for ${stage}" "$original"
+        prepared="$grouped_meth_dir/${stage}_$(printf '%02d' "$rep").CGmap.gz"
+        ln -sf "$original" "$prepared"
+        meth_files+=("$prepared")
+        meth_map_lines+=("${stage}"$'\t'"-m$((i+1))"$'\t'"${rep}"$'\t'"${original}"$'\t'"${prepared}")
+        rep=$((rep + 1))
+      done
+    done
+  else
+    for ((i = 0; i < ${#meth_files[@]}; i++)); do
+      meth_files[$i]=$(resolve_path "${meth_files[$i]}")
+      require_file "Methylation file" "${meth_files[$i]}"
+      local base sample stage
+      base=$(basename "${meth_files[$i]}" .CGmap.gz)
+      stage=${base%%_*}
+      sample=$base
+      meth_map_lines+=("${stage}"$'\t'"-m"$'\t'"$((i+1))"$'\t'"${meth_files[$i]}"$'\t'"${meth_files[$i]}")
+    done
+  fi
+
+  local input_log="$outdir/LOG_0_input_mapping.log"
+  {
+    echo "PeTEM Module 0 input mapping"
+    echo "created_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "gff: $gff_file"
+    echo "te_input: $original_te_input"
+    echo "gene_expression (-eg): $gene_exp"
+    echo "TE_expression (-et): $te_exp"
+    echo "DEG_input (-DEG): ${deg_file:-generated_by_module0}"
+    echo "DETE_input (-DETE): ${dete_file:-generated_by_module0}"
+    echo "fai: $fai"
+    echo "output_dir: $outdir"
+    echo "methylation_input_mode: $meth_input_mode"
+    echo
+    echo "expression_stage_order:"
+    for ((i = 0; i < ${#expr_stages[@]}; i++)); do
+      printf '%s\t%s\n' "$((i+1))" "${expr_stages[$i]}"
+    done
+    echo
+    echo -e "stage\tm_flag\treplicate_index\toriginal_cgmap\tprepared_cgmap"
+    printf '%s\n' "${meth_map_lines[@]}"
+  } > "$input_log"
+
   local deg_out="$outdir/DEG.txt"
   local dete_out="$outdir/DETE.txt"
   CURRENT_STEP="DEG/DETE preparation"
@@ -655,6 +824,9 @@ run_module_2() {
   local overlap_bed=""
   local outdir=""
   local manifest=""
+  local feature="n"
+  local fasta=""
+  local gene_bed=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -662,6 +834,9 @@ run_module_2() {
       -T) te_family=$2; shift 2 ;;
       -i) overlap_bed=$2; shift 2 ;;
       --manifest) manifest=$2; shift 2 ;;
+      --feature) feature=$2; shift 2 ;;
+      --fasta) fasta=$2; shift 2 ;;
+      --gene-bed) gene_bed=$2; shift 2 ;;
       -o) outdir=$2; shift 2 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 2: $1" ;;
@@ -669,12 +844,17 @@ run_module_2() {
   done
 
   CURRENT_STEP="argument validation"
+  [[ $feature == y || $feature == n ]] || die "--feature must be y or n"
   if [[ -n $manifest ]]; then
     manifest=$(resolve_path "$manifest")
     require_file "module 0 manifest file" "$manifest"
+    if [[ -z $te_bed && $feature == y ]]; then
+      te_bed=$(manifest_get "$manifest" "inputs.te_bed_prepared" || true)
+    fi
     [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_input_original" || true)
     [[ -n $te_family ]] || te_family=$(manifest_get "$manifest" "inputs.te_input_original" || true)
     [[ -n $overlap_bed ]] || overlap_bed=$(manifest_get "$manifest" "outputs.te_overlap_promoter_bed" || true)
+    [[ -n $gene_bed ]] || gene_bed=$(manifest_get "$manifest" "outputs.gene_bed" || true)
   fi
 
   [[ -n $te_bed ]] || die "missing required argument: -t TE.bed_or_TE.txt or --manifest module0_manifest.json"
@@ -689,17 +869,29 @@ run_module_2() {
   require_file "TE input file" "$te_bed"
   require_file "TE family file" "$te_family"
   require_file "TE overlap promoter BED file" "$overlap_bed"
+  if [[ $feature == y ]]; then
+    [[ -n $fasta ]] || die "--feature y requires --fasta genome.fa"
+    [[ -n $gene_bed ]] || die "--feature y requires --gene-bed gene.bed or a module 0 manifest"
+    fasta=$(resolve_path "$fasta")
+    gene_bed=$(resolve_path "$gene_bed")
+    require_file "genome FASTA" "$fasta"
+    require_file "genome FASTA index (run samtools faidx)" "$fasta.fai"
+    require_file "gene BED file" "$gene_bed"
+  fi
 
   CURRENT_STEP="module 2 execution"
   mkdir -p "$outdir"
   te_bed=$(prepare_te_bed "$te_bed" "$outdir/tmp/module_2_te_input")
   (
     cd "$outdir"
-    Rscript "$SCRIPT_DIR/2_TE_families.R" \
+    local -a cmd=(Rscript "$SCRIPT_DIR/2_TE_families.R" \
       -a "$te_bed" \
       -i "$overlap_bed" \
       -T "$te_family" \
-      -o "$outdir"
+      -o "$outdir" \
+      --feature "$feature")
+    [[ $feature == y ]] && cmd+=(--fasta "$fasta" --gene-bed "$gene_bed")
+    "${cmd[@]}"
   )
 }
 
@@ -938,6 +1130,14 @@ run_module_5() {
   local manifest=""
   local stage_a=""
   local stage_b=""
+  local expchange_stat="pvalue"
+  local expchange_cutoff="0.05"
+  local mcchange="0"
+  local feature="n"
+  local fasta=""
+  local te_bed=""
+  local gene_bed=""
+  local te_family=""
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -949,18 +1149,29 @@ run_module_5() {
       --unexp) unexp=$2; shift 2 ;;
       --positive) positive=$2; shift 2 ;;
       -stage|--stage) [[ $# -ge 3 ]] || die "-stage requires two values"; stage_a=$2; stage_b=$3; shift 3 ;;
+      -expchange) [[ $# -ge 3 ]] || die "-expchange requires pvalue|fdr and a cutoff"; expchange_stat=$2; expchange_cutoff=$3; shift 3 ;;
+      -mcchange) [[ $# -ge 2 ]] || die "-mcchange requires a cutoff"; mcchange=$2; shift 2 ;;
+      --feature) feature=$2; shift 2 ;;
+      --fasta) fasta=$2; shift 2 ;;
+      --te-bed) te_bed=$2; shift 2 ;;
+      --gene-bed) gene_bed=$2; shift 2 ;;
+      --te-family) te_family=$2; shift 2 ;;
       -h|--help) usage ;;
       *) die "unknown option for module 5: $1" ;;
     esac
   done
 
   CURRENT_STEP="argument validation"
+  [[ $feature == y || $feature == n ]] || die "--feature must be y or n"
   if [[ -n $manifest ]]; then
     manifest=$(resolve_path "$manifest")
     require_file "module 0 manifest file" "$manifest"
     [[ -n $module0_dir ]] || module0_dir=$(manifest_get "$manifest" "module0_output_dir" || true)
     [[ -n $deg_file ]] || deg_file=$(manifest_get "$manifest" "outputs.deg_file" || true)
     [[ -n $dete_file ]] || dete_file=$(manifest_get "$manifest" "outputs.dete_file" || true)
+    [[ -n $te_bed ]] || te_bed=$(manifest_get "$manifest" "inputs.te_bed_prepared" || true)
+    [[ -n $gene_bed ]] || gene_bed=$(manifest_get "$manifest" "outputs.gene_bed" || true)
+    [[ -n $te_family ]] || te_family=$(manifest_get "$manifest" "inputs.te_input_original" || true)
   fi
 
   [[ -n $module0_dir ]] || die "missing required argument: --module0-dir module0_output_dir or --manifest module0_manifest.json"
@@ -975,6 +1186,25 @@ run_module_5() {
   require_file "DEG file" "$deg_file"
   require_file "DETE file" "$dete_file"
   [[ -d $module0_dir ]] || die "module 0 output directory not found: $module0_dir"
+  if [[ $feature == y ]]; then
+    if [[ -z $te_family && -f $module0_dir/PETEM_MODULE0_MANIFEST.json ]]; then
+      te_family=$(manifest_get "$module0_dir/PETEM_MODULE0_MANIFEST.json" "inputs.te_input_original" || true)
+    fi
+    [[ -n $te_bed ]] || te_bed="$module0_dir/tmp/module_0_normalized/TE.bed"
+    [[ -n $gene_bed ]] || gene_bed="$module0_dir/tmp/module_0_annotation/gene.bed"
+    [[ -n $fasta ]] || die "--feature y requires --fasta genome.fa"
+    [[ -n $te_family ]] || die "--feature y requires --te-family TE_family.txt or a module 0 manifest"
+    fasta=$(resolve_path "$fasta")
+    te_bed=$(resolve_path "$te_bed")
+    gene_bed=$(resolve_path "$gene_bed")
+    te_family=$(resolve_path "$te_family")
+    require_file "genome FASTA" "$fasta"
+    require_file "genome FASTA index (run samtools faidx)" "$fasta.fai"
+    require_file "TE BED file" "$te_bed"
+    require_file "gene BED file" "$gene_bed"
+    require_file "TE family file" "$te_family"
+    require_file "TE overlap promoter BED file" "$module0_dir/TE_overlap_promoter.bed"
+  fi
 
   CURRENT_STEP="module 5 execution"
   mkdir -p "$outdir"
@@ -986,8 +1216,13 @@ run_module_5() {
 	      --module0-dir "$module0_dir" \
 	      --outdir "$outdir" \
       --unexp "$unexp"\
-      --positive "$positive")
+      --positive "$positive" \
+      --expchange-stat "$expchange_stat" \
+      --expchange-cutoff "$expchange_cutoff" \
+      --mcchange "$mcchange" \
+      --feature "$feature")
     [[ -n $stage_a ]] && cmd+=(-stage "$stage_a" "$stage_b")
+    [[ $feature == y ]] && cmd+=(--fasta "$fasta" --te-bed "$te_bed" --gene-bed "$gene_bed" --te-family "$te_family")
     "${cmd[@]}"
 	  )
 }

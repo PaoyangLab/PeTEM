@@ -26,10 +26,15 @@ option_list <- list(
   make_option(c("-a", "--all"),   type="character", help="All TE annotation file (bed format)"),
   make_option(c("-i", "--ins"),   type="character", help="Annotation file of TEs overlapping with promoters (bed format)"),
   make_option(c("-T", "--TE"),    type="character", help="TE families file (bed format)"),
-  make_option(c("-o", "--outdir"), type="character", default=".", help="Output directory")
+  make_option(c("-o", "--outdir"), type="character", default=".", help="Output directory"),
+  make_option(c("--feature"), type="character", default="n", help="Plot GC content, TE length, and TE-TSS distance? (y/n; default n)"),
+  make_option(c("--fasta"), type="character", help="Genome FASTA for --feature y"),
+  make_option(c("--gene-bed"), type="character", help="Gene BED for TE-TSS distance with --feature y")
 )
 
 args <- parse_args(OptionParser(option_list=option_list))
+args$feature <- tolower(args$feature)
+if (!(args$feature %in% c("y", "n"))) stop("--feature must be y or n")
 
 if (is.null(args$all) | is.null(args$ins) | is.null(args$TE)) {
   cat("Missing required arguments\n\n")
@@ -38,6 +43,11 @@ if (is.null(args$all) | is.null(args$ins) | is.null(args$TE)) {
 }
 
 dir.create(args$outdir, recursive = TRUE, showWarnings = FALSE)
+if (args$feature == "y") {
+  if (is.null(args$fasta) || !file.exists(args$fasta)) stop("--feature y requires --fasta genome.fa")
+  if (!file.exists(paste0(args$fasta, ".fai"))) stop("Genome FASTA index missing; run samtools faidx on --fasta")
+  if (is.null(args$`gene-bed`) || !file.exists(args$`gene-bed`)) stop("--feature y requires --gene-bed gene.bed")
+}
 
 read_te_family_table <- function(path) {
   raw_df <- read.table(path, sep = "\t", header = FALSE, stringsAsFactors = FALSE, quote = "")
@@ -178,6 +188,11 @@ ggplot(df_long, aes(x = x_pos, y = percentage, alluvium = TE)) +
             hjust = 0, size = PETEM_ANNOTATION_TEXT_SIZE + 1, inherit.aes = FALSE)
 
 dev.off()
+
+if (args$feature == "y") {
+  source(file.path(dirname(normalizePath(script_path)), "2_TE_features.R"))
+  run_te_features(df1, df2, args$`gene-bed`, args$fasta, args$outdir)
+}
 
 end_time <- Sys.time()
 print(end_time-start_time)

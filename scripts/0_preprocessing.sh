@@ -42,8 +42,47 @@ require_executable "bigWigAverageOverBed" "$BIGWIG_AVERAGE"
 # Usage
 #####################################
 usage() {
-    echo "Usage: bash 0_preprocessing.sh -g gene.bed -t TE.bed -p promoter.bed -eg expression_gene.txt -et expression_TE.txt -fai genome.fa.fai -m sample1.CGmap.gz [sample2.CGmap.gz ...]" >&2
+    echo "Usage: bash 0_preprocessing.sh -g gene.bed -t TE.bed -p promoter.bed -eg expression_gene.txt -et expression_TE.txt -fai genome.fa.fai {-m sample1.CGmap.gz [sample2.CGmap.gz ...] | -m1 stage1_rep.CGmap.gz [...] -m2 stage2_rep.CGmap.gz [...] [-m3 ... -m4 ... -m5 ...]}" >&2
     exit 1
+}
+
+expression_stage_order() {
+    python3 - "$1" "$2" <<'PYTHON_HELPER'
+import re
+import sys
+
+gene_exp, te_exp = sys.argv[1:3]
+de_prefix = re.compile(r"^(logFC_|PValue_|FDR_|dexp_|dTEexp_|PV_|DEG_)")
+id_cols = {"", "id", "gene", "gene_id", "te", "te_id", "transcript_id"}
+
+def stages(path):
+    with open(path, "r", encoding="utf-8") as handle:
+        header = handle.readline().rstrip("\n").split("\t")
+    if header and header[0].strip().lower() in id_cols:
+        header = header[1:]
+    out = []
+    seen = set()
+    for col in header:
+        if not col or de_prefix.match(col):
+            continue
+        stage = col.split("_", 1)[0]
+        if stage not in seen:
+            out.append(stage)
+            seen.add(stage)
+    return out
+
+gene_stages = stages(gene_exp)
+te_stages = stages(te_exp)
+if not gene_stages:
+    raise SystemExit(f"no expression stage columns found in {gene_exp}")
+if gene_stages != te_stages:
+    raise SystemExit(
+        "gene and TE expression stage columns must have the same order: "
+        f"gene={gene_stages}; TE={te_stages}"
+    )
+for stage in gene_stages:
+    print(stage)
+PYTHON_HELPER
 }
 
 #####################################
@@ -56,6 +95,12 @@ GENE_EXP=""
 TE_EXP=""
 faidx=""
 METH_FILES=()
+METH_GROUP1=()
+METH_GROUP2=()
+METH_GROUP3=()
+METH_GROUP4=()
+METH_GROUP5=()
+SPLIT_METH_USED=0
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -72,6 +117,46 @@ while [[ $# -gt 0 ]]; do
                 shift
             done
             ;;
+        -m1)
+            SPLIT_METH_USED=1
+            shift
+            while [[ $# -gt 0 ]] && [[ ! $1 =~ ^- ]]; do
+                METH_GROUP1+=("$1")
+                shift
+            done
+            ;;
+        -m2)
+            SPLIT_METH_USED=1
+            shift
+            while [[ $# -gt 0 ]] && [[ ! $1 =~ ^- ]]; do
+                METH_GROUP2+=("$1")
+                shift
+            done
+            ;;
+        -m3)
+            SPLIT_METH_USED=1
+            shift
+            while [[ $# -gt 0 ]] && [[ ! $1 =~ ^- ]]; do
+                METH_GROUP3+=("$1")
+                shift
+            done
+            ;;
+        -m4)
+            SPLIT_METH_USED=1
+            shift
+            while [[ $# -gt 0 ]] && [[ ! $1 =~ ^- ]]; do
+                METH_GROUP4+=("$1")
+                shift
+            done
+            ;;
+        -m5)
+            SPLIT_METH_USED=1
+            shift
+            while [[ $# -gt 0 ]] && [[ ! $1 =~ ^- ]]; do
+                METH_GROUP5+=("$1")
+                shift
+            done
+            ;;
         *) die "unknown option: $1" ;;
     esac
 done
@@ -84,7 +169,12 @@ missing_args=()
 [[ -n ${GENE_EXP:-} ]] || missing_args+=("-eg expression_gene.txt")
 [[ -n ${TE_EXP:-} ]] || missing_args+=("-et expression_TE.txt")
 [[ -n ${faidx:-} ]] || missing_args+=("-fai genome.fa.fai")
-(( ${#METH_FILES[@]} > 0 )) || missing_args+=("-m sample1.CGmap.gz [sample2.CGmap.gz ...]")
+if [[ $SPLIT_METH_USED -eq 1 && ${#METH_FILES[@]} -gt 0 ]]; then
+    die "use either -m or -m1/-m2/-m3/-m4/-m5, not both"
+fi
+if [[ $SPLIT_METH_USED -eq 0 && ${#METH_FILES[@]} -eq 0 ]]; then
+    missing_args+=("-m sample1.CGmap.gz [sample2.CGmap.gz ...] or -m1/-m2...")
+fi
 (( ${#missing_args[@]} == 0 )) || usage_missing "${missing_args[*]}"
 
 CURRENT_STEP="input validation"
@@ -94,9 +184,70 @@ require_file "-p" "$PROMOTER"
 require_file "-eg" "$GENE_EXP"
 require_file "-et" "$TE_EXP"
 require_file "-fai" "$faidx"
-for f in "${METH_FILES[@]}"; do
-    require_file "-m" "$f"
-done
+
+mapfile -t EXPR_STAGES < <(expression_stage_order "$GENE_EXP" "$TE_EXP")
+METH_INPUT_MODE="-m"
+METH_MAP_LINES=()
+if [[ $SPLIT_METH_USED -eq 1 ]]; then
+    METH_INPUT_MODE="-m1..-m5"
+    (( ${#EXPR_STAGES[@]} <= 5 )) || die "-m1..-m5 supports at most 5 expression stages; found ${#EXPR_STAGES[@]}"
+    group_sizes=("${#METH_GROUP1[@]}" "${#METH_GROUP2[@]}" "${#METH_GROUP3[@]}" "${#METH_GROUP4[@]}" "${#METH_GROUP5[@]}")
+    for ((i = 0; i < 5; i++)); do
+        if (( i < ${#EXPR_STAGES[@]} )); then
+            (( group_sizes[$i] > 0 )) || die "missing methylation files for expression stage '${EXPR_STAGES[$i]}' (expected -m$((i+1)))"
+        else
+            (( group_sizes[$i] == 0 )) || die "-m$((i+1)) was provided but expression table has only ${#EXPR_STAGES[@]} stages"
+        fi
+    done
+    GROUPED_METH_DIR="$PWD/tmp/module_0_methylation_inputs"
+    rm -rf "$GROUPED_METH_DIR"
+    mkdir -p "$GROUPED_METH_DIR"
+    METH_FILES=()
+    for ((i = 0; i < ${#EXPR_STAGES[@]}; i++)); do
+        stage="${EXPR_STAGES[$i]}"
+        [[ $stage =~ ^[A-Za-z0-9.-]+$ ]] || die "stage name '$stage' is not supported for -m1..-m5; use letters/numbers/dot/hyphen only"
+        current_group=()
+        case $((i+1)) in
+            1) current_group=("${METH_GROUP1[@]}") ;;
+            2) current_group=("${METH_GROUP2[@]}") ;;
+            3) current_group=("${METH_GROUP3[@]}") ;;
+            4) current_group=("${METH_GROUP4[@]}") ;;
+            5) current_group=("${METH_GROUP5[@]}") ;;
+        esac
+        rep=1
+        for original in "${current_group[@]}"; do
+            require_file "Methylation file for ${stage}" "$original"
+            prepared="$GROUPED_METH_DIR/${stage}_$(printf '%02d' "$rep").CGmap.gz"
+            ln -sf "$(readlink -f "$original")" "$prepared"
+            METH_FILES+=("$prepared")
+            METH_MAP_LINES+=("${stage}"$'\t'"-m$((i+1))"$'\t'"${rep}"$'\t'"$(readlink -f "$original")"$'\t'"${prepared}")
+            rep=$((rep + 1))
+        done
+    done
+else
+    for i in "${!METH_FILES[@]}"; do
+        require_file "-m" "${METH_FILES[$i]}"
+        base=$(basename "${METH_FILES[$i]}" .CGmap.gz)
+        stage=${base%%_*}
+        METH_MAP_LINES+=("${stage}"$'\t'"-m"$'\t'"$((i+1))"$'\t'"$(readlink -f "${METH_FILES[$i]}")"$'\t'"$(readlink -f "${METH_FILES[$i]}")")
+    done
+fi
+
+{
+    echo "PeTEM Module 0 input mapping"
+    echo "created_at_utc: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "gene_expression (-eg): $(readlink -f "$GENE_EXP")"
+    echo "TE_expression (-et): $(readlink -f "$TE_EXP")"
+    echo "methylation_input_mode: $METH_INPUT_MODE"
+    echo
+    echo "expression_stage_order:"
+    for i in "${!EXPR_STAGES[@]}"; do
+        printf '%s\t%s\n' "$((i+1))" "${EXPR_STAGES[$i]}"
+    done
+    echo
+    echo -e "stage\tm_flag\treplicate_index\toriginal_cgmap\tprepared_cgmap"
+    printf '%s\n' "${METH_MAP_LINES[@]}"
+} > "$PWD/LOG_0_input_mapping.log"
 
 echo "[INFO] Gene BED: $GENE"
 echo "[INFO] TE BED:   $TE"
