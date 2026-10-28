@@ -71,11 +71,33 @@ option_list = list(
   make_option(c("--outdir"), type="character", default=".", help="Output directory"),
   make_option(c("--unexp"), type="character", default="n", help="Include unexpressed TEs? (y/n)"),
   make_option(c("--positive"), type="character", default="n",
-            help="Also output positive-correlation Q1/Q3 boxplots and gene-TE pair lists? (y/n)")
+            help="Also output positive-correlation Q1/Q3 boxplots and gene-TE pair lists? (y/n)"),
+  make_option(c("--expchange-stat"), type="character", default="pvalue", help="Expression significance statistic: pvalue or fdr"),
+  make_option(c("--expchange-cutoff"), type="double", default=0.05, help="Expression significance cutoff (default: 0.05)"),
+  make_option(c("--mcchange"), type="double", default=0, help="Minimum absolute methylation change in percentage points (default: 0)"),
+  make_option(c("--feature"), type="character", default="n", help="Plot TE GC content, length, and TE-TSS distance? (y/n; default n)"),
+  make_option(c("--fasta"), type="character", help="Genome FASTA for --feature y"),
+  make_option(c("--te-bed"), type="character", help="All-TE BED for --feature y"),
+  make_option(c("--gene-bed"), type="character", help="Gene BED for --feature y"),
+  make_option(c("--te-family"), type="character", help="TE family table for --feature y")
 )
 
 opt_parser = OptionParser(option_list=option_list)
 opt = parse_args(opt_parser, args=raw_args)
+opt$`expchange-stat` <- tolower(opt$`expchange-stat`)
+if (!(opt$`expchange-stat` %in% c("pvalue", "fdr"))) stop("-expchange statistic must be pvalue or fdr")
+if (!is.finite(opt$`expchange-cutoff`) || opt$`expchange-cutoff` < 0 || opt$`expchange-cutoff` > 1) {
+  stop("-expchange cutoff must be between 0 and 1")
+}
+if (!is.finite(opt$mcchange) || opt$mcchange < 0) stop("-mcchange cutoff must be non-negative")
+opt$feature <- tolower(opt$feature)
+if (!(opt$feature %in% c("y", "n"))) stop("--feature must be y or n")
+if (opt$feature == "y") {
+  for (name in c("fasta", "te-bed", "gene-bed", "te-family")) {
+    if (is.null(opt[[name]]) || !file.exists(opt[[name]])) stop("--feature y requires --", name)
+  }
+  if (!file.exists(paste0(opt$fasta, ".fai"))) stop("Genome FASTA index missing; run samtools faidx on --fasta")
+}
 
 include_unexp <- tolower(opt$unexp) == "y"
 include_positive <- tolower(opt$positive) == "y"
@@ -84,6 +106,13 @@ module0_file <- function(name) file.path(opt$`module0-dir`, name)
 output_file <- function(name) file.path(opt$outdir, name)
 if (is.null(opt$DEG) || opt$DEG == "") opt$DEG <- module0_file("DEG.txt")
 if (is.null(opt$DETE) || opt$DETE == "") opt$DETE <- module0_file("DETE.txt")
+
+filter_expression_change <- function(df, fc_col, stat_col, methyl_col=NULL) {
+  if (!(stat_col %in% colnames(df))) stop("Missing expression significance column: ", stat_col)
+  keep <- abs(df[[fc_col]]) > 1 & df[[stat_col]] < opt$`expchange-cutoff`
+  if (!is.null(methyl_col)) keep <- keep & abs(df[[methyl_col]]) > opt$mcchange
+  df[keep %in% TRUE, , drop=FALSE]
+}
 
 #---- Helper functions ----
 quadrant_counts <- function(df, xx, yy) {
@@ -104,6 +133,11 @@ lm_eqn_text <- function(df, yy, xx){
 }
 
 plot_delta_scatter <- function(df, x, y, fname, title, xlab, ylab){
+  df <- df[is.finite(df[[x]]) & is.finite(df[[y]]), , drop=FALSE]
+  if (nrow(df) < 3 || length(unique(df[[x]])) < 2 || length(unique(df[[y]])) < 2) {
+    message("Skipping ", basename(fname), ": fewer than three varying pairs after filtering")
+    return(invisible(NULL))
+  }
   counts <- quadrant_counts(df, x, y)
   eq_text <- paste0(lm_eqn_text(df, y, x))
   xlim <- max(abs(df[[x]]), na.rm=TRUE)
@@ -425,16 +459,17 @@ plot_gene_TE_box <- function(df_subset, mC_type, si, sj, mode="Q2"){
 }
 
 #---- Scatter plots + Q2/Q4 boxplots ----
+positive_te_ids <- character(0)
+negative_te_ids <- character(0)
 for(k in seq_along(fc_cols)){
   x_col <- fc_cols[k]
   si <- stage_pairs[k,1]
   sj <- stage_pairs[k,2]
-  pv_col <- paste0("PV_g_", si, "_", sj)
+  stat_prefix <- if (opt$`expchange-stat` == "fdr") "FDR" else "PV"
+  pv_col <- paste0(stat_prefix, "_g_", si, "_", sj)
 
   # gene exp vs TE exp
-  df_sub <- subset(ins4,
-    abs(ins4[[x_col]]) > 1 & ins4[[pv_col]] < 0.05
-  )
+  df_sub <- filter_expression_change(ins4, x_col, pv_col)
   if(nrow(df_sub) > 0){
     plot_delta_scatter(df_sub,
       x_col, paste0("dTEexp_", si, "_", sj),
@@ -449,10 +484,16 @@ for(k in seq_along(fc_cols)){
   for(mC_type in c("CG","CHG","CHH")){
     df_TE <- get(paste0("ins_", mC_type))
     y_col <- paste0("dTE", mC_type, "_", si, "_", sj)
-    df_sub <- subset(df_TE,
-      abs(df_TE[[x_col]]) > 1 & df_TE[[pv_col]] < 0.05
-    )
+    df_sub <- filter_expression_change(df_TE, x_col, pv_col, y_col)
     if(nrow(df_sub) > 0){
+      if (opt$feature == "y") {
+        positive_te_ids <- union(positive_te_ids, as.character(df_sub$TE_id[
+          (df_sub[[x_col]] > 0 & df_sub[[y_col]] > 0) |
+          (df_sub[[x_col]] < 0 & df_sub[[y_col]] < 0)]))
+        negative_te_ids <- union(negative_te_ids, as.character(df_sub$TE_id[
+          (df_sub[[x_col]] < 0 & df_sub[[y_col]] > 0) |
+          (df_sub[[x_col]] > 0 & df_sub[[y_col]] < 0)]))
+      }
       plot_delta_scatter(df_sub,
         x_col, y_col,
         output_file(paste0("OUTPUT_5_geneexp_TEm", mC_type, "_change_", si, "_", sj, "_scatter.png")),
@@ -461,40 +502,20 @@ for(k in seq_along(fc_cols)){
         bquote(bold(Delta ~ .(paste0("TE ", mC_type, " methylation level (%)"))))
       )
 
-      df_Q2 <- subset(df_TE,
-        abs(df_TE[[x_col]]) > 1 &
-        df_TE[[pv_col]] < 0.05 &
-        df_TE[[x_col]] < 0 &
-        df_TE[[y_col]] > 0
-      )
+      df_Q2 <- df_sub[df_sub[[x_col]] < 0 & df_sub[[y_col]] > 0, , drop=FALSE]
       plot_gene_TE_box(df_Q2, mC_type, si, sj, mode="Q2")
 
-      df_Q4 <- subset(df_TE,
-        abs(df_TE[[x_col]]) > 1 &
-        df_TE[[pv_col]] < 0.05 &
-        df_TE[[x_col]] > 0 &
-        df_TE[[y_col]] < 0
-      )
+      df_Q4 <- df_sub[df_sub[[x_col]] > 0 & df_sub[[y_col]] < 0, , drop=FALSE]
       plot_gene_TE_box(df_Q4, mC_type, si, sj, mode="Q4")
 
       if(include_positive){
 
   # Q1: gene up, TE methylation up
-  df_Q1 <- subset(df_TE,
-    abs(df_TE[[x_col]]) > 1 &
-    df_TE[[pv_col]] < 0.05 &
-    df_TE[[x_col]] > 0 &
-    df_TE[[y_col]] > 0
-  )
+  df_Q1 <- df_sub[df_sub[[x_col]] > 0 & df_sub[[y_col]] > 0, , drop=FALSE]
   plot_gene_TE_box(df_Q1, mC_type, si, sj, mode="Q1")
 
   # Q3: gene down, TE methylation down
-  df_Q3 <- subset(df_TE,
-    abs(df_TE[[x_col]]) > 1 &
-    df_TE[[pv_col]] < 0.05 &
-    df_TE[[x_col]] < 0 &
-    df_TE[[y_col]] < 0
-  )
+  df_Q3 <- df_sub[df_sub[[x_col]] < 0 & df_sub[[y_col]] < 0, , drop=FALSE]
   plot_gene_TE_box(df_Q3, mC_type, si, sj, mode="Q3")
 }
     }
@@ -505,11 +526,9 @@ for(k in seq_along(fc_cols)){
     df_TE <- get(paste0("ins_", mC_type))
     x_TE_col <- paste0("dTEexp_", si, "_", sj)
     y_TE_col <- paste0("dTE", mC_type, "_", si, "_", sj)
-    pv_TE_col <- paste0("PV_TE_", si, "_", sj)
+    pv_TE_col <- paste0(stat_prefix, "_TE_", si, "_", sj)
 
-    df_sub <- subset(df_TE,
-      abs(df_TE[[x_TE_col]]) > 1 & df_TE[[pv_TE_col]] < 0.05
-    )
+    df_sub <- filter_expression_change(df_TE, x_TE_col, pv_TE_col, y_TE_col)
     if(nrow(df_sub) > 0){
       plot_delta_scatter(df_sub,
         x_TE_col, y_TE_col,
@@ -519,6 +538,18 @@ for(k in seq_along(fc_cols)){
         bquote(bold(Delta ~ .(paste("TE", mC_type, "methylation level (%)"))))      )
     }
   }
+}
+
+if (opt$feature == "y") {
+  source(file.path(dirname(normalizePath(script_path)), "2_TE_features.R"))
+  all_te <- read.table(opt$`te-bed`, header=FALSE, sep="\t", quote="", stringsAsFactors=FALSE)
+  if (ncol(all_te) < 6) stop("All-TE BED must have at least six columns")
+  feature_te <- run_te_features(all_te, ins_promoter, opt$`gene-bed`, opt$fasta, opt$outdir,
+                                group_ids=list("Positive TEs"=positive_te_ids, "Negative TEs"=negative_te_ids),
+                                output_prefix="OUTPUT_5",
+                                group_colors=c("All TEs"="#A6A6A6", "Promoter-embedded TEs"="#CCD881",
+                                               "Positive TEs"="#D39D57", "Negative TEs"="#71AEB5"))
+  plot_te_family_composition(feature_te, opt$`te-family`, opt$outdir)
 }
 
 end_time <- Sys.time()
