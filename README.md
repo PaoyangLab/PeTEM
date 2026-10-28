@@ -590,7 +590,7 @@ Users must run module 0 first to preprocess the input files before running modul
   | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Required&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
   |---|---|
   | `--4` | Run module 4. |
-  | `--manifest`  | Use manifest from module 0 to simplify input path |
+  | `--manifest`  | Use manifest from module 0 to simplify input path &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;|
 
 
   | &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Optional&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; | Description |
