@@ -247,7 +247,16 @@ bash ./scripts/env_check.sh ##optional
 
 > Feature analysis can be performed independently using Module 2 or Module 5 after completing Module 0.
 
-> A reference genome FASTA file and its corresponding `.fai` index are required. The FASTA file is not included in the example dataset and must be prepared separately.
+### Download reference genome
+
+The optional Feature Analysis in Modules 2 and 5 requires the TAIR10 reference genome FASTA file and its index.
+
+```bash
+wget https://github.com/PaoyangLab/PeTEM/releases/download/TAIR10_reference/TAIR10_reference.tar.gz
+tar -xzvf TAIR10_reference.tar.gz
+```
+
+The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
 
 ### Module 2: Genomic Features of Promoter-embedded TEs
 
