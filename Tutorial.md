@@ -318,10 +318,14 @@ The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
   | `OUTPUT_5_TE_GC_content_bar.png` | Comparison of GC content among all TEs, promoter-embedded TEs, Positive TEs (Q1/Q3), and Negative TEs (Q2/Q4). |
   | `OUTPUT_5_TE_length_bar.png` | Comparison of TE lengths among the four TE groups. |
   | `OUTPUT_5_TE_TSS_distance_bar.png` | Comparison of TE–TSS distances among the four TE groups. |
+  | `OUTPUT_5_Promoter_embedded_TE_family_enrichment.png` | Bar plot showing the enrichment of TE families among promoter-embedded transposable elements. |
+  | `OUTPUT_5_Promoter_embedded_TE_family.txt` | Table containing enrichment statistics and proportions of promoter-embedded TE families. |
   | `OUTPUT_5_TE_features_per_TE.txt` | Genomic feature measurements for individual TEs. |
   | `OUTPUT_5_TE_features_summary.txt` | Summary statistics of genomic features for each TE group. |
 
  * __Figures:__
 
    <img width="1127" height="355" alt="module5_feature" src="https://github.com/user-attachments/assets/19133192-c0bd-4ddb-9de3-078977cd4013" />
+   <img width="1127" height="680" alt="OUTPUT_5_Promoter_embedded_TE_family_enrichment" src="https://github.com/user-attachments/assets/75c59ff8-a979-489e-95ee-933583bad342" />
+
 
