@@ -264,7 +264,7 @@ The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
 
 ### Module 2: Genomic Features of Promoter-embedded TEs
 
-Module 2 compares the genomic characteristics of all TEs and promoter-embedded TEs.
+> Module 2 compares the genomic characteristics of all TEs and promoter-embedded TEs.
 
 * __Command:__
 
@@ -276,9 +276,6 @@ Module 2 compares the genomic characteristics of all TEs and promoter-embedded T
     --fasta ./PeTEM_data/TAIR10.fa \
     -o ./example/module2_feature
   ```
-
-  The `--feature y` option enables feature analysis. 
-
 
 * __Outputs:__
 
@@ -297,9 +294,9 @@ Module 2 compares the genomic characteristics of all TEs and promoter-embedded T
 
 ### Module 5: Genomic Features of Associated TE–Gene Pairs
 
-Module 5 compares genomic characteristics and TE-family composition among four TE groups: all TEs, promoter-embedded TEs, Positive TEs (Q1/Q3), and Negative TEs (Q2/Q4).
+> Module 5 compares genomic characteristics and TE-family composition among four TE groups: all TEs, promoter-embedded TEs, Positive TEs (Q1/Q3), and Negative TEs (Q2/Q4).
 
-Positive and negative TEs are classified based on the directions of gene expression and TE methylation changes after applying the selected filtering criteria.
+> Positive and negative TEs are classified based on the directions of gene expression and TE methylation changes after applying the selected filtering criteria.
 
 * __Command:__
 
@@ -314,12 +311,7 @@ Positive and negative TEs are classified based on the directions of gene express
     --fasta ./PeTEM_data/TAIR10.fa \
     -o ./example/module5_feature
   ```
-
-  The `--feature y` option enables feature analysis. The default setting is `n`.
-
-  The `-expchange` and `-mcchange` options control the filtering criteria for gene expression significance and TE methylation changes, respectively.
-
-
+  
 * __Outputs:__
   | File | Description |
   |---|---|
