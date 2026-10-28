@@ -477,7 +477,7 @@ Users must run module 0 first to preprocess the input files before running modul
 
 > This identifies TE families enriched in promoters and highlights candidates that may influence host gene expression.
 
-> Optionally compare GC content, TE length, and nearest TE-edge-to-TSS distance between all TEs and promoter-embedded TEs.
+> [Optional] Compare GC content, TE length, and nearest TE-edge-to-TSS distance between all TEs and promoter-embedded TEs.
 
 * __Inputs:__
     * `TE.txt`
@@ -602,7 +602,7 @@ Users must run module 0 first to preprocess the input files before running modul
 
 > This identifies TE–gene pairs whose condition-specific expression changes are associated with TE methylation dynamics.
 
-> Optionally filter pairs by expression significance and absolute TE methylation change, and compare genomic features of positively and negatively associated TEs.
+> [Optional] Compare GC content, TE length, and nearest TE-edge-to-TSS distance between positively and negatively associated TEs.
 
 * __Inputs:__
     * `gene_expression.txt`, `TE_expression.txt`
@@ -640,7 +640,6 @@ Users must run module 0 first to preprocess the input files before running modul
   | `-stage` | Two condition names for pairwise comparison. The specified conditions must match the condition names in the expression tables. |
   | `-expchange` | Expression significance filter: `pvalue <CUTOFF>` (default: `pvalue 0.05`) or `fdr <CUTOFF>`. Cutoff must be between 0 and 1. |
   | `-mcchange` | Minimum absolute TE methylation change in percentage points (non-negative; default: `0`). Larger values impose a stricter filter. |
-
   | `-o` | Output directory for module 5 results. |
   | `--positive` | Specify the correlation direction to analyze. Set to `yes` for positive correlation analysis or `no` for negative correlation analysis. Default: `yes`.|
   | `--feature` | Generate additional TE feature plots (`y` or `n`; default: `n`). |
