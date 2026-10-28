@@ -257,7 +257,7 @@ The optional Feature Analysis in Modules 2 and 5 requires the TAIR10 reference g
 ```bash
 wget https://github.com/PaoyangLab/PeTEM/releases/download/TAIR_reference/TAIR10_reference.tar.gz
 tar -xzvf TAIR10_reference.tar.gz
-mv TAIR10_reference.fa* ./PeTEM_data/
+mv TAIR10_reference* ./PeTEM_data/
 ```
 
 The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
