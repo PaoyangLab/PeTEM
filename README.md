@@ -485,7 +485,7 @@ Users must run module 0 first to preprocess the input files before running modul
     * [Optional] Genome FASTA file and matching index `.fai` when feature analysis is enabled
 * __Outputs:__
     * `OUTPUT_2_Promoter_embedded_TE_family_enrichment.png`, `OUTPUT_2_Promoter_embedded_TE_family.txt`
-    * When `--feature` y: `OUTPUT_2_TE_GC_content_bar.png` , `OUTPUT_2_TE_length_bar.png`, `OUTPUT_2_TE_TSS_distance_bar.png`, `OUTPUT_2_TE_features_per_TE.txt`, `OUTPUT_2_TE_features_summary.txt`
+    * When `--feature y`: `OUTPUT_2_TE_GC_content_bar.png` , `OUTPUT_2_TE_length_bar.png`, `OUTPUT_2_TE_TSS_distance_bar.png`, `OUTPUT_2_TE_features_per_TE.txt`, `OUTPUT_2_TE_features_summary.txt`
 * __Usage:__
   ```bash
   ./petem --2 \
