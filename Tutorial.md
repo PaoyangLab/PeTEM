@@ -14,20 +14,26 @@
 | Python | 3.12.3 |
 | Conda | 24.11.3 |
 
+
 ## Table of Contents
 
 **Setup**
-1. [Clone repository](#clone-repository) 
-2. [Download example data](#download-example-data) 
-3. [Set up environment](#set-up-environment) 
+1. [Clone repository](#clone-repository)
+2. [Download example data](#download-example-data)
+3. [Set up environment](#set-up-environment)
 
 **Pipeline Workflow** (Modules 1–5 can be run independently after Module 0)
-- [Module 0: Preprocessing](#module-0-preprocessing) 
-- [Module 1: TE Distribution](#module-1-te-distribution) 
-- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families) 
-- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene) 
-- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression) 
-- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs) 
+- [Module 0: Preprocessing](#module-0-preprocessing)
+- [Module 1: TE Distribution](#module-1-te-distribution)
+- [Module 2: Enriched promoter-embedded TE Families](#module-2-enriched-promoter-embedded-te-families)
+- [Module 3: TE methylation near gene](#module-3-te-methylation-near-gene)
+- [Module 4: Correlation between methylation and expression](#module-4-correlation-between-methylation-and-expression)
+- [Module 5: Associated TE and gene pairs](#module-5-associated-te-and-gene-pairs)
+
+**Feature Analysis (Optional)** (Requires Module 0 preprocessing)
+- [Module 2: Genomic Features of Promoter-embedded TEs](#module-2-genomic-features-of-promoter-embedded-tes)
+- [Module 5: Genomic Features of Associated TE-Gene Pairs](#module-5-genomic-features-of-associated-te-gene-pairs)
+
 
 ## Clone repository
 ```bash
@@ -64,7 +70,7 @@ bash ./scripts/env_check.sh ##optional
 ## Module 0: Preprocessing
 * __Command:__
 
-  ```
+ ```bash
   ## Run module 0
   ./petem --0 \
     -g ./PeTEM_data/genomic.gff \
@@ -72,13 +78,13 @@ bash ./scripts/env_check.sh ##optional
     -eg ./PeTEM_data/gene_expression.txt \
     -et ./PeTEM_data/TE_expression.txt \
     -f ./PeTEM_data/genome.fa.fai \
-    -m ./PeTEM_data/leaf_01.CGmap.gz \
-       ./PeTEM_data/leaf_02.CGmap.gz \
-       ./PeTEM_data/root_01.CGmap.gz \
-       ./PeTEM_data/root_02.CGmap.gz \
+    -m1 ./PeTEM_data/leaf_01.CGmap.gz \
+        ./PeTEM_data/leaf_02.CGmap.gz \
+    -m2 ./PeTEM_data/root_01.CGmap.gz \
+        ./PeTEM_data/root_02.CGmap.gz \
     -up 1500 \
     -dn 500 \
-    -o ./example/module0 
+    -o ./example/module0
   ```
 
 * __Outputs:__
@@ -89,6 +95,8 @@ bash ./scripts/env_check.sh ##optional
   | `promoter.bed` | BED file containing promoter coordinates generated from the genome annotation. |
   | `TE_overlap_promoter.bed` | Genomic locations of promoter-embedded TEs and their associated neighbouring genes. |
   | `Tab_*.txt` | Tables containing CG, CHG, and CHH methylation levels for each TE, gene, and promoter region across all conditions. |
+  | `PETEM_MODULE0_MANIFEST.json` | Input and prepared file information for downstream modules. |
+  | `LOG_0_input_mapping.log` | Record of input file and condition mapping. |
 
 ## Module 1: TE Distribution
 * __Command:__
@@ -156,9 +164,6 @@ bash ./scripts/env_check.sh ##optional
 * __Figures:__
 
   <img width="766" height="917" alt="image" src="https://github.com/user-attachments/assets/7184c2a6-4b07-4980-b55c-221fd9af020b" />
-
-
-
 
 
 
@@ -233,3 +238,82 @@ bash ./scripts/env_check.sh ##optional
   | AT3G58860 | AT3TE88640 |
   | AT4G04840 | AT4TE11400 |
   | AT5G47440 | AT5TE69240 |
+
+
+
+## Feature Analysis (Optional)
+
+> PeTEM provides optional feature analyses to characterize the genomic properties of transposable elements (TEs). These analyses compare GC content, TE length, and TE–TSS distance among different TE groups.
+
+> Feature analysis can be performed independently using Module 2 or Module 5 after completing Module 0.
+
+> A reference genome FASTA file and its corresponding `.fai` index are required. The FASTA file is not included in the example dataset and must be prepared separately.
+
+### Module 2: Genomic Features of Promoter-embedded TEs
+
+Module 2 compares the genomic characteristics of all TEs and promoter-embedded TEs.
+
+* __Command:__
+
+  ```bash
+  ## Run module 2 feature analysis
+  ./petem --2 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    --feature y \
+    --fasta ./PeTEM_data/genome.fa \
+    -o ./example/module2_feature
+  ```
+
+  The `--feature y` option enables feature analysis. 
+
+
+* __Outputs:__
+
+  | File | Description |
+  |---|---|
+  | `OUTPUT_2_TE_GC_content_bar.png` | Comparison of GC content between all TEs and promoter-embedded TEs. |
+  | `OUTPUT_2_TE_length_bar.png` | Comparison of TE lengths between all TEs and promoter-embedded TEs. |
+  | `OUTPUT_2_TE_TSS_distance_bar.png` | Comparison of TE–TSS distances between all TEs and promoter-embedded TEs. |
+  | `OUTPUT_2_TE_features_per_TE.txt` | Genomic feature measurements for individual TEs. |
+  | `OUTPUT_2_TE_features_summary.txt` | Summary statistics of genomic features for each TE group. |
+
+  Error bars in the feature comparison plots represent the standard error of the mean (SEM).
+
+
+### Module 5: Genomic Features of Associated TE–Gene Pairs
+
+Module 5 compares genomic characteristics and TE-family composition among four TE groups: all TEs, promoter-embedded TEs, Positive TEs (Q1/Q3), and Negative TEs (Q2/Q4).
+
+Positive and negative TEs are classified based on the directions of gene expression and TE methylation changes after applying the selected filtering criteria.
+
+* __Command:__
+
+  ```bash
+  ## Run module 5 feature analysis
+  ./petem --5 \
+    --manifest ./example/module0/PETEM_MODULE0_MANIFEST.json \
+    -stage root leaf \
+    -expchange pvalue 0.05 \
+    -mcchange 0 \
+    --feature y \
+    --fasta ./PeTEM_data/genome.fa \
+    -o ./example/module5_feature
+  ```
+
+  The `--feature y` option enables feature analysis. The default setting is `n`.
+
+  The `-expchange` and `-mcchange` options control the filtering criteria for gene expression significance and TE methylation changes, respectively.
+
+
+* __Outputs:__
+  | File | Description |
+  |---|---|
+  | `OUTPUT_5_TE_GC_content_bar.png` | Comparison of GC content among all TEs, promoter-embedded TEs, Positive TEs (Q1/Q3), and Negative TEs (Q2/Q4). |
+  | `OUTPUT_5_TE_length_bar.png` | Comparison of TE lengths among the four TE groups. |
+  | `OUTPUT_5_TE_TSS_distance_bar.png` | Comparison of TE–TSS distances among the four TE groups. |
+  | `OUTPUT_5_TE_features_per_TE.png` | Visualization of genomic features for individual TEs. |
+  | `OUTPUT_5_TE_features_summary.txt` | Summary statistics of genomic features for each TE group. |
+
+  Error bars in the feature comparison plots represent the standard error of the mean (SEM).
+
+
