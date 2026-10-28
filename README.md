@@ -491,9 +491,12 @@ Users must run module 0 first to preprocess the input files before running modul
   ```bash
   ./petem --2 \
     --manifest <MODULE0_MANIFEST_JSON> \
+    -t <TE_BED> \
+    -T <TE_FAMILY_TABLE> \
+    -i <TE_OVERLAP_PROMOTER_BED> \
+    -o <OUTPUT_DIR> \
     --feature <y or n> \
-    --fasta <GENOME_FASTA> \
-    -o <OUTPUT_DIR>
+    --fasta <GENOME_FASTA>
   ```
 * __Parameters:__
 
@@ -614,12 +617,15 @@ Users must run module 0 first to preprocess the input files before running modul
 * __Usage:__
   ```bash
   ./petem --5 \
-    --manifest <MODULE0_MANIFEST_JSON> \
-    -expchange pvalue 0.05 \
-    -mcchange 0 \
-    --feature y \
-    --fasta <GENOME_FASTA> \
-    -o <OUTPUT_DIR>
+    --DEG <DEG_TABLE> \
+    --DETE <DETE_TABLE> \
+    --module0-dir <MODULE0_OUTPUT_DIR> \
+    -expchange <SIGNIFICANCE_METRIC> <CUTOFF> \
+    -mcchange <CUTOFF> \
+    -o <OUTPUT_DIR> \
+    --positive <yes or no> \
+    --feature <y or n> \
+    --fasta <GENOME_FASTA>
   ```
 
 * __Parameters:__
