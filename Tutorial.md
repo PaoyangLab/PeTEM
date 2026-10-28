@@ -318,7 +318,7 @@ The downloaded `TAIR10.fa` file can be specified using the `--fasta` option.
   | `OUTPUT_5_TE_GC_content_bar.png` | Comparison of GC content among all TEs, promoter-embedded TEs, Positive TEs (Q1/Q3), and Negative TEs (Q2/Q4). |
   | `OUTPUT_5_TE_length_bar.png` | Comparison of TE lengths among the four TE groups. |
   | `OUTPUT_5_TE_TSS_distance_bar.png` | Comparison of TE–TSS distances among the four TE groups. |
-  | `OUTPUT_5_TE_features_per_TE.png` | Visualization of genomic features for individual TEs. |
+  | `OUTPUT_5_TE_features_per_TE.txt` | Genomic feature measurements for individual TEs. |
   | `OUTPUT_5_TE_features_summary.txt` | Summary statistics of genomic features for each TE group. |
 
  * __Figures:__
